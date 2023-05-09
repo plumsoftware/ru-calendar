@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "98833434326",
+    "project_id": "calendar-8cbc5",
+    "storage_bucket": "calendar-8cbc5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98833434326:android:0dc1995bfdf37274292b77",
+        "android_client_info": {
+          "package_name": "com.plumsoftware.rucalendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "98833434326-amndkfpnmbtlio0i83v6ku2h5pe0vsqn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.plumsoftware.rucalendar",
+            "certificate_hash": "7e7d4b6754545e60fa6e4b91111d4e67b8ab6a78"
+          }
+        },
+        {
+          "client_id": "98833434326-v8e0s763e8qlph1j3vep6e97a2ior4lm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTZQQGHS9OaYU2iRk42a6xaKEMff4wqrE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "98833434326-v8e0s763e8qlph1j3vep6e97a2ior4lm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,64 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.plumsoftware.rucalendar"
+        minSdk 25
+        targetSdk 33
+        versionCode 28
+        versionName "1.4.4"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    namespace 'com.plumsoftware.rucalendar'
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.firebase:firebase-messaging:23.1.2'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    //Multidex
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    //Calendar
+    //implementation 'org.naishadhparmar.zcustomcalendar:zcustomcalendar:1.0.1'
+
+    //Yandex ads
+    implementation 'com.yandex.android:mobileads:5.7.0'
+    implementation 'com.yandex.android:mobmetricalib:5.2.0'
+    implementation 'com.yandex.ads.mediation:mobileads-admob:20.5.0.0'
+    //implementation 'com.google.android.gms:play-services-ads:20.5.0'
+
+    //Animations
+    implementation 'io.noties:tumbleweed-android:2.0.0'
+
+    //Swipe to refresh
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    //Messaging service
+    implementation platform('com.google.firebase:firebase-bom:30.2.0')
+    implementation 'com.google.firebase:firebase-analytics'
+}
