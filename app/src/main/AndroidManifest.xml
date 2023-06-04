@@ -18,10 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.КалендарьРФ">
         <activity
-            android:name=".EventActivity"
+            android:name=".activities.EventActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,7 +35,7 @@
             android:resource="@array/preloaded_fonts" />
 
         <service
-            android:name=".MessagingService"
+            android:name=".services.MessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

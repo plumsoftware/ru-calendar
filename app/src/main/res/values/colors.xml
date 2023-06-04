@@ -66,18 +66,18 @@
     <color name="md_theme_dark_scrim">#000000</color>
 
     <!-- Cards colors-->
-    <color name="red_">#775652</color>
-    <color name="red_container">#ffdad5</color>
+    <color name="red_">#6E4F4B</color>
+    <color name="red_container">#F99B8E</color>
 
     <color name="orange_">#735943</color>
-    <color name="orange_container">#ffdcc1</color>
+    <color name="orange_container">#F9C298</color>
 
     <color name="blue_">#5c5d72</color>
-    <color name="blue_container">#e1e0f9</color>
+    <color name="blue_container">#A2B2F8</color>
 
     <color name="green_">#54634d</color>
-    <color name="green_container">#d7e8cd</color>
+    <color name="green_container">#C4FBA3</color>
 
     <color name="purple_">#655a6f</color>
-    <color name="purple_container">#ecddf7</color>
+    <color name="purple_container">#CA93F2</color>
 </resources>

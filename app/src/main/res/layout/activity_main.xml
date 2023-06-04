@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.plumsoftware.rucalendar.MainActivity">
+    tools:context="com.plumsoftware.rucalendar.activities.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -82,11 +82,11 @@
                         android:gravity="center"
                         android:visibility="gone" />
 
-                    <com.plumsoftware.rucalendar.MyCustomCalendar
+                    <com.plumsoftware.rucalendar.calendardata.MyCustomCalendar
                         android:id="@+id/custom_calendar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="0dp"
+                        android:layout_marginTop="16dp"
                         android:layout_marginBottom="0dp"
                         android:elevation="0dp"
                         android:paddingBottom="12dp"

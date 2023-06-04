@@ -10,8 +10,8 @@ android {
         applicationId "com.plumsoftware.rucalendar"
         minSdk 25
         targetSdk 33
-        versionCode 28
-        versionName "1.4.4"
+        versionCode 29
+        versionName "1.4.5-No-ads"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -47,7 +47,7 @@ dependencies {
     //implementation 'org.naishadhparmar.zcustomcalendar:zcustomcalendar:1.0.1'
 
     //Yandex ads
-    implementation 'com.yandex.android:mobileads:5.7.0'
+    implementation 'com.yandex.android:mobileads:5.8.0'
     implementation 'com.yandex.android:mobmetricalib:5.2.0'
     implementation 'com.yandex.ads.mediation:mobileads-admob:20.5.0.0'
     //implementation 'com.google.android.gms:play-services-ads:20.5.0'

@@ -7,13 +7,13 @@
 
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="18dp"
+        android:layout_marginBottom="0dp"
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
@@ -22,10 +22,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="0dp"
                 android:layout_marginEnd="4dp"
-                android:fontFamily="@font/roboto_bold"
+                android:fontFamily="@font/poppins_regular"
                 android:gravity="bottom|center"
+                android:paddingStart="16dp"
                 android:text="20"
                 android:textColor="?attr/colorOnBackground"
                 android:textSize="20sp" />
@@ -35,28 +36,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="16dp"
-                android:fontFamily="@font/roboto_bold"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="0dp"
+                android:fontFamily="@font/poppins_regular"
                 android:gravity="bottom|center"
                 android:text="20"
                 android:textColor="?attr/colorOnBackground"
                 android:textSize="20sp" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/textViewClickDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|start"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center"
+                android:text="Пон"
+                android:textColor="?attr/colorOnBackground"
+                android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/textViewClickDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|start"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:fontFamily="@font/roboto"
-            android:gravity="center"
-            android:text="Пон"
-            android:textColor="?attr/colorOnBackground"
-            android:textSize="20sp" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -102,9 +103,9 @@
                     android:id="@+id/textViewName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/roboto"
+                    android:fontFamily="@font/poppins_bold"
                     android:paddingHorizontal="18dp"
-                    android:paddingTop="18dp"
+                    android:paddingTop="16dp"
                     android:text="Новый год"
                     android:textAlignment="viewStart"
                     android:textColor="#000"
@@ -114,7 +115,7 @@
                     android:id="@+id/textViewDesc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/roboto"
+                    android:fontFamily="@font/poppins_semi_bold"
                     android:maxLines="2"
                     android:paddingHorizontal="18dp"
                     android:paddingTop="8dp"
@@ -139,7 +140,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/calendar_button_background"
-                        android:fontFamily="@font/roboto"
+                        android:fontFamily="@font/poppins_regular"
                         android:paddingStart="12dp"
                         android:paddingTop="8dp"
                         android:paddingEnd="12dp"

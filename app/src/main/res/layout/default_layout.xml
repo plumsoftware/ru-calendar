@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:layout_margin="0dp"
         android:padding="8dp"
-        app:cardBackgroundColor="?attr/colorSurfaceVariant"
+        app:cardBackgroundColor="#00FFFFFF"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp">
 
@@ -22,8 +22,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:fontFamily="@font/roboto"
+            android:fontFamily="@font/poppins_semi_bold"
             android:gravity="center"
+            android:padding="2dp"
             android:text="11"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp" />
