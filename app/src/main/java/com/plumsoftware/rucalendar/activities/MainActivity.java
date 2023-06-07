@@ -100,10 +100,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected List<List<Integer>> monthsFuture;
     protected List<List<Integer>> monthsPast;
     protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
-//    protected BannerAdView mBannerAdView;
+    //    protected BannerAdView mBannerAdView;
     protected InterstitialAd mInterstitialAd;
     protected byte count = 0;
-    protected boolean b;
+    //    protected boolean b;
     protected static byte rewardedCount = 0;
 
     @SuppressLint("NotifyDataSetChanged")
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        TextView textView = (TextView) activity.findViewById(R.id.textView);
         HashMap<Object, Property> mapDescToProp = new HashMap<>();
         List<CelebrationItem> celebrations = new ArrayList<>();
-        b = countryCode.equals("ru");
+//        b = countryCode.equals("ru");
 
         // Создание экземпляра mBannerAdView.
 //        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
@@ -199,321 +199,321 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         swipeRefreshLayout.setColorSchemeResources(R.color.blue_, R.color.red_, R.color.green_, R.color.orange_);
 
-        if (b) {
-            Property propDefault = new Property();
-            propDefault.layoutResource = R.layout.default_layout;
-            propDefault.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("default", propDefault);
+//        if (b) {
+        Property propDefault = new Property();
+        propDefault.layoutResource = R.layout.default_layout;
+        propDefault.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("default", propDefault);
 
-            Property propUnavailable = new Property();
-            propUnavailable.layoutResource = R.layout.unavailable_layout;
-            propUnavailable.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("disabled", propUnavailable);
+        Property propUnavailable = new Property();
+        propUnavailable.layoutResource = R.layout.unavailable_layout;
+        propUnavailable.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("disabled", propUnavailable);
 
-            Property propHoliday = new Property();
-            propHoliday.layoutResource = R.layout.holiday_layout;
-            propHoliday.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("holiday", propHoliday);
+        Property propHoliday = new Property();
+        propHoliday.layoutResource = R.layout.holiday_layout;
+        propHoliday.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("holiday", propHoliday);
 
-            Property propShort = new Property();
-            propShort.layoutResource = R.layout.short_layout;
-            propShort.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("short", propShort);
+        Property propShort = new Property();
+        propShort.layoutResource = R.layout.short_layout;
+        propShort.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("short", propShort);
 
-            Property propCurrent = new Property();
-            propCurrent.layoutResource = R.layout.current_layout;
-            propCurrent.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("current", propCurrent);
+        Property propCurrent = new Property();
+        propCurrent.layoutResource = R.layout.current_layout;
+        propCurrent.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("current", propCurrent);
 
-            Property propMDate = new Property();
-            propMDate.layoutResource = R.layout.memory_date_view;
-            propMDate.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("mDate", propMDate);
+        Property propMDate = new Property();
+        propMDate.layoutResource = R.layout.memory_date_view;
+        propMDate.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("mDate", propMDate);
 
-            Property propProf = new Property();
-            propProf.layoutResource = R.layout.prof_view;
-            propProf.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("prof", propProf);
+        Property propProf = new Property();
+        propProf.layoutResource = R.layout.prof_view;
+        propProf.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("prof", propProf);
 
-            Property propNOH = new Property();
-            propNOH.layoutResource = R.layout.not_off_holiday_view;
-            propNOH.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("not official holiday", propNOH);
+        Property propNOH = new Property();
+        propNOH.layoutResource = R.layout.not_off_holiday_view;
+        propNOH.dateTextViewResource = R.id.textViewDate;
+        mapDescToProp.put("not official holiday", propNOH);
 
-            myCustomCalendar.setMapDescToProp(mapDescToProp);
+        myCustomCalendar.setMapDescToProp(mapDescToProp);
 
-            mapDateToDesc = new HashMap<>();
-            calendar = Calendar.getInstance();
-            extraCalendar = Calendar.getInstance();
+        mapDateToDesc = new HashMap<>();
+        calendar = Calendar.getInstance();
+        extraCalendar = Calendar.getInstance();
 
-            for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
-                int day = i + 1;
+        for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
+            int day = i + 1;
 
-                mapDateToDesc.put(day, "default");
+            mapDateToDesc.put(day, "default");
+        }
+
+        int month = calendar.get(Calendar.MONTH) + 1;
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
+                new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
+            }
+        });
+
+        String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
+        new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
+
+        myCustomCalendar.setDate(calendar, mapDateToDesc);
+
+//        if (b) {
+            Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            String name1 = "";
+            String descS1 = "";
+            String color = "";
+            long timeInMillis = calendar.getTimeInMillis();
+
+            try {
+                String[] split = celebrationsClass.getDescription().split("~del");
+                for (String s : split) {
+                    name1 = s.split("~")[0];
+                    descS1 = s.split("~")[1];
+                    color = "#F57F17";
+                    celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                }
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
             }
 
-            int month = calendar.get(Calendar.MONTH) + 1;
+//        }
 
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-                    new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-                }
-            });
+        CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
+        celebrationAdapter.notifyDataSetChanged();
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(celebrationAdapter);
 
-            String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-            new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-
-            myCustomCalendar.setDate(calendar, mapDateToDesc);
-
-            if (b) {
-                Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
+        myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
+        myCustomCalendar.setOnDateSelectedListener(new OnDateSelectedListener() {
+            @SuppressLint("ResourceType")
+            @Override
+            public void onDateSelected(View view, Calendar selectedDate, Object desc) {
+                celebrations.clear();
                 String name1 = "";
                 String descS1 = "";
                 String color = "";
-                long timeInMillis = calendar.getTimeInMillis();
+                long timeInMillis = selectedDate.getTimeInMillis();
+
+                Celebrations celebrationsClass = new Celebrations(selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH));
 
                 try {
                     String[] split = celebrationsClass.getDescription().split("~del");
                     for (String s : split) {
                         name1 = s.split("~")[0];
                         descS1 = s.split("~")[1];
-                        color = "#F57F17";
-                        celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
-            celebrationAdapter.notifyDataSetChanged();
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setAdapter(celebrationAdapter);
-
-            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
-            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
-            myCustomCalendar.setOnDateSelectedListener(new OnDateSelectedListener() {
-                @SuppressLint("ResourceType")
-                @Override
-                public void onDateSelected(View view, Calendar selectedDate, Object desc) {
-                    celebrations.clear();
-                    String name1 = "";
-                    String descS1 = "";
-                    String color = "";
-                    long timeInMillis = selectedDate.getTimeInMillis();
-
-                    Celebrations celebrationsClass = new Celebrations(selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH));
-
-                    try {
-                        String[] split = celebrationsClass.getDescription().split("~del");
-                        for (String s : split) {
-                            name1 = s.split("~")[0];
-                            descS1 = s.split("~")[1];
 //                            color = "#F57F17";
 //                            celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
 
 //                            Проверяем вторые события
-                            if (name1.equals("День российской науки")) {
-                                if (b) {
-                                    color = "#ffdcc1";
-                                    celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                                }
-                            } else {
-                                if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty() && b) {
-                                    celebrations.add(new CelebrationItem(name1, descS1, "#ffdad5", timeInMillis));
-                                }
-                                if ("holiday".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                    celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
-                                }
-                                if ("short".equals(desc)) {
-                                    celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
-                                }
-                                if ("current".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
+                        if (name1.equals("День российской науки")) {
+//                            if (b) {
+                                color = "#ffdcc1";
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+//                            }
+                        } else {
+                            if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
+                                celebrations.add(new CelebrationItem(name1, descS1, "#ffdad5", timeInMillis));
+                            }
+                            if ("holiday".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
+                                celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
+                            }
+                            if ("short".equals(desc)) {
+                                celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
+                            }
+                            if ("current".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
 //                                    color = String.valueOf(getAttrColor(context, com.google.android.material.R.attr.colorTertiary));
 //                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary));
-                                    if (AppCompatDelegate.getDefaultNightMode() == 1){
-                                        color = "#715573";
-                                    } else {
-                                        color = "#DEBCDF";
-                                    }
-                                    celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                                if (AppCompatDelegate.getDefaultNightMode() == 1) {
+                                    color = "#715573";
+                                } else {
+                                    color = "#DEBCDF";
                                 }
-                                if ("current".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                    recyclerView.setVisibility(View.VISIBLE);
-                                }
-                                if ("mDate".equals(desc) && b) {
-                                    color = "#d7e8cd";
-                                    celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                                }
-                                if ("prof".equals(desc) && b) {
-                                    color = "#D8D7F8";
-                                    celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                                }
-                                if ("not official holiday".equals(desc) && b) {
-                                    color = "#ffdcc1";
-                                    celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                                }
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                            }
+                            if ("current".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
+                                recyclerView.setVisibility(View.VISIBLE);
+                            }
+                            if ("mDate".equals(desc)) {
+                                color = "#d7e8cd";
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                            }
+                            if ("prof".equals(desc)) {
+                                color = "#D8D7F8";
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                            }
+                            if ("not official holiday".equals(desc)) {
+                                color = "#ffdcc1";
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                         }
-                    } catch (IndexOutOfBoundsException e) {
-                        e.printStackTrace();
-                        if ("holiday".equals(desc)) {
-                            celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
-                        }
-                    }
-
-                    celebrationAdapter.notifyDataSetChanged();
-                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                    recyclerView.setHasFixedSize(true);
-                    recyclerView.setAdapter(celebrationAdapter);
-
-                    if ("default".equals(desc)) {
-                        recyclerView.setVisibility(View.VISIBLE);
-                    }
-                    if ("unavailable".equals(desc)) {
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        recyclerView.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-
-            String extraYearLink = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR), countryCode, 1, 0, 0);
-            new ExtraDataCalendarClick(extraCalendar.get(Calendar.YEAR)).execute(extraYearLink);
-
-            String extraYearLinkFuture = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) + 1, countryCode, 1, 0, 0);
-            new ExtraDataCalendarClickFuture(extraCalendar.get(Calendar.YEAR) + 1).execute(extraYearLinkFuture);
-
-            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
-            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
-        } else {
-            Property propDefault = new Property();
-            propDefault.layoutResource = R.layout.default_layout;
-            propDefault.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("default", propDefault);
-
-            Property propUnavailable = new Property();
-            propUnavailable.layoutResource = R.layout.unavailable_layout;
-            propUnavailable.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("disabled", propUnavailable);
-
-            Property propHoliday = new Property();
-            propHoliday.layoutResource = R.layout.holiday_layout;
-            propHoliday.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("holiday", propHoliday);
-
-            Property propShort = new Property();
-            propShort.layoutResource = R.layout.short_layout;
-            propShort.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("short", propShort);
-
-            Property propCurrent = new Property();
-            propCurrent.layoutResource = R.layout.current_layout;
-            propCurrent.dateTextViewResource = R.id.textViewDate;
-            mapDescToProp.put("current", propCurrent);
-
-            myCustomCalendar.setMapDescToProp(mapDescToProp);
-
-            mapDateToDesc = new HashMap<>();
-            calendar = Calendar.getInstance();
-            extraCalendar = Calendar.getInstance();
-
-            for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
-                int day = i + 1;
-
-                mapDateToDesc.put(day, "default");
-            }
-
-            int month = calendar.get(Calendar.MONTH) + 1;
-
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-                    new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-                }
-            });
-
-            String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-            new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-
-            myCustomCalendar.setDate(calendar, mapDateToDesc);
-
-            if (b) {
-                Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                String name = "";
-                String descS = "";
-                String color = "";
-                long timeInMillis = calendar.getTimeInMillis();
-
-                try {
-                    String[] split = celebrationsClass.getDescription().split("~del");
-                    for (String s : split) {
-                        name = s.split("~")[0];
-                        descS = s.split("~")[1];
-                        color = "#F57F17";
-                        celebrations.add(new CelebrationItem(name, descS, color, timeInMillis));
                     }
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
-                    //recyclerView.setVisibility(View.GONE);
-                }
-                celebrations.add(new CelebrationItem(name, descS, color, timeInMillis));
-            }
-
-            CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
-            celebrationAdapter.notifyDataSetChanged();
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setAdapter(celebrationAdapter);
-
-            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
-            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
-            myCustomCalendar.setOnDateSelectedListener(new OnDateSelectedListener() {
-                @Override
-                public void onDateSelected(View view, Calendar selectedDate, Object desc) {
-                    celebrations.clear();
-                    String name = "";
-                    String descS = "";
-                    String color = "";
-                    long timeInMillis = selectedDate.getTimeInMillis();
-
                     if ("holiday".equals(desc)) {
                         celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
-                    } else if ("short".equals(desc)) {
-                        celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
-                    } else if ("current".equals(desc)) {
-                        recyclerView.setVisibility(View.VISIBLE);
-                    }
-
-                    celebrationAdapter.notifyDataSetChanged();
-                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                    recyclerView.setHasFixedSize(true);
-                    recyclerView.setAdapter(celebrationAdapter);
-
-                    if ("default".equals(desc)) {
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else if ("unavailable".equals(desc)) {
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        recyclerView.setVisibility(View.VISIBLE);
                     }
                 }
-            });
 
-            String extraYearLink = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR), countryCode, 1, 0, 0);
-            new ExtraDataCalendarClick(extraCalendar.get(Calendar.YEAR)).execute(extraYearLink);
+                celebrationAdapter.notifyDataSetChanged();
+                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setAdapter(celebrationAdapter);
 
-            String extraYearLinkFuture = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) + 1, countryCode, 1, 0, 0);
-            new ExtraDataCalendarClickFuture(extraCalendar.get(Calendar.YEAR) + 1).execute(extraYearLinkFuture);
+                if ("default".equals(desc)) {
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
+                if ("unavailable".equals(desc)) {
+                    recyclerView.setVisibility(View.VISIBLE);
+                } else {
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
-            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
-            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
-        }
+        String extraYearLink = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR), countryCode, 1, 0, 0);
+        new ExtraDataCalendarClick(extraCalendar.get(Calendar.YEAR)).execute(extraYearLink);
+
+        String extraYearLinkFuture = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) + 1, countryCode, 1, 0, 0);
+        new ExtraDataCalendarClickFuture(extraCalendar.get(Calendar.YEAR) + 1).execute(extraYearLinkFuture);
+
+        String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
+        new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
+//        } else {
+//            Property propDefault = new Property();
+//            propDefault.layoutResource = R.layout.default_layout;
+//            propDefault.dateTextViewResource = R.id.textViewDate;
+//            mapDescToProp.put("default", propDefault);
+//
+//            Property propUnavailable = new Property();
+//            propUnavailable.layoutResource = R.layout.unavailable_layout;
+//            propUnavailable.dateTextViewResource = R.id.textViewDate;
+//            mapDescToProp.put("disabled", propUnavailable);
+//
+//            Property propHoliday = new Property();
+//            propHoliday.layoutResource = R.layout.holiday_layout;
+//            propHoliday.dateTextViewResource = R.id.textViewDate;
+//            mapDescToProp.put("holiday", propHoliday);
+//
+//            Property propShort = new Property();
+//            propShort.layoutResource = R.layout.short_layout;
+//            propShort.dateTextViewResource = R.id.textViewDate;
+//            mapDescToProp.put("short", propShort);
+//
+//            Property propCurrent = new Property();
+//            propCurrent.layoutResource = R.layout.current_layout;
+//            propCurrent.dateTextViewResource = R.id.textViewDate;
+//            mapDescToProp.put("current", propCurrent);
+//
+//            myCustomCalendar.setMapDescToProp(mapDescToProp);
+//
+//            mapDateToDesc = new HashMap<>();
+//            calendar = Calendar.getInstance();
+//            extraCalendar = Calendar.getInstance();
+//
+//            for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
+//                int day = i + 1;
+//
+//                mapDateToDesc.put(day, "default");
+//            }
+//
+//            int month = calendar.get(Calendar.MONTH) + 1;
+//
+//            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//                @Override
+//                public void onRefresh() {
+//                    String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
+//                    new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
+//                }
+//            });
+//
+//            String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
+//            new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
+//
+//            myCustomCalendar.setDate(calendar, mapDateToDesc);
+//
+//            if (b) {
+//                Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+//                String name = "";
+//                String descS = "";
+//                String color = "";
+//                long timeInMillis = calendar.getTimeInMillis();
+//
+//                try {
+//                    String[] split = celebrationsClass.getDescription().split("~del");
+//                    for (String s : split) {
+//                        name = s.split("~")[0];
+//                        descS = s.split("~")[1];
+//                        color = "#F57F17";
+//                        celebrations.add(new CelebrationItem(name, descS, color, timeInMillis));
+//                    }
+//                } catch (IndexOutOfBoundsException e) {
+//                    e.printStackTrace();
+//                    //recyclerView.setVisibility(View.GONE);
+//                }
+//                celebrations.add(new CelebrationItem(name, descS, color, timeInMillis));
+//            }
+//
+//            CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
+//            celebrationAdapter.notifyDataSetChanged();
+//            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//            recyclerView.setHasFixedSize(true);
+//            recyclerView.setAdapter(celebrationAdapter);
+//
+//            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
+//            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
+//            myCustomCalendar.setOnDateSelectedListener(new OnDateSelectedListener() {
+//                @Override
+//                public void onDateSelected(View view, Calendar selectedDate, Object desc) {
+//                    celebrations.clear();
+//                    String name = "";
+//                    String descS = "";
+//                    String color = "";
+//                    long timeInMillis = selectedDate.getTimeInMillis();
+//
+//                    if ("holiday".equals(desc)) {
+//                        celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
+//                    } else if ("short".equals(desc)) {
+//                        celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
+//                    } else if ("current".equals(desc)) {
+//                        recyclerView.setVisibility(View.VISIBLE);
+//                    }
+//
+//                    celebrationAdapter.notifyDataSetChanged();
+//                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+//                    recyclerView.setHasFixedSize(true);
+//                    recyclerView.setAdapter(celebrationAdapter);
+//
+//                    if ("default".equals(desc)) {
+//                        recyclerView.setVisibility(View.VISIBLE);
+//                    } else if ("unavailable".equals(desc)) {
+//                        recyclerView.setVisibility(View.VISIBLE);
+//                    } else {
+//                        recyclerView.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//            });
+//
+//            String extraYearLink = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR), countryCode, 1, 0, 0);
+//            new ExtraDataCalendarClick(extraCalendar.get(Calendar.YEAR)).execute(extraYearLink);
+//
+//            String extraYearLinkFuture = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) + 1, countryCode, 1, 0, 0);
+//            new ExtraDataCalendarClickFuture(extraCalendar.get(Calendar.YEAR) + 1).execute(extraYearLinkFuture);
+//
+//            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
+//            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
+//        }
     }
 
     @Override
@@ -676,7 +676,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         }
 
         try {
-            if (b) {
+//            if (b) {
                 switch (newMonth.get(Calendar.MONTH)) {
                     case Calendar.JANUARY:
                         arr[0].put(1, "holiday");
@@ -846,7 +846,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     default:
                         throw new IllegalStateException("Unexpected value: " + newMonth.get(Calendar.MONTH));
                 }
-            }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -977,7 +977,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     if (year == calendar.get(Calendar.YEAR) && month == calendar.get(Calendar.MONTH))
                         mapDateToDesc.put(calendar.get(Calendar.DAY_OF_MONTH), "current");
 
-                    if (b) {
+//                    if (b) {
                         switch (calendar.get(Calendar.MONTH)) {
                             case Calendar.JANUARY:
                                 mapDateToDesc.put(1, "holiday");
@@ -1135,7 +1135,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             default:
                                 throw new IllegalStateException("Unexpected value: " + calendar.get(Calendar.MONTH));
                         }
-                    }
+//                    }
 
                     myCustomCalendar.setDate(calendar, mapDateToDesc);
                     myCustomCalendar.setVisibility(View.VISIBLE);
