@@ -1,5 +1,7 @@
 package com.plumsoftware.rucalendar.activities;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
@@ -9,8 +11,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.UiModeManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +28,8 @@ import android.widget.Toast;
  import org.naishadhparmar.zcustomcalendar.Property;
  **/
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.events.Celebrations;
@@ -31,6 +38,14 @@ import com.plumsoftware.rucalendar.repositories.OnDateSelectedListener;
 import com.plumsoftware.rucalendar.repositories.OnNavigationButtonClickedListener;
 import com.plumsoftware.rucalendar.calendardata.Property;
 import com.plumsoftware.rucalendar.R;
+import com.plumsoftware.rucalendar.services.EventNotificationScheduler;
+import com.plumsoftware.rucalendar.services.EventService;
+import com.yandex.mobile.ads.banner.AdSize;
+import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.common.AdRequest;
+import com.yandex.mobile.ads.common.AdRequestError;
+import com.yandex.mobile.ads.common.ImpressionData;
 import com.yandex.mobile.ads.common.InitializationListener;
 import com.yandex.mobile.ads.common.MobileAds;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
@@ -100,11 +115,12 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected List<List<Integer>> monthsFuture;
     protected List<List<Integer>> monthsPast;
     protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
-    //    protected BannerAdView mBannerAdView;
+    protected BannerAdView mBannerAdView;
     protected InterstitialAd mInterstitialAd;
     protected byte count = 0;
     //    protected boolean b;
     protected static byte rewardedCount = 0;
+//    private BottomSheetBehavior bottomSheetBehavior;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -133,50 +149,53 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         List<CelebrationItem> celebrations = new ArrayList<>();
 //        b = countryCode.equals("ru");
 
+//        EventNotificationScheduler eventNotificationScheduler = new EventNotificationScheduler();
+//        eventNotificationScheduler.cancelAlarm(this);
+//        eventNotificationScheduler.setAlarm(this);
+
         // Создание экземпляра mBannerAdView.
-//        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
-////        mBannerAdView.setAdUnitId("R-M-1752331-1");
-//        mBannerAdView.setAdUnitId("R-M-2215793-1");
-//        mBannerAdView.setAdSize(AdSize.flexibleSize(AdSize.FULL_SCREEN.getWidth(MainActivity.this), 50));
-//
-////         Создание объекта таргетирования рекламы.
-//        final AdRequest adRequest = new AdRequest.Builder().build();
-//
-////         Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-//        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-//            @Override
-//            public void onAdLoaded() {
-//
-//            }
-//
-//            @Override
-//            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-//
-//            }
-//
-//            @Override
-//            public void onAdClicked() {
-//
-//            }
-//
-//            @Override
-//            public void onLeftApplication() {
-//
-//            }
-//
-//            @Override
-//            public void onReturnedToApplication() {
-//
-//            }
-//
-//            @Override
-//            public void onImpression(@Nullable ImpressionData impressionData) {
-//
-//            }
-//        });
-//
-//        // Загрузка объявления.
-//        mBannerAdView.loadAd(adRequest);
+        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
+        mBannerAdView.setAdUnitId("R-M-2215793-1");
+        mBannerAdView.setAdSize(AdSize.flexibleSize(AdSize.FULL_SCREEN.getWidth(MainActivity.this), 50));
+
+//         Создание объекта таргетирования рекламы.
+        final AdRequest adRequest = new AdRequest.Builder().build();
+
+//         Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
+            @Override
+            public void onAdLoaded() {
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+
+            }
+
+            @Override
+            public void onAdClicked() {
+
+            }
+
+            @Override
+            public void onLeftApplication() {
+
+            }
+
+            @Override
+            public void onReturnedToApplication() {
+
+            }
+
+            @Override
+            public void onImpression(@Nullable ImpressionData impressionData) {
+
+            }
+        });
+
+        // Загрузка объявления.
+        mBannerAdView.loadAd(adRequest);
 
 //        if (!countryCode.equals("ru") && !countryCode.equals("kz") && !countryCode.equals("ua") && !countryCode.equals("by")) {
 //            Toast.makeText(this, "Data is not available in your country. Default country is Russia.", Toast.LENGTH_LONG).show();
@@ -268,23 +287,23 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         myCustomCalendar.setDate(calendar, mapDateToDesc);
 
 //        if (b) {
-            Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            String name1 = "";
-            String descS1 = "";
-            String color = "";
-            long timeInMillis = calendar.getTimeInMillis();
+        Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        String name1 = "";
+        String descS1 = "";
+        String color = "";
+        long timeInMillis = calendar.getTimeInMillis();
 
-            try {
-                String[] split = celebrationsClass.getDescription().split("~del");
-                for (String s : split) {
-                    name1 = s.split("~")[0];
-                    descS1 = s.split("~")[1];
-                    color = "#F57F17";
-                    celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                }
-            } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
+        try {
+            String[] split = celebrationsClass.getDescription().split("~del");
+            for (String s : split) {
+                name1 = s.split("~")[0];
+                descS1 = s.split("~")[1];
+                color = "#F57F17";
+                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
             }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
 
 //        }
 
@@ -319,8 +338,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //                            Проверяем вторые события
                         if (name1.equals("День российской науки")) {
 //                            if (b) {
-                                color = "#ffdcc1";
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                            color = "#ffdcc1";
+                            celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
 //                            }
                         } else {
                             if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
@@ -366,8 +385,30 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     }
                 }
 
+//                region::Bottom sheet dialog
+//                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
+//                bottomSheetDialog.setContentView(getLayoutInflater().inflate(R.layout.bottom_sheet_layout, null));
+//                bottomSheetBehavior = BottomSheetBehavior.from((View) view.getParent());
+//                bottomSheetDialog.setCancelable(true);
+//                bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+//                    @Override
+//                    public void onStateChanged(@NonNull View bottomSheet, int newState) {
+//                        if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+//                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+//                        if (slideOffset > 0.5f) {
+//                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+//                        }
+//                    }
+//                });
+
+//                RecyclerView recyclerViewBottomSheetDialog = (RecyclerView) view.findViewById(R.id.recyclerView);
                 celebrationAdapter.notifyDataSetChanged();
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
                 recyclerView.setHasFixedSize(true);
                 recyclerView.setAdapter(celebrationAdapter);
 
@@ -379,6 +420,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 } else {
                     recyclerView.setVisibility(View.VISIBLE);
                 }
+
+//                bottomSheetDialog.show();
+//                endregion
             }
         });
 
@@ -677,175 +721,175 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         try {
 //            if (b) {
-                switch (newMonth.get(Calendar.MONTH)) {
-                    case Calendar.JANUARY:
-                        arr[0].put(1, "holiday");
-                        arr[0].put(2, "holiday");
-                        arr[0].put(3, "holiday");
-                        arr[0].put(4, "holiday");
-                        arr[0].put(5, "holiday");
-                        arr[0].put(6, "holiday");
-                        arr[0].put(7, "holiday");
-                        arr[0].put(8, "holiday");
-                        arr[0].put(12, "prof");//День работника прокураторы
-                        arr[0].put(13, "mDate");//День печати
-                        arr[0].put(14, "not official holiday");//Старый Новый год
-                        arr[0].put(21, "mDate");//День памяти инженерных войск
-                        arr[0].put(27, "mDate");//День снятия блокады города Ленинград
-                        arr[0].put(25, "not official holiday");//Татьянин день(День студента)
-                        arr[1] = null;
-                        break;
-                    case Calendar.FEBRUARY:
-                        arr[0].put(8, "prof");//День стоматолога
-                        arr[0].put(9, "prof");//День работника гражданской авиации
-                        arr[0].put(10, "prof");//День дипломатического работника
-                        arr[0].put(14, "not official holiday");//День святого Валентина
-                        arr[0].put(15, "mDate");//День памяти воинов-интернационалистов
-                        arr[0].put(23, "holiday");
-                        arr[0].put(27, "prof");//День Сил специальных операций
-                        arr[1] = null;
-                        break;
-                    case Calendar.MARCH:
-                        arr[0].put(8, "holiday");
-                        arr[0].put(9, "prof");
-                        arr[0].put(11, "prof");//День работников органов наркоконтроля
-                        arr[0].put(12, "prof");//День работников уголовно-исполнительной системы
-                        arr[0].put(14, "prof");//День работника геодезиста
-                        arr[0].put(18, "not official holiday"); //День воссоединения Крыма с Россией
-                        arr[0].put(19, "prof");//День моряка-подводника
-                        arr[0].put(27, "prof");//День нац гвардии России
-                        arr[0].put(29, "prof");//День специаличста юридической службы
-                        arr[1] = null;
-                        break;
-                    case Calendar.APRIL:
-                        arr[0].put(1, "not official holiday");
-                        arr[0].put(2, "not official holiday");//День единения народов
-                        arr[0].put(4, "prof");//День геолога
-                        arr[0].put(8, "prof");//День сотрудников военных коммиссариатов
-                        arr[0].put(12, "mDate");//День космонавтики
-                        arr[0].put(26, "mDate");//День памяти погибших в радиационных авариях и катострофах
-                        arr[0].put(27, "mDate");//День российского парламентаризма
-                        arr[0].put(28, "prof");//День работника скорой медицинской помощи
-                        arr[0].put(30, "prof");//День пожарной охраны
-                        arr[1] = null;
-                        break;
-                    case Calendar.MAY:
-                        arr[0].put(1, "holiday");
-                        arr[0].put(7, "prof");//День работников связи
-                        arr[0].put(9, "holiday");
-                        arr[0].put(20, "prof");//Всемирный день метрологии
-                        arr[0].put(21, "prof");//День полярника
-                        arr[0].put(24, "prof");//День кадровика
-                        arr[0].put(25, "prof");//День филолога
-                        arr[0].put(26, "prof");//День российского предпринимательства
-                        arr[0].put(27, "prof");//Общероссийский день библиотек
-                        arr[0].put(28, "prof");//День пограничника
-                        arr[0].put(29, "prof");//День Химика
-                        arr[0].put(31, "prof");//День российской адвокатуры
-                        arr[1] = null;
-                        break;
-                    case Calendar.JUNE:
-                        arr[0].put(1, "not official holiday");
-                        arr[0].put(2, "mDate");
-                        arr[0].put(5, "prof");
-                        arr[0].put(6, "not official holiday");
-                        arr[0].put(8, "prof");
-                        arr[0].put(12, "holiday");
-                        arr[0].put(14, "prof");
-                        arr[0].put(20, "prof");
-                        arr[0].put(22, "mDate");
-                        arr[0].put(26, "prof");
-                        arr[0].put(27, "not official holiday");
-                        arr[0].put(30, "prof");
-                        arr[1] = null;
-                        break;
-                    case Calendar.JULY:
-                        arr[0].put(3, "prof");
-                        arr[0].put(4, "prof");
-                        arr[0].put(8, "not official holiday");
-                        arr[0].put(11, "prof");
-                        arr[0].put(17, "prof");
-                        arr[0].put(18, "prof");
-                        arr[0].put(25, "prof");
-                        arr[0].put(28, "mDate");
-                        arr[0].put(30, "prof");
-                        arr[1] = null;
-                        break;
-                    case Calendar.AUGUST:
-                        arr[0].put(2, "mDate");
-                        arr[0].put(6, "prof");
-                        arr[0].put(8, "prof");
-                        arr[0].put(12, "mDate");
-                        arr[0].put(15, "prof");
-                        arr[0].put(18, "prof");
-                        arr[0].put(22, "not official holiday");
-                        arr[0].put(27, "prof");
-                        arr[0].put(29, "prof");
-                        arr[0].put(31, "prof");
-                        arr[1] = null;
-                        break;
-                    case Calendar.SEPTEMBER:
-                        arr[0].put(1, "not official holiday");
-                        arr[0].put(3, "mDate");
-                        arr[0].put(4, "mDate");
-                        arr[0].put(5, "prof");
-                        arr[0].put(8, "prof");
-                        arr[0].put(9, "prof");
-                        arr[0].put(12, "prof");
-                        arr[0].put(13, "prof");
-                        arr[0].put(19, "prof");
-                        arr[0].put(24, "prof");
-                        arr[0].put(26, "prof");
-                        arr[0].put(27, "not official holiday");
-                        arr[0].put(28, "prof");
-                        arr[0].put(30, "prof");
-                        arr[1] = null;
-                        break;
-                    case Calendar.OCTOBER:
-                        arr[0].put(1, "not official holiday");
-                        arr[0].put(4, "mDate");
-                        arr[0].put(5, "prof");
-                        arr[0].put(6, "prof");
-                        arr[0].put(16, "not official holiday");//День отца
-                        arr[0].put(20, "prof");
-                        arr[0].put(23, "prof");
-                        arr[0].put(24, "mDate");
-                        arr[0].put(25, "prof");
-                        arr[0].put(29, "prof");
-                        arr[0].put(30, "mDate");
-                        arr[0].put(31, "prof");
-                        arr[1] = null;
-                        break;
-                    case Calendar.NOVEMBER:
-                        arr[0].put(1, "prof");
-                        arr[0].put(4, "holiday");
-                        arr[0].put(5, "prof");
-                        arr[0].put(7, "mDate");
-                        arr[0].put(9, "prof");
-                        arr[0].put(10, "prof");
-                        arr[0].put(11, "prof");
-                        arr[0].put(13, "mDate");
-                        arr[0].put(14, "prof");
-                        arr[0].put(21, "prof");
-                        arr[0].put(22, "prof");
-                        arr[0].put(27, "not official holiday"); //День матери
-                        arr[0].put(30, "not official holiday");
-                        arr[1] = null;
-                        break;
-                    case Calendar.DECEMBER:
-                        arr[0].put(3, "mDate");
-                        arr[0].put(5, "prof");
-                        arr[0].put(9, "mDate");
-                        arr[0].put(12, "mDate");
-                        arr[0].put(18, "prof");
-                        arr[0].put(20, "prof");
-                        arr[0].put(22, "prof");
-                        arr[0].put(27, "prof");
-                        arr[1] = null;
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + newMonth.get(Calendar.MONTH));
-                }
+            switch (newMonth.get(Calendar.MONTH)) {
+                case Calendar.JANUARY:
+                    arr[0].put(1, "holiday");
+                    arr[0].put(2, "holiday");
+                    arr[0].put(3, "holiday");
+                    arr[0].put(4, "holiday");
+                    arr[0].put(5, "holiday");
+                    arr[0].put(6, "holiday");
+                    arr[0].put(7, "holiday");
+                    arr[0].put(8, "holiday");
+                    arr[0].put(12, "prof");//День работника прокураторы
+                    arr[0].put(13, "mDate");//День печати
+                    arr[0].put(14, "not official holiday");//Старый Новый год
+                    arr[0].put(21, "mDate");//День памяти инженерных войск
+                    arr[0].put(27, "mDate");//День снятия блокады города Ленинград
+                    arr[0].put(25, "not official holiday");//Татьянин день(День студента)
+                    arr[1] = null;
+                    break;
+                case Calendar.FEBRUARY:
+                    arr[0].put(8, "prof");//День стоматолога
+                    arr[0].put(9, "prof");//День работника гражданской авиации
+                    arr[0].put(10, "prof");//День дипломатического работника
+                    arr[0].put(14, "not official holiday");//День святого Валентина
+                    arr[0].put(15, "mDate");//День памяти воинов-интернационалистов
+                    arr[0].put(23, "holiday");
+                    arr[0].put(27, "prof");//День Сил специальных операций
+                    arr[1] = null;
+                    break;
+                case Calendar.MARCH:
+                    arr[0].put(8, "holiday");
+                    arr[0].put(9, "prof");
+                    arr[0].put(11, "prof");//День работников органов наркоконтроля
+                    arr[0].put(12, "prof");//День работников уголовно-исполнительной системы
+                    arr[0].put(14, "prof");//День работника геодезиста
+                    arr[0].put(18, "not official holiday"); //День воссоединения Крыма с Россией
+                    arr[0].put(19, "prof");//День моряка-подводника
+                    arr[0].put(27, "prof");//День нац гвардии России
+                    arr[0].put(29, "prof");//День специаличста юридической службы
+                    arr[1] = null;
+                    break;
+                case Calendar.APRIL:
+                    arr[0].put(1, "not official holiday");
+                    arr[0].put(2, "not official holiday");//День единения народов
+                    arr[0].put(4, "prof");//День геолога
+                    arr[0].put(8, "prof");//День сотрудников военных коммиссариатов
+                    arr[0].put(12, "mDate");//День космонавтики
+                    arr[0].put(26, "mDate");//День памяти погибших в радиационных авариях и катострофах
+                    arr[0].put(27, "mDate");//День российского парламентаризма
+                    arr[0].put(28, "prof");//День работника скорой медицинской помощи
+                    arr[0].put(30, "prof");//День пожарной охраны
+                    arr[1] = null;
+                    break;
+                case Calendar.MAY:
+                    arr[0].put(1, "holiday");
+                    arr[0].put(7, "prof");//День работников связи
+                    arr[0].put(9, "holiday");
+                    arr[0].put(20, "prof");//Всемирный день метрологии
+                    arr[0].put(21, "prof");//День полярника
+                    arr[0].put(24, "prof");//День кадровика
+                    arr[0].put(25, "prof");//День филолога
+                    arr[0].put(26, "prof");//День российского предпринимательства
+                    arr[0].put(27, "prof");//Общероссийский день библиотек
+                    arr[0].put(28, "prof");//День пограничника
+                    arr[0].put(29, "prof");//День Химика
+                    arr[0].put(31, "prof");//День российской адвокатуры
+                    arr[1] = null;
+                    break;
+                case Calendar.JUNE:
+                    arr[0].put(1, "not official holiday");
+                    arr[0].put(2, "mDate");
+                    arr[0].put(5, "prof");
+                    arr[0].put(6, "not official holiday");
+                    arr[0].put(8, "prof");
+                    arr[0].put(12, "holiday");
+                    arr[0].put(14, "prof");
+                    arr[0].put(20, "prof");
+                    arr[0].put(22, "mDate");
+                    arr[0].put(26, "prof");
+                    arr[0].put(27, "not official holiday");
+                    arr[0].put(30, "prof");
+                    arr[1] = null;
+                    break;
+                case Calendar.JULY:
+                    arr[0].put(3, "prof");
+                    arr[0].put(4, "prof");
+                    arr[0].put(8, "not official holiday");
+                    arr[0].put(11, "prof");
+                    arr[0].put(17, "prof");
+                    arr[0].put(18, "prof");
+                    arr[0].put(25, "prof");
+                    arr[0].put(28, "mDate");
+                    arr[0].put(30, "prof");
+                    arr[1] = null;
+                    break;
+                case Calendar.AUGUST:
+                    arr[0].put(2, "mDate");
+                    arr[0].put(6, "prof");
+                    arr[0].put(8, "prof");
+                    arr[0].put(12, "mDate");
+                    arr[0].put(15, "prof");
+                    arr[0].put(18, "prof");
+                    arr[0].put(22, "not official holiday");
+                    arr[0].put(27, "prof");
+                    arr[0].put(29, "prof");
+                    arr[0].put(31, "prof");
+                    arr[1] = null;
+                    break;
+                case Calendar.SEPTEMBER:
+                    arr[0].put(1, "not official holiday");
+                    arr[0].put(3, "mDate");
+                    arr[0].put(4, "mDate");
+                    arr[0].put(5, "prof");
+                    arr[0].put(8, "prof");
+                    arr[0].put(9, "prof");
+                    arr[0].put(12, "prof");
+                    arr[0].put(13, "prof");
+                    arr[0].put(19, "prof");
+                    arr[0].put(24, "prof");
+                    arr[0].put(26, "prof");
+                    arr[0].put(27, "not official holiday");
+                    arr[0].put(28, "prof");
+                    arr[0].put(30, "prof");
+                    arr[1] = null;
+                    break;
+                case Calendar.OCTOBER:
+                    arr[0].put(1, "not official holiday");
+                    arr[0].put(4, "mDate");
+                    arr[0].put(5, "prof");
+                    arr[0].put(6, "prof");
+                    arr[0].put(16, "not official holiday");//День отца
+                    arr[0].put(20, "prof");
+                    arr[0].put(23, "prof");
+                    arr[0].put(24, "mDate");
+                    arr[0].put(25, "prof");
+                    arr[0].put(29, "prof");
+                    arr[0].put(30, "mDate");
+                    arr[0].put(31, "prof");
+                    arr[1] = null;
+                    break;
+                case Calendar.NOVEMBER:
+                    arr[0].put(1, "prof");
+                    arr[0].put(4, "holiday");
+                    arr[0].put(5, "prof");
+                    arr[0].put(7, "mDate");
+                    arr[0].put(9, "prof");
+                    arr[0].put(10, "prof");
+                    arr[0].put(11, "prof");
+                    arr[0].put(13, "mDate");
+                    arr[0].put(14, "prof");
+                    arr[0].put(21, "prof");
+                    arr[0].put(22, "prof");
+                    arr[0].put(27, "not official holiday"); //День матери
+                    arr[0].put(30, "not official holiday");
+                    arr[1] = null;
+                    break;
+                case Calendar.DECEMBER:
+                    arr[0].put(3, "mDate");
+                    arr[0].put(5, "prof");
+                    arr[0].put(9, "mDate");
+                    arr[0].put(12, "mDate");
+                    arr[0].put(18, "prof");
+                    arr[0].put(20, "prof");
+                    arr[0].put(22, "prof");
+                    arr[0].put(27, "prof");
+                    arr[1] = null;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + newMonth.get(Calendar.MONTH));
+            }
 //            }
         } catch (Exception e) {
             e.printStackTrace();
@@ -945,10 +989,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 strings.addAll(Arrays.asList(strs));
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
             }
 
             runOnUiThread(new Runnable() {
+                @SuppressLint("SuspiciousIndentation")
                 @Override
                 public void run() {
                     myCustomCalendar.setVisibility(View.INVISIBLE);
@@ -978,163 +1023,163 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         mapDateToDesc.put(calendar.get(Calendar.DAY_OF_MONTH), "current");
 
 //                    if (b) {
-                        switch (calendar.get(Calendar.MONTH)) {
-                            case Calendar.JANUARY:
-                                mapDateToDesc.put(1, "holiday");
-                                mapDateToDesc.put(2, "holiday");
-                                mapDateToDesc.put(3, "holiday");
-                                mapDateToDesc.put(4, "holiday");
-                                mapDateToDesc.put(5, "holiday");
-                                mapDateToDesc.put(6, "holiday");
-                                mapDateToDesc.put(7, "holiday");
-                                mapDateToDesc.put(8, "holiday");
-                                mapDateToDesc.put(12, "prof");//День работника прокураторы
-                                mapDateToDesc.put(13, "mDate");//День печати
-                                mapDateToDesc.put(14, "not official holiday");//Старый Новый год
-                                mapDateToDesc.put(21, "mDate");//День памяти инженерных войск
-                                mapDateToDesc.put(27, "mDate");//День снятия блокады города Ленинград
-                                mapDateToDesc.put(25, "not official holiday");//Татьянин день(День студента)
-                                break;
-                            case Calendar.FEBRUARY:
-                                mapDateToDesc.put(8, "prof");//День стоматолога
-                                mapDateToDesc.put(9, "prof");//День работника гражданской авиации
-                                mapDateToDesc.put(10, "prof");//День дипломатического работника
-                                mapDateToDesc.put(14, "not official holiday");//День святого Валентина
-                                mapDateToDesc.put(15, "mDate");//День памяти воинов-интернационалистов
-                                mapDateToDesc.put(23, "holiday");
-                                mapDateToDesc.put(27, "prof");//День Сил специальных операций
-                                break;
-                            case Calendar.MARCH:
-                                mapDateToDesc.put(8, "holiday");
-                                mapDateToDesc.put(9, "prof");
-                                mapDateToDesc.put(11, "prof");//День работников органов наркоконтроля
-                                mapDateToDesc.put(12, "prof");//День работников уголовно-исполнительной системы
-                                mapDateToDesc.put(14, "prof");//День работника геодезиста
-                                mapDateToDesc.put(18, "not official holiday");
-                                mapDateToDesc.put(19, "prof");//День моряка-подводника
-                                mapDateToDesc.put(27, "prof");//День нац гвардии России
-                                mapDateToDesc.put(29, "prof");//День специаличста юридической службы
-                                break;
-                            case Calendar.APRIL:
-                                mapDateToDesc.put(1, "not official holiday");
-                                mapDateToDesc.put(2, "not official holiday");//День единения народов
-                                mapDateToDesc.put(4, "prof");//День геолога
-                                mapDateToDesc.put(8, "prof");//День сотрудников военных коммиссариатов
-                                mapDateToDesc.put(12, "mDate");//День космонавтики
-                                mapDateToDesc.put(26, "mDate");//День памяти погибших в радиационных авариях и катострофах
-                                mapDateToDesc.put(27, "mDate");//День российского парламентаризма
-                                mapDateToDesc.put(28, "prof");//День работника скорой медицинской помощи
-                                mapDateToDesc.put(30, "prof");//День пожарной охраны
-                                break;
-                            case Calendar.MAY:
-                                mapDateToDesc.put(1, "holiday");
-                                mapDateToDesc.put(7, "prof");//День работников связи
-                                mapDateToDesc.put(9, "holiday");
-                                mapDateToDesc.put(20, "prof");//Всемирный день метрологии
-                                mapDateToDesc.put(21, "prof");//День полярника
-                                mapDateToDesc.put(24, "prof");//День кадровика
-                                mapDateToDesc.put(25, "prof");//День филолога
-                                mapDateToDesc.put(26, "prof");//День российского предпринимательства
-                                mapDateToDesc.put(27, "prof");//Общероссийский день библиотек
-                                mapDateToDesc.put(28, "prof");//День пограничника
-                                mapDateToDesc.put(29, "prof");//День Химика
-                                mapDateToDesc.put(31, "prof");//День российской адвокатуры
-                                break;
-                            case Calendar.JUNE:
-                                mapDateToDesc.put(1, "not official holiday");
-                                mapDateToDesc.put(2, "mDate");
-                                mapDateToDesc.put(5, "prof");
-                                mapDateToDesc.put(6, "not official holiday");
-                                mapDateToDesc.put(8, "prof");
-                                mapDateToDesc.put(12, "holiday");
-                                mapDateToDesc.put(14, "prof");
-                                mapDateToDesc.put(20, "prof");
-                                mapDateToDesc.put(22, "mDate");
-                                mapDateToDesc.put(26, "prof");
-                                mapDateToDesc.put(27, "not official holiday");
-                                mapDateToDesc.put(30, "prof");
-                                break;
-                            case Calendar.JULY:
-                                mapDateToDesc.put(3, "prof");
-                                mapDateToDesc.put(4, "prof");
-                                mapDateToDesc.put(8, "not official holiday");
-                                mapDateToDesc.put(11, "prof");
-                                mapDateToDesc.put(17, "prof");
-                                mapDateToDesc.put(18, "prof");
-                                mapDateToDesc.put(25, "prof");
-                                mapDateToDesc.put(28, "mDate");
-                                mapDateToDesc.put(30, "prof");
-                                break;
-                            case Calendar.AUGUST:
-                                mapDateToDesc.put(2, "mDate");
-                                mapDateToDesc.put(6, "prof");
-                                mapDateToDesc.put(8, "prof");
-                                mapDateToDesc.put(12, "mDate");
-                                mapDateToDesc.put(15, "prof");
-                                mapDateToDesc.put(18, "prof");
-                                mapDateToDesc.put(22, "not official holiday");
-                                mapDateToDesc.put(27, "prof");
-                                mapDateToDesc.put(29, "prof");
-                                mapDateToDesc.put(31, "prof");
-                                break;
-                            case Calendar.SEPTEMBER:
-                                mapDateToDesc.put(1, "not official holiday");
-                                mapDateToDesc.put(3, "mDate");
-                                mapDateToDesc.put(4, "mDate");
-                                mapDateToDesc.put(5, "prof");
-                                mapDateToDesc.put(8, "prof");
-                                mapDateToDesc.put(9, "prof");
-                                mapDateToDesc.put(12, "prof");
-                                mapDateToDesc.put(13, "prof");
-                                mapDateToDesc.put(19, "prof");
-                                mapDateToDesc.put(24, "prof");
-                                mapDateToDesc.put(26, "prof");
-                                mapDateToDesc.put(27, "not official holiday");
-                                mapDateToDesc.put(28, "prof");
-                                mapDateToDesc.put(30, "prof");
-                                break;
-                            case Calendar.OCTOBER:
-                                mapDateToDesc.put(1, "not official holiday");
-                                mapDateToDesc.put(4, "mDate");
-                                mapDateToDesc.put(5, "prof");
-                                mapDateToDesc.put(6, "prof");
-                                mapDateToDesc.put(16, "not official holiday");//День отца
-                                mapDateToDesc.put(20, "prof");
-                                mapDateToDesc.put(23, "prof");
-                                mapDateToDesc.put(24, "mDate");
-                                mapDateToDesc.put(25, "prof");
-                                mapDateToDesc.put(29, "prof");
-                                mapDateToDesc.put(30, "mDate");
-                                mapDateToDesc.put(31, "prof");
-                                break;
-                            case Calendar.NOVEMBER:
-                                mapDateToDesc.put(1, "prof");
-                                mapDateToDesc.put(4, "holiday");
-                                mapDateToDesc.put(5, "prof");
-                                mapDateToDesc.put(7, "mDate");
-                                mapDateToDesc.put(9, "prof");
-                                mapDateToDesc.put(10, "prof");
-                                mapDateToDesc.put(11, "prof");
-                                mapDateToDesc.put(13, "mDate");
-                                mapDateToDesc.put(14, "prof");
-                                mapDateToDesc.put(21, "prof");
-                                mapDateToDesc.put(22, "prof");
-                                mapDateToDesc.put(27, "not official holiday"); //День матери
-                                mapDateToDesc.put(30, "not official holiday");
-                                break;
-                            case Calendar.DECEMBER:
-                                mapDateToDesc.put(3, "mDate");
-                                mapDateToDesc.put(5, "prof");
-                                mapDateToDesc.put(9, "mDate");
-                                mapDateToDesc.put(12, "mDate");
-                                mapDateToDesc.put(18, "prof");
-                                mapDateToDesc.put(20, "prof");
-                                mapDateToDesc.put(22, "prof");
-                                mapDateToDesc.put(27, "prof");
-                                break;
-                            default:
-                                throw new IllegalStateException("Unexpected value: " + calendar.get(Calendar.MONTH));
-                        }
+                    switch (calendar.get(Calendar.MONTH)) {
+                        case Calendar.JANUARY:
+                            mapDateToDesc.put(1, "holiday");
+                            mapDateToDesc.put(2, "holiday");
+                            mapDateToDesc.put(3, "holiday");
+                            mapDateToDesc.put(4, "holiday");
+                            mapDateToDesc.put(5, "holiday");
+                            mapDateToDesc.put(6, "holiday");
+                            mapDateToDesc.put(7, "holiday");
+                            mapDateToDesc.put(8, "holiday");
+                            mapDateToDesc.put(12, "prof");//День работника прокураторы
+                            mapDateToDesc.put(13, "mDate");//День печати
+                            mapDateToDesc.put(14, "not official holiday");//Старый Новый год
+                            mapDateToDesc.put(21, "mDate");//День памяти инженерных войск
+                            mapDateToDesc.put(27, "mDate");//День снятия блокады города Ленинград
+                            mapDateToDesc.put(25, "not official holiday");//Татьянин день(День студента)
+                            break;
+                        case Calendar.FEBRUARY:
+                            mapDateToDesc.put(8, "prof");//День стоматолога
+                            mapDateToDesc.put(9, "prof");//День работника гражданской авиации
+                            mapDateToDesc.put(10, "prof");//День дипломатического работника
+                            mapDateToDesc.put(14, "not official holiday");//День святого Валентина
+                            mapDateToDesc.put(15, "mDate");//День памяти воинов-интернационалистов
+                            mapDateToDesc.put(23, "holiday");
+                            mapDateToDesc.put(27, "prof");//День Сил специальных операций
+                            break;
+                        case Calendar.MARCH:
+                            mapDateToDesc.put(8, "holiday");
+                            mapDateToDesc.put(9, "prof");
+                            mapDateToDesc.put(11, "prof");//День работников органов наркоконтроля
+                            mapDateToDesc.put(12, "prof");//День работников уголовно-исполнительной системы
+                            mapDateToDesc.put(14, "prof");//День работника геодезиста
+                            mapDateToDesc.put(18, "not official holiday");
+                            mapDateToDesc.put(19, "prof");//День моряка-подводника
+                            mapDateToDesc.put(27, "prof");//День нац гвардии России
+                            mapDateToDesc.put(29, "prof");//День специаличста юридической службы
+                            break;
+                        case Calendar.APRIL:
+                            mapDateToDesc.put(1, "not official holiday");
+                            mapDateToDesc.put(2, "not official holiday");//День единения народов
+                            mapDateToDesc.put(4, "prof");//День геолога
+                            mapDateToDesc.put(8, "prof");//День сотрудников военных коммиссариатов
+                            mapDateToDesc.put(12, "mDate");//День космонавтики
+                            mapDateToDesc.put(26, "mDate");//День памяти погибших в радиационных авариях и катострофах
+                            mapDateToDesc.put(27, "mDate");//День российского парламентаризма
+                            mapDateToDesc.put(28, "prof");//День работника скорой медицинской помощи
+                            mapDateToDesc.put(30, "prof");//День пожарной охраны
+                            break;
+                        case Calendar.MAY:
+                            mapDateToDesc.put(1, "holiday");
+                            mapDateToDesc.put(7, "prof");//День работников связи
+                            mapDateToDesc.put(9, "holiday");
+                            mapDateToDesc.put(20, "prof");//Всемирный день метрологии
+                            mapDateToDesc.put(21, "prof");//День полярника
+                            mapDateToDesc.put(24, "prof");//День кадровика
+                            mapDateToDesc.put(25, "prof");//День филолога
+                            mapDateToDesc.put(26, "prof");//День российского предпринимательства
+                            mapDateToDesc.put(27, "prof");//Общероссийский день библиотек
+                            mapDateToDesc.put(28, "prof");//День пограничника
+                            mapDateToDesc.put(29, "prof");//День Химика
+                            mapDateToDesc.put(31, "prof");//День российской адвокатуры
+                            break;
+                        case Calendar.JUNE:
+                            mapDateToDesc.put(1, "not official holiday");
+                            mapDateToDesc.put(2, "mDate");
+                            mapDateToDesc.put(5, "prof");
+                            mapDateToDesc.put(6, "not official holiday");
+                            mapDateToDesc.put(8, "prof");
+                            mapDateToDesc.put(12, "holiday");
+                            mapDateToDesc.put(14, "prof");
+                            mapDateToDesc.put(20, "prof");
+                            mapDateToDesc.put(22, "mDate");
+                            mapDateToDesc.put(26, "prof");
+                            mapDateToDesc.put(27, "not official holiday");
+                            mapDateToDesc.put(30, "prof");
+                            break;
+                        case Calendar.JULY:
+                            mapDateToDesc.put(3, "prof");
+                            mapDateToDesc.put(4, "prof");
+                            mapDateToDesc.put(8, "not official holiday");
+                            mapDateToDesc.put(11, "prof");
+                            mapDateToDesc.put(17, "prof");
+                            mapDateToDesc.put(18, "prof");
+                            mapDateToDesc.put(25, "prof");
+                            mapDateToDesc.put(28, "mDate");
+                            mapDateToDesc.put(30, "prof");
+                            break;
+                        case Calendar.AUGUST:
+                            mapDateToDesc.put(2, "mDate");
+                            mapDateToDesc.put(6, "prof");
+                            mapDateToDesc.put(8, "prof");
+                            mapDateToDesc.put(12, "mDate");
+                            mapDateToDesc.put(15, "prof");
+                            mapDateToDesc.put(18, "prof");
+                            mapDateToDesc.put(22, "not official holiday");
+                            mapDateToDesc.put(27, "prof");
+                            mapDateToDesc.put(29, "prof");
+                            mapDateToDesc.put(31, "prof");
+                            break;
+                        case Calendar.SEPTEMBER:
+                            mapDateToDesc.put(1, "not official holiday");
+                            mapDateToDesc.put(3, "mDate");
+                            mapDateToDesc.put(4, "mDate");
+                            mapDateToDesc.put(5, "prof");
+                            mapDateToDesc.put(8, "prof");
+                            mapDateToDesc.put(9, "prof");
+                            mapDateToDesc.put(12, "prof");
+                            mapDateToDesc.put(13, "prof");
+                            mapDateToDesc.put(19, "prof");
+                            mapDateToDesc.put(24, "prof");
+                            mapDateToDesc.put(26, "prof");
+                            mapDateToDesc.put(27, "not official holiday");
+                            mapDateToDesc.put(28, "prof");
+                            mapDateToDesc.put(30, "prof");
+                            break;
+                        case Calendar.OCTOBER:
+                            mapDateToDesc.put(1, "not official holiday");
+                            mapDateToDesc.put(4, "mDate");
+                            mapDateToDesc.put(5, "prof");
+                            mapDateToDesc.put(6, "prof");
+                            mapDateToDesc.put(16, "not official holiday");//День отца
+                            mapDateToDesc.put(20, "prof");
+                            mapDateToDesc.put(23, "prof");
+                            mapDateToDesc.put(24, "mDate");
+                            mapDateToDesc.put(25, "prof");
+                            mapDateToDesc.put(29, "prof");
+                            mapDateToDesc.put(30, "mDate");
+                            mapDateToDesc.put(31, "prof");
+                            break;
+                        case Calendar.NOVEMBER:
+                            mapDateToDesc.put(1, "prof");
+                            mapDateToDesc.put(4, "holiday");
+                            mapDateToDesc.put(5, "prof");
+                            mapDateToDesc.put(7, "mDate");
+                            mapDateToDesc.put(9, "prof");
+                            mapDateToDesc.put(10, "prof");
+                            mapDateToDesc.put(11, "prof");
+                            mapDateToDesc.put(13, "mDate");
+                            mapDateToDesc.put(14, "prof");
+                            mapDateToDesc.put(21, "prof");
+                            mapDateToDesc.put(22, "prof");
+                            mapDateToDesc.put(27, "not official holiday"); //День матери
+                            mapDateToDesc.put(30, "not official holiday");
+                            break;
+                        case Calendar.DECEMBER:
+                            mapDateToDesc.put(3, "mDate");
+                            mapDateToDesc.put(5, "prof");
+                            mapDateToDesc.put(9, "mDate");
+                            mapDateToDesc.put(12, "mDate");
+                            mapDateToDesc.put(18, "prof");
+                            mapDateToDesc.put(20, "prof");
+                            mapDateToDesc.put(22, "prof");
+                            mapDateToDesc.put(27, "prof");
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + calendar.get(Calendar.MONTH));
+                    }
 //                    }
 
                     myCustomCalendar.setDate(calendar, mapDateToDesc);
@@ -1232,7 +1277,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 strings.addAll(Arrays.asList(strs));
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
             }
 
             runOnUiThread(new Runnable() {
@@ -1422,7 +1467,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 strings.addAll(Arrays.asList(strs));
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
             }
 
             runOnUiThread(new Runnable() {
@@ -1611,7 +1656,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 strings.addAll(Arrays.asList(strs));
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
             }
 
             runOnUiThread(new Runnable() {
@@ -1765,5 +1810,27 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, year);
         return cal.getActualMaximum(Calendar.DAY_OF_YEAR) > 365;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+//        region::Service
+
+//        EventNotificationScheduler eventNotificationScheduler = new EventNotificationScheduler();
+//        eventNotificationScheduler.cancelAlarm(this);
+//        eventNotificationScheduler.setAlarm(this);
+
+//        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+//        List<ActivityManager.RunningServiceInfo> runningServices = activityManager.getRunningServices(Integer.MAX_VALUE);
+//
+//        for (ActivityManager.RunningServiceInfo service : runningServices) {
+//            if (!service.service.getClassName().equals(EventService.class.getName())) {
+//                Intent intent = new Intent(this, EventService.class);
+//                startService(intent);
+//            }
+//        }
+//        endregion
     }
 }
