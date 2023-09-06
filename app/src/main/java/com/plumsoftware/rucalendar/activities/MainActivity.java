@@ -4,32 +4,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.UiModeManager;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.Toast;
+import android.view.ViewTreeObserver;
 
 /**
  import org.naishadhparmar.zcustomcalendar.CustomCalendar;
  import org.naishadhparmar.zcustomcalendar.Property;
  **/
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.appbar.AppBarLayout;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.events.Celebrations;
@@ -38,17 +32,14 @@ import com.plumsoftware.rucalendar.repositories.OnDateSelectedListener;
 import com.plumsoftware.rucalendar.repositories.OnNavigationButtonClickedListener;
 import com.plumsoftware.rucalendar.calendardata.Property;
 import com.plumsoftware.rucalendar.R;
-import com.plumsoftware.rucalendar.services.EventNotificationScheduler;
-import com.plumsoftware.rucalendar.services.EventService;
-import com.yandex.mobile.ads.banner.AdSize;
 import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequest;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
 import com.yandex.mobile.ads.common.InitializationListener;
 import com.yandex.mobile.ads.common.MobileAds;
-import com.yandex.mobile.ads.interstitial.InterstitialAd;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -116,7 +107,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected List<List<Integer>> monthsPast;
     protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
     protected BannerAdView mBannerAdView;
-    protected InterstitialAd mInterstitialAd;
+
+    protected NestedScrollView nestedScrollView;
+
+    protected AppBarLayout appBarLayout;
     protected byte count = 0;
     //    protected boolean b;
     protected static byte rewardedCount = 0;
@@ -131,11 +125,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         setContentView(R.layout.menu_layout);
 
-        MobileAds.initialize(this, new InitializationListener() {
-            @Override
-            public void onInitializationCompleted() {
+        MobileAds.initialize(this, () -> {
 
-            }
         });
 
         Context context = MainActivity.this;
@@ -144,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
         swipeRefreshLayout = (SwipeRefreshLayout) activity.findViewById(R.id.refreshLayout);
         RecyclerView recyclerView = (RecyclerView) activity.findViewById(R.id.recyclerView);
+        nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
 //        TextView textView = (TextView) activity.findViewById(R.id.textView);
         HashMap<Object, Property> mapDescToProp = new HashMap<>();
         List<CelebrationItem> celebrations = new ArrayList<>();
@@ -156,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         // Создание экземпляра mBannerAdView.
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
         mBannerAdView.setAdUnitId("R-M-2215793-1");
-        mBannerAdView.setAdSize(AdSize.flexibleSize(AdSize.FULL_SCREEN.getWidth(MainActivity.this), 50));
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(MainActivity.this, 300, 100));
 
 //         Создание объекта таргетирования рекламы.
         final AdRequest adRequest = new AdRequest.Builder().build();
@@ -326,6 +319,14 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 long timeInMillis = selectedDate.getTimeInMillis();
 
                 Celebrations celebrationsClass = new Celebrations(selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH));
+
+                try {
+                    celebrationsClass.getDescription();
+                    appBarLayout.setExpanded(false, true);
+                } catch (IndexOutOfBoundsException e){
+                    e.printStackTrace();
+                }
+
 
                 try {
                     String[] split = celebrationsClass.getDescription().split("~del");

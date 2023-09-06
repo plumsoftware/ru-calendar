@@ -1,7 +1,5 @@
 package com.plumsoftware.rucalendar.events;
 
-import com.plumsoftware.rucalendar.events.ArraysCelebrations;
-
 public class Celebrations {
     private int month;
     private int day;

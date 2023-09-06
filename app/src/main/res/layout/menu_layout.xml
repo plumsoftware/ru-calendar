@@ -4,21 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.yandex.mobile.ads.banner.BannerAdView
-        android:id="@+id/adView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
-        android:layout_centerHorizontal="false"
-        android:layout_gravity="bottom"
-        android:gravity="center"
-        android:visibility="visible" />
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
 
         android:layout_width="match_parent"
-        android:layout_height="410dp">
+        android:layout_height="390dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
@@ -45,13 +35,13 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="0dp"
                     android:elevation="0dp"
-                    android:paddingBottom="12dp"
+                    android:paddingBottom="0dp"
                     app:day_of_week_length="3"
                     app:day_of_week_start_from="понедельник"
                     app:left_button_src="@drawable/ic_keyboard_arrow_left_black_24dp"
                     app:month_year_format="full_month__with_year"
                     app:right_button_src="@drawable/ic_keyboard_arrow_right_black_24dp"
-                    app:row_height="50dp" />
+                    app:row_height="48dp" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -64,6 +54,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:fillViewport="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -80,6 +71,16 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="4dp"
                 android:layout_weight="1" />
+
+            <com.yandex.mobile.ads.banner.BannerAdView
+                android:id="@+id/adView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
+                android:layout_centerHorizontal="false"
+                android:layout_gravity="bottom"
+                android:gravity="center"
+                android:visibility="visible" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

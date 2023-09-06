@@ -5,21 +5,27 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
 import com.plumsoftware.rucalendar.R;
-import com.yandex.mobile.ads.banner.AdSize;
 import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequest;
+import com.yandex.mobile.ads.common.AdRequestConfiguration;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
 import com.yandex.mobile.ads.common.InitializationListener;
 import com.yandex.mobile.ads.common.MobileAds;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener;
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener;
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoader;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,44 +33,46 @@ import java.util.Locale;
 
 public class EventActivity extends AppCompatActivity {
     private ProgressDialog progressDialog = new ProgressDialog();
-    private InterstitialAd mInterstitialAd;
+    @Nullable
+    private InterstitialAd mInterstitialAd = null;
+    @Nullable
+    private InterstitialAdLoader mInterstitialAdLoader = null;
     private BannerAdView mBannerAdView;
-    private AdRequest adRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
-        MobileAds.initialize(this, new InitializationListener() {
-            @Override
-            public void onInitializationCompleted() {
+        MobileAds.initialize(EventActivity.this, () -> {
 
-            }
         });
 
         TextView textView = findViewById(R.id.textDescription);
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar2);
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
 
-//        mBannerAdView.setAdUnitId("R-M-1752331-1");
         mBannerAdView.setAdUnitId("R-M-2215793-1");
-        mBannerAdView.setAdSize(AdSize.flexibleSize(AdSize.FULL_SCREEN.getWidth(EventActivity.this), 50));
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(EventActivity.this, 300, 100));
 
 //         Создание объекта таргетирования рекламы.
         final AdRequest adRequestB = new AdRequest.Builder().build();
 
-        mInterstitialAd = new InterstitialAd(EventActivity.this);
-        mInterstitialAd.setAdUnitId("R-M-2215793-2");
-        adRequest = new AdRequest.Builder().build();
+        mInterstitialAdLoader = new InterstitialAdLoader(EventActivity.this);
 
 //        Setup event data
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             CelebrationItem celebrationItem = getIntent().getSerializableExtra("event", CelebrationItem.class);
 
-            textView.setText(celebrationItem.getDesc());
-            toolbar.setTitle(celebrationItem.getName());
-            toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(celebrationItem.getTimeInMillis())));
+            if (celebrationItem != null) {
+                textView.setText(celebrationItem.getDesc());
+            }
+            if (celebrationItem != null) {
+                toolbar.setTitle(celebrationItem.getName());
+            }
+            if (celebrationItem != null) {
+                toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(celebrationItem.getTimeInMillis())));
+            }
         } else {
             textView.setText(getIntent().getStringExtra("desc"));
             toolbar.setTitle(getIntent().getStringExtra("name"));
@@ -72,55 +80,20 @@ public class EventActivity extends AppCompatActivity {
         }
 
 //        Clickers
-        // Регистрация слушателя для отслеживания событий, происходящих в рекламе.
-        mInterstitialAd.setInterstitialAdEventListener(new InterstitialAdEventListener() {
-            @Override
-            public void onAdLoaded() {
-                progressDialog.dismiss();
-                mInterstitialAd.show();
-                finish();
-                //swipeRefreshLayout.setRefreshing(false);
-            }
 
+        mInterstitialAdLoader.setAdLoadListener(new InterstitialAdLoadListener() {
             @Override
-            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-                //Toast.makeText(MainActivity.this, adRequestError.getDescription().toString(), Toast.LENGTH_LONG).show();
+            public void onAdLoaded(@NonNull final InterstitialAd interstitialAd) {
+                mInterstitialAd = interstitialAd;
                 progressDialog.dismiss();
-                finish();
-                //swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onAdShown() {
-                //MainActivity.swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onAdDismissed() {
-                progressDialog.dismiss();
-                finish();
-                //MainActivity.swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onAdClicked() {
-                progressDialog.dismiss();
+                mInterstitialAd.show(EventActivity.this);
                 finish();
             }
 
             @Override
-            public void onLeftApplication() {
-                //MainActivity.swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onReturnedToApplication() {
-
-            }
-
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
-
+            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+                progressDialog.dismiss();
+                finish();
             }
         });
 
@@ -166,6 +139,10 @@ public class EventActivity extends AppCompatActivity {
 //        super.onBackPressed();
         // Загрузка объявления
         progressDialog.showDialog(EventActivity.this);
-        mInterstitialAd.loadAd(adRequest);
+        if (mInterstitialAdLoader != null) {
+            final AdRequestConfiguration adRequestConfiguration =
+                    new AdRequestConfiguration.Builder("R-M-2215793-2").build();
+            mInterstitialAdLoader.loadAd(adRequestConfiguration);
+        }
     }
 }
