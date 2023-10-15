@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
         android:elevation="4dp"
+        app:menu="@menu/event_menu"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -4,9 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +32,7 @@ import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener;
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoader;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -80,6 +85,28 @@ public class EventActivity extends AppCompatActivity {
         }
 
 //        Clickers
+
+        toolbar.setOnMenuItemClickListener(new androidx.appcompat.widget.Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                switch (item.getItemId()) {
+                    case R.id.bug_report:
+                        String message = "Ошибка в событии " + new SimpleDateFormat("dd.MM", Locale.getDefault()).format(new Date(getIntent().getLongExtra("time", 1000000)));
+                        message = message + "\n" + getIntent().getStringExtra("name");
+                        message += "\n" + "Комментарий:" + "\n";
+                        String subject = "Отчёт об ошибке";
+                        String TO = "plumsoftwareofficial@gmail.com";
+
+                        Intent mailIntent = new Intent(Intent.ACTION_VIEW);
+                        Uri data = Uri.parse("mailto:?subject=" + subject + "&body=" + message + "&to=" + TO);
+                        mailIntent.setData(data);
+                        startActivity(Intent.createChooser(mailIntent, "Отправить отчёт о неточности с помощью..."));
+                        return true;
+                }
+                return false;
+            }
+        });
 
         mInterstitialAdLoader.setAdLoadListener(new InterstitialAdLoadListener() {
             @Override
@@ -144,5 +171,21 @@ public class EventActivity extends AppCompatActivity {
                     new AdRequestConfiguration.Builder("R-M-2215793-2").build();
             mInterstitialAdLoader.loadAd(adRequestConfiguration);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.event_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.bug_report:
+
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
