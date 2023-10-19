@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 35,
-      "versionName": "2.0.1 - bug report",
+      "versionCode": 36,
+      "versionName": "2.1.0",
       "outputFile": "app-release.apk"
     }
   ],
