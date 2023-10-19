@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +51,11 @@ public class EventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+
         MobileAds.initialize(EventActivity.this, () -> {
 
         });
@@ -58,7 +65,7 @@ public class EventActivity extends AppCompatActivity {
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
 
         mBannerAdView.setAdUnitId("R-M-2215793-1");
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(EventActivity.this, 300, 100));
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(EventActivity.this, screenWidth, 50));
 
 //         Создание объекта таргетирования рекламы.
         final AdRequest adRequestB = new AdRequest.Builder().build();

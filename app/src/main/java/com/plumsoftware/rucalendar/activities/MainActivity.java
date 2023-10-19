@@ -14,9 +14,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 
 /**
  import org.naishadhparmar.zcustomcalendar.CustomCalendar;
@@ -25,6 +27,7 @@ import android.view.ViewTreeObserver;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
+import com.plumsoftware.rucalendar.dialog.ProgressDialog;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.events.Celebrations;
 import com.plumsoftware.rucalendar.calendardata.MyCustomCalendar;
@@ -123,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        Заглушка для темы
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
         setContentView(R.layout.menu_layout);
 
         MobileAds.initialize(this, () -> {
@@ -149,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         // Создание экземпляра mBannerAdView.
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
         mBannerAdView.setAdUnitId("R-M-2215793-1");
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(MainActivity.this, 300, 100));
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(MainActivity.this, screenWidth, 50));
 
 //         Создание объекта таргетирования рекламы.
         final AdRequest adRequest = new AdRequest.Builder().build();
@@ -342,6 +349,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             color = "#ffdcc1";
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
 //                            }
+                        } else if (name1.equals("День юриста")) {
+                            color = "#D8D7F8";
+                            celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                         } else {
                             if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
                                 celebrations.add(new CelebrationItem(name1, descS1, "#ffdad5", timeInMillis));
