@@ -68,9 +68,19 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_weight="1" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animationView"
+                android:layout_width="240dp"
+                android:layout_gravity="center"
+                android:layout_height="240dp"
+                android:visibility="gone"
+                app:lottie_rawRes="@raw/animation_inyly_0av"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"/>
 
             <com.yandex.mobile.ads.banner.BannerAdView
                 android:id="@+id/adView"

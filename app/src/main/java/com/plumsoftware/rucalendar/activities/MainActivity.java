@@ -25,6 +25,7 @@ import android.view.WindowManager;
  import org.naishadhparmar.zcustomcalendar.Property;
  **/
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
@@ -61,6 +62,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements OnNavigationButtonClickedListener {
     protected MyCustomCalendar myCustomCalendar;
+    protected LottieAnimationView animationView;
     protected HashMap<Integer, Object> mapDateToDesc;
     protected Calendar calendar, extraCalendar;
     protected SwipeRefreshLayout swipeRefreshLayout;
@@ -142,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
         swipeRefreshLayout = (SwipeRefreshLayout) activity.findViewById(R.id.refreshLayout);
         RecyclerView recyclerView = (RecyclerView) activity.findViewById(R.id.recyclerView);
+        animationView = (LottieAnimationView) activity.findViewById(R.id.animationView);
         nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
 //        TextView textView = (TextView) activity.findViewById(R.id.textView);
@@ -337,6 +340,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
                 try {
                     String[] split = celebrationsClass.getDescription().split("~del");
+                    animationView.setVisibility(View.INVISIBLE);
+                    recyclerView.setVisibility(View.VISIBLE);
                     for (String s : split) {
                         name1 = s.split("~")[0];
                         descS1 = s.split("~")[1];
@@ -391,8 +396,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     }
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
+                    recyclerView.setVisibility(View.INVISIBLE);
+                    animationView.setVisibility(View.VISIBLE);
                     if ("holiday".equals(desc)) {
                         celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
+                        animationView.setVisibility(View.INVISIBLE);
                     }
                 }
 
@@ -425,6 +433,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
                 if ("default".equals(desc)) {
                     recyclerView.setVisibility(View.VISIBLE);
+                    animationView.setVisibility(View.VISIBLE);
                 }
                 if ("unavailable".equals(desc)) {
                     recyclerView.setVisibility(View.VISIBLE);
