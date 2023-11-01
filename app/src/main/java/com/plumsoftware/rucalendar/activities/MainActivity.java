@@ -36,10 +36,13 @@ import com.plumsoftware.rucalendar.repositories.OnDateSelectedListener;
 import com.plumsoftware.rucalendar.repositories.OnNavigationButtonClickedListener;
 import com.plumsoftware.rucalendar.calendardata.Property;
 import com.plumsoftware.rucalendar.R;
-import com.yandex.mobile.ads.banner.BannerAdEventListener;
-import com.yandex.mobile.ads.banner.BannerAdSize;
-import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.appopenad.AppOpenAd;
+import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener;
+import com.yandex.mobile.ads.appopenad.AppOpenAdLoadListener;
+import com.yandex.mobile.ads.appopenad.AppOpenAdLoader;
+import com.yandex.mobile.ads.common.AdError;
 import com.yandex.mobile.ads.common.AdRequest;
+import com.yandex.mobile.ads.common.AdRequestConfiguration;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
 import com.yandex.mobile.ads.common.InitializationListener;
@@ -111,15 +114,13 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected List<List<Integer>> monthsFuture;
     protected List<List<Integer>> monthsPast;
     protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
-    protected BannerAdView mBannerAdView;
 
     protected NestedScrollView nestedScrollView;
 
     protected AppBarLayout appBarLayout;
-    protected byte count = 0;
     //    protected boolean b;
-    protected static byte rewardedCount = 0;
-//    private BottomSheetBehavior bottomSheetBehavior;
+
+    private AppOpenAd mAppOpenAd = null;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -127,11 +128,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         super.onCreate(savedInstanceState);
 //        Заглушка для темы
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
-        int screenWidth = displayMetrics.widthPixels;
         setContentView(R.layout.menu_layout);
 
         MobileAds.initialize(this, () -> {
@@ -140,6 +136,63 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         Context context = MainActivity.this;
         Activity activity = MainActivity.this;
+
+//        region::App open Ads
+        final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
+        final String AD_UNIT_ID = "R-M-2215793-4";
+        final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
+
+        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
+            @Override
+            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
+                mAppOpenAd = appOpenAd;
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+
+            }
+        };
+
+        appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
+        appOpenAdLoader.loadAd(adRequestConfiguration);
+
+        AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
+            @Override
+            public void onAdShown() {
+                // Called when ad is shown.
+            }
+
+            @Override
+            public void onAdFailedToShow(@NonNull final AdError adError) {
+                // Called when ad failed to show.
+            }
+
+            @Override
+            public void onAdDismissed() {
+                // Called when ad is dismissed.
+                // Clean resources after dismiss and preload new ad.
+                clearAppOpenAd();
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Called when a click is recorded for an ad.
+            }
+
+            @Override
+            public void onAdImpression(@Nullable final ImpressionData impressionData) {
+                // Called when an impression is recorded for an ad.
+            }
+        };
+
+        if (mAppOpenAd != null) {
+            mAppOpenAd.setAdEventListener(appOpenAdEventListener);
+        }
+
+        showAppOpenAd();
+
+//        endregion
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
         swipeRefreshLayout = (SwipeRefreshLayout) activity.findViewById(R.id.refreshLayout);
@@ -151,54 +204,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         HashMap<Object, Property> mapDescToProp = new HashMap<>();
         List<CelebrationItem> celebrations = new ArrayList<>();
 //        b = countryCode.equals("ru");
-
-//        EventNotificationScheduler eventNotificationScheduler = new EventNotificationScheduler();
-//        eventNotificationScheduler.cancelAlarm(this);
-//        eventNotificationScheduler.setAlarm(this);
-
-        // Создание экземпляра mBannerAdView.
-        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
-        mBannerAdView.setAdUnitId("R-M-2215793-1");
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(MainActivity.this, screenWidth, 50));
-
-//         Создание объекта таргетирования рекламы.
-        final AdRequest adRequest = new AdRequest.Builder().build();
-
-//         Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-            @Override
-            public void onAdLoaded() {
-
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-
-            }
-
-            @Override
-            public void onAdClicked() {
-
-            }
-
-            @Override
-            public void onLeftApplication() {
-
-            }
-
-            @Override
-            public void onReturnedToApplication() {
-
-            }
-
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
-
-            }
-        });
-
-        // Загрузка объявления.
-        mBannerAdView.loadAd(adRequest);
 
 //        if (!countryCode.equals("ru") && !countryCode.equals("kz") && !countryCode.equals("ua") && !countryCode.equals("by")) {
 //            Toast.makeText(this, "Data is not available in your country. Default country is Russia.", Toast.LENGTH_LONG).show();
@@ -333,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 try {
                     celebrationsClass.getDescription();
                     appBarLayout.setExpanded(false, true);
-                } catch (IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
                 }
 
@@ -404,27 +409,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     }
                 }
 
-//                region::Bottom sheet dialog
-//                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
-//                bottomSheetDialog.setContentView(getLayoutInflater().inflate(R.layout.bottom_sheet_layout, null));
-//                bottomSheetBehavior = BottomSheetBehavior.from((View) view.getParent());
-//                bottomSheetDialog.setCancelable(true);
-//                bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-//                    @Override
-//                    public void onStateChanged(@NonNull View bottomSheet, int newState) {
-//                        if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-//                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-//                        if (slideOffset > 0.5f) {
-//                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-//                        }
-//                    }
-//                });
-
 //                RecyclerView recyclerViewBottomSheetDialog = (RecyclerView) view.findViewById(R.id.recyclerView);
                 celebrationAdapter.notifyDataSetChanged();
                 recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
@@ -440,9 +424,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 } else {
                     recyclerView.setVisibility(View.VISIBLE);
                 }
-
-//                bottomSheetDialog.show();
-//                endregion
             }
         });
 
@@ -1835,22 +1816,19 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        clearAppOpenAd();
+    }
 
-//        region::Service
+    private void showAppOpenAd() {
+        if (mAppOpenAd != null) {
+            mAppOpenAd.show(MainActivity.this);
+        }
+    }
 
-//        EventNotificationScheduler eventNotificationScheduler = new EventNotificationScheduler();
-//        eventNotificationScheduler.cancelAlarm(this);
-//        eventNotificationScheduler.setAlarm(this);
-
-//        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-//        List<ActivityManager.RunningServiceInfo> runningServices = activityManager.getRunningServices(Integer.MAX_VALUE);
-//
-//        for (ActivityManager.RunningServiceInfo service : runningServices) {
-//            if (!service.service.getClassName().equals(EventService.class.getName())) {
-//                Intent intent = new Intent(this, EventService.class);
-//                startService(intent);
-//            }
-//        }
-//        endregion
+    private void clearAppOpenAd() {
+        if (mAppOpenAd != null) {
+            mAppOpenAd.setAdEventListener(null);
+            mAppOpenAd = null;
+        }
     }
 }

@@ -10,8 +10,8 @@ android {
         applicationId "com.plumsoftware.rucalendar"
         minSdk 21
         targetSdk 34
-        versionCode 37
-        versionName "2.1.1"
+        versionCode 38
+        versionName "2.5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -126,7 +126,7 @@ dependencies {
 
 
     //noinspection MobileAdsSdkVersion
-    implementation 'com.yandex.android:mobileads:6.0.0'
+    implementation 'com.yandex.android:mobileads:6.1.0'
     implementation 'com.yandex.android:mobmetricalib:5.2.0'
     implementation 'com.yandex.ads.mediation:mobileads-admob:20.5.0.0'
     //implementation 'com.google.android.gms:play-services-ads:20.5.0'
