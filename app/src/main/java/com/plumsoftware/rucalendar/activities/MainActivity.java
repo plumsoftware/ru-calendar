@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected Calendar calendar, extraCalendar;
     protected SwipeRefreshLayout swipeRefreshLayout;
 
+    private ProgressDialog progressDialog = new ProgressDialog();
+
     protected List<Integer>
             januaryList,
             februaryList,
@@ -138,24 +140,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         Activity activity = MainActivity.this;
 
 //        region::App open Ads
+        progressDialog.showDialog(context);
         final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
         final String AD_UNIT_ID = "R-M-2215793-4";
         final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
-
-        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
-            @Override
-            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
-                mAppOpenAd = appOpenAd;
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-
-            }
-        };
-
-        appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
-        appOpenAdLoader.loadAd(adRequestConfiguration);
 
         AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
             @Override
@@ -186,11 +174,25 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             }
         };
 
-        if (mAppOpenAd != null) {
-            mAppOpenAd.setAdEventListener(appOpenAdEventListener);
-        }
+        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
+            @Override
+            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
+                mAppOpenAd = appOpenAd;
+                if (mAppOpenAd != null) {
+                    mAppOpenAd.setAdEventListener(appOpenAdEventListener);
+                }
+                progressDialog.dismiss();
+                showAppOpenAd();
+            }
 
-        showAppOpenAd();
+            @Override
+            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+                progressDialog.dismiss();
+            }
+        };
+
+        appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
+        appOpenAdLoader.loadAd(adRequestConfiguration);
 
 //        endregion
 
