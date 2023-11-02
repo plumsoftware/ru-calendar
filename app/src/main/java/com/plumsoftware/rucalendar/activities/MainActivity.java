@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        region::App open Ads
         progressDialog.showDialog(context);
         final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
-        final String AD_UNIT_ID = "R-M-2215793-4";
+        final String AD_UNIT_ID = "R-M-1752331-5"; //Google Play
         final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
 
         AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
