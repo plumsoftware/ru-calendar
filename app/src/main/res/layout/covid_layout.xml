@@ -22,10 +22,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:fontFamily="@font/poppins_semi_bold"
+            android:fontFamily="@font/sf_pro_display_medium"
             android:padding="2dp"
             android:text="11"
             android:textColor="@color/red_"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
     </androidx.cardview.widget.CardView>
 </androidx.cardview.widget.CardView>

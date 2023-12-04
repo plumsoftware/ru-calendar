@@ -22,11 +22,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:fontFamily="@font/poppins_semi_bold"
+            android:fontFamily="@font/sf_pro_display_medium"
             android:gravity="center"
             android:padding="2dp"
             android:text="11"
             android:textColor="@color/purple_"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
     </androidx.cardview.widget.CardView>
 </androidx.cardview.widget.CardView>

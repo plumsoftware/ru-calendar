@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:fontFamily="@font/poppins_semi_bold"
+                android:fontFamily="@font/sf_pro_display_medium"
                 android:gravity="center"
                 android:paddingStart="2dp"
                 android:paddingTop="2dp"
@@ -37,7 +37,7 @@
                 android:paddingBottom="2dp"
                 android:text="11"
                 android:textColor="#808E8E8E"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 

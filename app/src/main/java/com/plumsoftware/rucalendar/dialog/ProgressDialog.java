@@ -1,5 +1,4 @@
 package com.plumsoftware.rucalendar.dialog;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,14 +8,19 @@ import android.view.Window;
 
 import com.plumsoftware.rucalendar.R;
 
+import java.util.Objects;
+
 public class ProgressDialog {
     private Dialog dialog;
 
     public void showDialog(Context context) {
-        @SuppressLint("InflateParams") View view = LayoutInflater.from(context).inflate(R.layout.progress_dialog, null, false);
+        @SuppressLint("InflateParams")
+        View view = LayoutInflater.from(context).inflate(R.layout.progress_dialog, null, false);
+
         dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
         dialog.setContentView(view);
         dialog.show();
     }
