@@ -64,7 +64,7 @@ public class EventActivity extends AppCompatActivity {
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar2);
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
 
-        mBannerAdView.setAdUnitId("R-M-1752331-1"); //Google Play
+        mBannerAdView.setAdUnitId("R-M-2215793-1"); //RuStore
         mBannerAdView.setAdSize(BannerAdSize.inlineSize(EventActivity.this, screenWidth, 50));
 
 //         Создание объекта таргетирования рекламы.
@@ -175,7 +175,7 @@ public class EventActivity extends AppCompatActivity {
         progressDialog.showDialog(EventActivity.this);
         if (mInterstitialAdLoader != null) {
             final AdRequestConfiguration adRequestConfiguration =
-                    new AdRequestConfiguration.Builder("R-M-1752331-5").build(); //Google Play
+                    new AdRequestConfiguration.Builder("R-M-2215793-2").build(); //RuStore
             mInterstitialAdLoader.loadAd(adRequestConfiguration);
         }
     }
