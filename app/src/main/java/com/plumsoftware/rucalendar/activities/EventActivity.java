@@ -28,6 +28,7 @@ import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
 import com.yandex.mobile.ads.common.InitializationListener;
 import com.yandex.mobile.ads.common.MobileAds;
+import com.yandex.mobile.ads.common.AdError;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener;
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener;
@@ -115,13 +116,13 @@ public class EventActivity extends AppCompatActivity {
             }
         });
 
+        //Ads
         mInterstitialAdLoader.setAdLoadListener(new InterstitialAdLoadListener() {
             @Override
             public void onAdLoaded(@NonNull final InterstitialAd interstitialAd) {
                 mInterstitialAd = interstitialAd;
                 progressDialog.dismiss();
-                mInterstitialAd.show(EventActivity.this);
-                finish();
+                showAd();
             }
 
             @Override
@@ -194,5 +195,62 @@ public class EventActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showAd() {
+        if (mInterstitialAd != null) {
+            mInterstitialAd.setAdEventListener(new InterstitialAdEventListener() {
+                @Override
+                public void onAdShown() {
+                    // Called when ad is shown.
+                }
+
+                @Override
+                public void onAdFailedToShow(@NonNull final AdError adError) {
+                    // Called when an InterstitialAd failed to show.
+                    finish();
+                }
+
+                @Override
+                public void onAdDismissed() {
+                    // Called when ad is dismissed.
+                    // Clean resources after Ad dismissed
+                    if (mInterstitialAd != null) {
+                        mInterstitialAd.setAdEventListener(null);
+                        mInterstitialAd = null;
+                    }
+                    finish();
+                }
+
+                @Override
+                public void onAdClicked() {
+                    // Called when a click is recorded for an ad.
+                    finish();
+                }
+
+                @Override
+                public void onAdImpression(@Nullable final ImpressionData impressionData) {
+                    // Called when an impression is recorded for an ad.
+                }
+            });
+            mInterstitialAd.show(this);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mInterstitialAdLoader != null) {
+            mInterstitialAdLoader.setAdLoadListener(null);
+            mInterstitialAdLoader = null;
+        }
+        destroyInterstitialAd();
+    }
+
+    private void destroyInterstitialAd() {
+        if (mInterstitialAd != null) {
+            mInterstitialAd.setAdEventListener(null);
+            mInterstitialAd = null;
+        }
     }
 }
