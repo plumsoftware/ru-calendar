@@ -40,6 +40,9 @@ import com.yandex.mobile.ads.appopenad.AppOpenAd;
 import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener;
 import com.yandex.mobile.ads.appopenad.AppOpenAdLoadListener;
 import com.yandex.mobile.ads.appopenad.AppOpenAdLoader;
+import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdSize;
+import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdError;
 import com.yandex.mobile.ads.common.AdRequest;
 import com.yandex.mobile.ads.common.AdRequestConfiguration;
@@ -71,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected SwipeRefreshLayout swipeRefreshLayout;
 
     private ProgressDialog progressDialog = new ProgressDialog();
+    private final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
 
     protected List<Integer>
             januaryList,
@@ -138,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         Context context = MainActivity.this;
         Activity activity = MainActivity.this;
+
 
 //        region::App open Ads
         progressDialog.showDialog(context);
@@ -227,6 +232,63 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        }
 
         swipeRefreshLayout.setColorSchemeResources(R.color.blue_, R.color.red_, R.color.green_, R.color.orange_);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+        double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
+                Math.pow(screenHeight / displayMetrics.ydpi, 2));
+
+        int bannerHeight;
+        if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
+            bannerHeight = (int) (screenHeight * 0.08);
+        } else {
+            bannerHeight = (int) (screenHeight * 0.036);
+        }
+        BannerAdView mBannerAdView = (BannerAdView) findViewById(R.id.adView);
+        mBannerAdView.setAdUnitId("R-M-2215793-1");
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(context, screenWidth, bannerHeight));
+
+        final AdRequest adRequest = new AdRequest.Builder().build();
+
+        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
+            @Override
+            public void onAdLoaded() {
+                //progressDialog.dismiss();
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+                //progressDialog.dismiss();
+            }
+
+            @Override
+            public void onAdClicked() {
+
+            }
+
+            @Override
+            public void onLeftApplication() {
+                //progressDialog.dismiss();
+            }
+
+            @Override
+            public void onReturnedToApplication() {
+
+            }
+
+            @Override
+            public void onImpression(@Nullable ImpressionData impressionData) {
+
+            }
+        });
+
+        // Загрузка объявления.
+        mBannerAdView.loadAd(adRequest);
+
 
 //        if (b) {
         Property propDefault = new Property();
