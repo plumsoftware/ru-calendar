@@ -82,18 +82,17 @@
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"/>
 
-            <com.yandex.mobile.ads.banner.BannerAdView
-                android:id="@+id/adView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="false"
-                android:layout_centerHorizontal="false"
-                android:layout_gravity="bottom"
-                android:gravity="center"
-                android:visibility="visible" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <com.yandex.mobile.ads.banner.BannerAdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="bottom"
+        android:gravity="bottom" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
