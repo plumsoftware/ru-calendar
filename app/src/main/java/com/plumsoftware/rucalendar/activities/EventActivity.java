@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
 import com.plumsoftware.rucalendar.R;
@@ -65,7 +66,7 @@ public class EventActivity extends AppCompatActivity {
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar2);
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
 
-        mBannerAdView.setAdUnitId("R-M-2215793-1"); //RuStore
+        mBannerAdView.setAdUnitId(AdsConfig.BANNER_EVENT_SCREEN_AD);
         mBannerAdView.setAdSize(BannerAdSize.inlineSize(EventActivity.this, screenWidth, 50));
 
 //         Создание объекта таргетирования рекламы.
@@ -176,7 +177,7 @@ public class EventActivity extends AppCompatActivity {
         progressDialog.showDialog(EventActivity.this);
         if (mInterstitialAdLoader != null) {
             final AdRequestConfiguration adRequestConfiguration =
-                    new AdRequestConfiguration.Builder("R-M-2215793-2").build(); //RuStore
+                    new AdRequestConfiguration.Builder(AdsConfig.INTERSTITIAL_AD).build(); //RuStore
             mInterstitialAdLoader.loadAd(adRequestConfiguration);
         }
     }
