@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
+import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.events.Celebrations;
@@ -137,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         setContentView(R.layout.menu_layout);
 
         MobileAds.initialize(this, () -> {
-
         });
 
         Context context = MainActivity.this;
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        region::App open Ads
         progressDialog.showDialog(context);
         final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
-        final String AD_UNIT_ID = "R-M-2215793-4"; //RuStore
+        final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
         final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
 
         AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
@@ -183,9 +183,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             @Override
             public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
                 mAppOpenAd = appOpenAd;
-                if (mAppOpenAd != null) {
-                    mAppOpenAd.setAdEventListener(appOpenAdEventListener);
-                }
+                mAppOpenAd.setAdEventListener(appOpenAdEventListener);
                 progressDialog.dismiss();
                 showAppOpenAd();
             }
@@ -248,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             bannerHeight = (int) (screenHeight * 0.036);
         }
         BannerAdView mBannerAdView = (BannerAdView) findViewById(R.id.adView);
-        mBannerAdView.setAdUnitId("R-M-2215793-1");
+        mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
         mBannerAdView.setAdSize(BannerAdSize.inlineSize(context, screenWidth, bannerHeight));
 
         final AdRequest adRequest = new AdRequest.Builder().build();
