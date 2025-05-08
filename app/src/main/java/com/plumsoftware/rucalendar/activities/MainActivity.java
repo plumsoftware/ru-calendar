@@ -19,6 +19,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 /**
  import org.naishadhparmar.zcustomcalendar.CustomCalendar;
@@ -29,6 +30,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
 import com.plumsoftware.rucalendar.config.AdsConfig;
+import com.plumsoftware.rucalendar.dialog.InfoDialog;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.events.Celebrations;
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected HashMap<Integer, Object> mapDateToDesc;
     protected Calendar calendar, extraCalendar;
     protected SwipeRefreshLayout swipeRefreshLayout;
+    protected ImageView infoImageView;
 
     private ProgressDialog progressDialog = new ProgressDialog();
     private final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
@@ -202,12 +205,14 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
         swipeRefreshLayout = (SwipeRefreshLayout) activity.findViewById(R.id.refreshLayout);
         RecyclerView recyclerView = (RecyclerView) activity.findViewById(R.id.recyclerView);
+        infoImageView = activity.findViewById(R.id.infoImageView);
         animationView = (LottieAnimationView) activity.findViewById(R.id.animationView);
         nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
 //        TextView textView = (TextView) activity.findViewById(R.id.textView);
         HashMap<Object, Property> mapDescToProp = new HashMap<>();
         List<CelebrationItem> celebrations = new ArrayList<>();
+        InfoDialog infoDialog = new InfoDialog(context);
 //        b = countryCode.equals("ru");
 
 //        if (!countryCode.equals("ru") && !countryCode.equals("kz") && !countryCode.equals("ua") && !countryCode.equals("by")) {
@@ -621,6 +626,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
 //            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
 //        }
+
+        infoImageView.setOnClickListener(view -> {
+            infoDialog.show();
+        });
     }
 
     @Override

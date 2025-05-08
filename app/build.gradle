@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     def localProperties = new Properties()
     def localPropertiesFile = rootProject.file("local.properties")
@@ -21,9 +21,9 @@ android {
     defaultConfig {
         applicationId "com.plumsoftware.rucalendar"
         minSdk 21
-        targetSdk 35
-        versionCode 52
-        versionName "4.0.6"
+        targetSdk 36
+        versionCode 53
+        versionName "4.0.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -152,7 +152,7 @@ dependencies {
 
 
     //noinspection MobileAdsSdkVersion
-    implementation 'com.yandex.android:mobileads:7.11.0'
+    implementation 'com.yandex.android:mobileads:7.12.2'
 
     //Animations
     implementation 'io.noties:tumbleweed-android:2.0.0'
