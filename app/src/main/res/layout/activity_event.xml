@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -9,16 +10,16 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar2"
+        style="@style/ToolbarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
         android:elevation="4dp"
-        app:menu="@menu/event_menu"
+        android:maxLines="2"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        style="@style/ToolbarStyle"
-        android:maxLines="2"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/event_menu" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -34,18 +35,25 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <CheckBox
+                android:layout_marginHorizontal="14dp"
+                android:id="@+id/reminde"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="  Напомнить" />
+
             <TextView
                 android:id="@+id/textDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="18dp"
                 android:fontFamily="@font/sf_pro_display_regular"
+                android:lineSpacingExtra="6dp"
                 android:padding="0dp"
                 android:paddingLeft="0dp"
                 android:paddingTop="4dp"
                 android:paddingRight="0dp"
                 android:paddingBottom="4dp"
-                android:lineSpacingExtra="6dp"
                 android:textColor="?attr/colorOnBackground"
                 android:textSize="16sp" />
 
