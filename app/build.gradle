@@ -22,8 +22,8 @@ android {
         applicationId "com.plumsoftware.rucalendar"
         minSdk 21
         targetSdk 36
-        versionCode 55
-        versionName "4.0.9"
+        versionCode 56
+        versionName "4.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -152,7 +152,7 @@ dependencies {
 
 
     //noinspection MobileAdsSdkVersion
-    implementation 'com.yandex.android:mobileads:7.14.1'
+    implementation 'com.yandex.android:mobileads:7.15.1'
 
     //Animations
     implementation 'io.noties:tumbleweed-android:2.0.0'
@@ -167,4 +167,7 @@ dependencies {
     //Lottie
     def lottieVersion = "3.4.0"
     implementation "com.airbnb.android:lottie:$lottieVersion"
+
+    //Worker
+    implementation "androidx.work:work-runtime:2.8.1"
 }

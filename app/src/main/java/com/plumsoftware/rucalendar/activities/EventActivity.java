@@ -3,16 +3,27 @@ package com.plumsoftware.rucalendar.activities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,8 +48,13 @@ import com.yandex.mobile.ads.interstitial.InterstitialAdLoader;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import com.plumsoftware.rucalendar.services.MyNotificationWorker;
 
 public class EventActivity extends AppCompatActivity {
     private ProgressDialog progressDialog = new ProgressDialog();
@@ -58,11 +74,27 @@ public class EventActivity extends AppCompatActivity {
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         int screenWidth = displayMetrics.widthPixels;
 
+        long date;
+        String name;
+
         MobileAds.initialize(EventActivity.this, () -> {
 
         });
 
+        View rootView = findViewById(R.id.root_layout);
+        if (Build.VERSION.SDK_INT <= 35) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
+                Insets insets1 = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
+                Insets insets2 = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+                v.setPadding(0,insets1.top, 0, insets2.bottom);
+
+                return windowInsets;
+            });
+        }
+
         TextView textView = findViewById(R.id.textDescription);
+        CheckBox reminde = findViewById(R.id.reminde);
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar2);
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
 
@@ -78,31 +110,39 @@ public class EventActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             CelebrationItem celebrationItem = getIntent().getSerializableExtra("event", CelebrationItem.class);
 
+            name = celebrationItem.getName();
+            date = celebrationItem.getTimeInMillis();
+
             if (celebrationItem != null) {
                 textView.setText(celebrationItem.getDesc());
             }
             if (celebrationItem != null) {
-                toolbar.setTitle(celebrationItem.getName());
+                toolbar.setTitle(name);
             }
             if (celebrationItem != null) {
-                toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(celebrationItem.getTimeInMillis())));
+                toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
             }
         } else {
+
+            name = getIntent().getStringExtra("name");
+            date = getIntent().getLongExtra("time", 1000000);
+
             textView.setText(getIntent().getStringExtra("desc"));
-            toolbar.setTitle(getIntent().getStringExtra("name"));
-            toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(getIntent().getLongExtra("time", 1000000))));
+            toolbar.setTitle(name);
+            toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
         }
 
 //        Clickers
-
+        long finalDate = date;
+        String finalName = name;
         toolbar.setOnMenuItemClickListener(new androidx.appcompat.widget.Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
                 switch (item.getItemId()) {
                     case R.id.bug_report:
-                        String message = "Ошибка в событии " + new SimpleDateFormat("dd.MM", Locale.getDefault()).format(new Date(getIntent().getLongExtra("time", 1000000)));
-                        message = message + "\n" + getIntent().getStringExtra("name");
+                        String message = "Ошибка в событии " + new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(finalDate));
+                        message = message + "\n" + finalName;
                         message += "\n" + "Комментарий:" + "\n";
                         String subject = "Отчёт об ошибке";
                         String TO = "plumsoftwareofficial@gmail.com";
@@ -168,6 +208,66 @@ public class EventActivity extends AppCompatActivity {
 
         // Загрузка объявления.
         mBannerAdView.loadAd(adRequestB);
+
+        // Получаем SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("WorkerPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        boolean isCheckedPref = prefs.getBoolean(name, false);
+        reminde.setChecked(isCheckedPref);
+
+        reminde.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+
+            if (isChecked) {
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(date);
+                calendar.set(Calendar.HOUR_OF_DAY, 10);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+
+                long targetTime = calendar.getTimeInMillis();
+
+                long currentTime = System.currentTimeMillis();
+                long delay = targetTime - currentTime;
+
+                // Подготавливаем данные
+                Data inputData = new Data.Builder()
+                        .putString("notification_title", finalName)
+                        .build();
+
+                // Создаём WorkRequest
+                OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MyNotificationWorker.class)
+                        .setInputData(inputData)
+                        .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                        .build();
+
+                // Сохраняем ID воркера
+                UUID workId = workRequest.getId();
+                editor.putBoolean(finalName, true);
+                editor.putString(finalName + "_reminder_worker_id", workId.toString());
+                editor.apply();
+
+                // Запускаем воркер
+                WorkManager.getInstance(this).enqueue(workRequest);
+            } else {
+                // Читаем сохранённый ID
+                String workIdStr = prefs.getString(finalName + "_reminder_worker_id", null);
+                if (workIdStr != null) {
+                    try {
+                        UUID workId = UUID.fromString(workIdStr);
+                        WorkManager.getInstance(this).cancelWorkById(workId);
+                    } catch (IllegalArgumentException e) {
+                        Log.e("Worker", "Invalid UUID saved", e);
+                    }
+                }
+
+                // Обновляем состояние
+                editor.putBoolean(finalName, false);
+                editor.remove(finalName + "_reminder_worker_id"); // можно удалить, можно оставить
+                editor.apply();
+            }
+        });
     }
 
     @Override

@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,10 +16,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
@@ -142,6 +147,19 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         Context context = MainActivity.this;
         Activity activity = MainActivity.this;
+
+        View rootView = findViewById(R.id.root_layout);
+
+        if (Build.VERSION.SDK_INT <= 35) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
+                Insets insets1 = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
+                Insets insets2 = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+                v.setPadding(0,insets1.top, 0, insets2.bottom);
+
+                return windowInsets;
+            });
+        }
 
 
 //        region::App open Ads
