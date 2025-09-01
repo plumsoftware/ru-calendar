@@ -327,10 +327,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         propShort.dateTextViewResource = R.id.textViewDate;
         mapDescToProp.put("short", propShort);
 
-        Property propCurrent = new Property();
-        propCurrent.layoutResource = R.layout.current_layout;
-        propCurrent.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("current", propCurrent);
+//        Property propCurrent = new Property();
+//        propCurrent.layoutResource = R.layout.current_layout;
+//        propCurrent.dateTextViewResource = R.id.textViewDate;
+//        mapDescToProp.put("current", propCurrent);
 
         Property propMDate = new Property();
         propMDate.layoutResource = R.layout.memory_date_view;
@@ -452,19 +452,19 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             if ("short".equals(desc)) {
                                 celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
                             }
-                            if ("current".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
-//                                    color = String.valueOf(getAttrColor(context, com.google.android.material.R.attr.colorTertiary));
-//                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary));
-                                if (AppCompatDelegate.getDefaultNightMode() == 1) {
-                                    color = "#715573";
-                                } else {
-                                    color = "#DEBCDF";
-                                }
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                            }
-                            if ("current".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                recyclerView.setVisibility(View.VISIBLE);
-                            }
+//                            if ("current".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
+////                                    color = String.valueOf(getAttrColor(context, com.google.android.material.R.attr.colorTertiary));
+////                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary));
+//                                if (AppCompatDelegate.getDefaultNightMode() == 1) {
+//                                    color = "#715573";
+//                                } else {
+//                                    color = "#DEBCDF";
+//                                }
+//                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+//                            }
+//                            if ("current".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
+//                                recyclerView.setVisibility(View.VISIBLE);
+//                            }
                             if ("mDate".equals(desc)) {
                                 color = "#d7e8cd";
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
@@ -736,9 +736,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         break;
                 }
             }
-            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-            }
+//            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+//                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
+//            }
             arr[1] = null;
         }
         if (newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) + 1) {
@@ -765,9 +765,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         break;
                 }
             }
-            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-            }
+//            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+//                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
+//            }
             arr[1] = null;
         }
         if (newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) - 1) {
@@ -794,9 +794,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         break;
                 }
             }
-            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-            }
+//            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+//                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
+//            }
             arr[1] = null;
         }
 
@@ -975,9 +975,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-            arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-        }
+//        if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+//            arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
+//        }
 
         return arr;
     }
@@ -1100,8 +1100,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         }
                     }
 
-                    if (year == calendar.get(Calendar.YEAR) && month == calendar.get(Calendar.MONTH))
-                        mapDateToDesc.put(calendar.get(Calendar.DAY_OF_MONTH), "current");
+//                    if (year == calendar.get(Calendar.YEAR) && month == calendar.get(Calendar.MONTH))
+//                        mapDateToDesc.put(calendar.get(Calendar.DAY_OF_MONTH), "current");
 
 //                    if (b) {
                     switch (calendar.get(Calendar.MONTH)) {

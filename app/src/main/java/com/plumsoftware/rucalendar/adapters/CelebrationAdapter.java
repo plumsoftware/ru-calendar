@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,19 +22,29 @@ import com.plumsoftware.rucalendar.events.CelebrationItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class CelebrationAdapter extends RecyclerView.Adapter<CelebrationHolder> {
     protected Context context;
     protected Activity activity;
     protected List<CelebrationItem> celebrations;
+
+    private Map<String, String> eventTypes = new HashMap<>();
     //protected RewardedAd mRewardedAd;
 
     public CelebrationAdapter(Context context, Activity activity, List<CelebrationItem> celebrations) {
         this.context = context;
         this.activity = activity;
         this.celebrations = celebrations;
+
+        eventTypes.put("#ffdad5", "Праздничный день");
+        eventTypes.put("#ecddf7", "Сокращенный день");
+        eventTypes.put("#D8D7F8", "Профессиональный праздник");
+        eventTypes.put("#d7e8cd", "Памятная дата");
+        eventTypes.put("#ffdcc1", "Неофициальный праздник");
     }
 
     @NonNull
@@ -46,6 +57,13 @@ public class CelebrationAdapter extends RecyclerView.Adapter<CelebrationHolder> 
     @Override
     public void onBindViewHolder(@NonNull CelebrationHolder holder, @SuppressLint("RecyclerView") int position) {
         if (position == 0) {
+            CelebrationItem item = celebrations.get(position);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                holder.textViewEventType.setText(eventTypes.getOrDefault(item.getColor(), ""));
+            } else {
+                String type = eventTypes.get(item.getColor());
+                holder.textViewEventType.setText(type);
+            }
             holder.textViewDay.setText(new SimpleDateFormat("dd", Locale.getDefault()).format(new Date(celebrations.get(position).getTimeInMillis())));
             String s = new SimpleDateFormat("MMMM", Locale.getDefault()).format(new Date(celebrations.get(position).getTimeInMillis()));
             String s2 = new SimpleDateFormat("EEEE", Locale.getDefault()).format(new Date(celebrations.get(position).getTimeInMillis()));
@@ -176,7 +194,7 @@ public class CelebrationAdapter extends RecyclerView.Adapter<CelebrationHolder> 
 }
 
 class CelebrationHolder extends RecyclerView.ViewHolder {
-    protected TextView textViewName, textViewDesc, textViewClickDate, bTextView, textViewDay, textViewMonth;
+    protected TextView textViewName, textViewDesc, textViewClickDate, bTextView, textViewDay, textViewMonth, textViewEventType;
     protected ImageView imageViewPromo, imageViewDivider;
     protected CardView bCard, cardViewBig;
 
@@ -192,5 +210,6 @@ class CelebrationHolder extends RecyclerView.ViewHolder {
         imageViewDivider = (ImageView) itemView.findViewById(R.id.imageViewDivider);
         bCard = (CardView) itemView.findViewById(R.id.bCard);
         cardViewBig = (CardView) itemView.findViewById(R.id.cardViewBig);
+        textViewEventType = (TextView) itemView.findViewById(R.id.textViewEventType);
     }
 }

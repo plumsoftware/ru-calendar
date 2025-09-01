@@ -101,17 +101,45 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textViewName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/sf_pro_display_medium"
-                    android:paddingHorizontal="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
                     android:paddingTop="16dp"
-                    android:text="Новый год"
-                    android:textAlignment="viewStart"
-                    android:textColor="#000"
-                    android:textSize="18sp" />
+                    android:foregroundGravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textViewName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/sf_pro_display_medium"
+                        android:paddingHorizontal="18dp"
+                        android:text="Новый год"
+                        android:textAlignment="viewStart"
+                        android:textColor="#000"
+                        android:textSize="18sp" />
+
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="6dp" />
+
+                    <TextView
+                        android:id="@+id/textViewEventType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|start"
+                        android:paddingHorizontal="18dp"
+                        android:fontFamily="@font/sf_pro_display_regular"
+                        android:gravity="center"
+                        android:text="Памятная дата"
+                        android:textColor="?attr/colorOnBackground"
+                        android:textSize="14sp"
+                        android:ellipsize="none"
+                        android:singleLine="false"
+                        android:scrollHorizontally="false" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/textViewDesc"
@@ -125,7 +153,6 @@
                     android:textAlignment="viewStart"
                     android:textColor="#99000000"
                     android:textSize="18sp" />
-
 
 
                 <androidx.cardview.widget.CardView
