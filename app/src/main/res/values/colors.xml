@@ -65,9 +65,11 @@
     <color name="md_theme_dark_outlineVariant">#44474F</color>
     <color name="md_theme_dark_scrim">#000000</color>
 
+    <color name="status_bar_color">#EDEDED</color>
+
     <!-- Cards colors-->
     <color name="red_">#6E4F4B</color>
-    <color name="red_container">#F99B8E</color>
+    <color name="red_container">#C64C4C</color>
 
     <color name="orange_">#735943</color>
     <color name="orange_container">#F9C298</color>

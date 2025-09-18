@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="30dp"
-    android:layout_height="30dp"
-    app:cardBackgroundColor="#FFFFFF"
-    app:cardCornerRadius="0dp"
-    app:cardElevation="0dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="65dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/top_stroke"
+    android:foregroundGravity="center_horizontal|top"
+    android:gravity="center_horizontal|top"
+    android:orientation="vertical"
+    android:paddingHorizontal="8dp"
+    android:paddingTop="8dp">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="0dp"
-        android:padding="8dp"
-        app:cardBackgroundColor="@color/green_container"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="0dp">
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="6dp"
+        android:elevation="0dp"
+        android:fontFamily="@font/sf_pro_display_medium"
+        android:gravity="center"
+        android:padding="2dp"
+        android:text="11"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/textViewDate"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:fontFamily="@font/sf_pro_display_medium"
-            android:gravity="center"
-            android:padding="2dp"
-            android:text="11"
-            android:textColor="@color/green_"
-            android:textSize="16sp" />
-    </androidx.cardview.widget.CardView>
-</androidx.cardview.widget.CardView>
+    <View
+        android:layout_width="4dp"
+        android:layout_height="4dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/green_container" />
+</LinearLayout>

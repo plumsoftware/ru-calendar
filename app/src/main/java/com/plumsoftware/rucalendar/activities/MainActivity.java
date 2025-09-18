@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -23,6 +24,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 
 /**
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         super.onCreate(savedInstanceState);
 //        Заглушка для темы
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        setStatusBarColor();
         setContentView(R.layout.menu_layout);
 
         MobileAds.initialize(this, () -> {
@@ -639,6 +642,25 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
 //            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
 //        }
+    }
+
+    void setStatusBarColor() {
+        int color;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            color = getColor(R.color.status_bar_color);
+        } else {
+            color = ContextCompat.getColor(this, R.color.status_bar_color);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { // Android 15+
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            getWindow().setStatusBarColor(color);
+        } else {
+            // For Android 14 and below
+            getWindow().setStatusBarColor(color);
+        }
+
     }
 
     @Override

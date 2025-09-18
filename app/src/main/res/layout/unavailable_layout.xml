@@ -1,44 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="30dp"
-    android:layout_height="30dp"
-    app:cardBackgroundColor="#00FFFFFF"
-    app:cardCornerRadius="0dp"
-    app:cardElevation="0dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="65dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/top_stroke"
+    android:foregroundGravity="center_horizontal|top"
+    android:gravity="center_horizontal|top"
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="0dp"
-        android:orientation="vertical">
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="6dp"
+        android:elevation="0dp"
+        android:fontFamily="@font/sf_pro_display_medium"
+        android:gravity="center"
+        android:padding="2dp"
+        android:text="11"
+        android:textColor="#808E8E8E"
+        android:textSize="16sp" />
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="0dp"
-            android:foregroundGravity="center"
-            app:cardBackgroundColor="#00FFFFFF"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="0dp"
-            app:cardUseCompatPadding="false">
-
-            <TextView
-                android:id="@+id/textViewDate"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:fontFamily="@font/sf_pro_display_medium"
-                android:gravity="center"
-                android:paddingStart="2dp"
-                android:paddingTop="2dp"
-                android:paddingEnd="2dp"
-                android:paddingBottom="2dp"
-                android:text="11"
-                android:textColor="#808E8E8E"
-                android:textSize="16sp" />
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+    <View
+        android:layout_width="4dp"
+        android:layout_marginBottom="8dp"
+        android:layout_height="4dp" />
+</LinearLayout>
