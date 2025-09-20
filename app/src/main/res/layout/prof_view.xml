@@ -25,8 +25,8 @@
         android:textSize="16sp" />
 
     <View
-        android:layout_width="4dp"
-        android:layout_height="4dp"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/blue_circle" />
 </LinearLayout>
