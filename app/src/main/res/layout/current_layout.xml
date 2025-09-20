@@ -7,8 +7,19 @@
     android:gravity="center_horizontal|top"
     android:background="@drawable/top_stroke"
     android:orientation="vertical"
-    android:paddingHorizontal="8dp"
-    android:paddingTop="8dp">
+    android:paddingHorizontal="2dp"
+    android:paddingBottom="2dp"
+    android:paddingTop="2dp">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foregroundGravity="center_horizontal|top"
+        android:gravity="center_horizontal|top"
+        android:background="@drawable/current_back"
+        android:orientation="vertical"
+        android:paddingHorizontal="8dp"
+        android:paddingTop="8dp">
 
     <TextView
         android:id="@+id/textViewDate"
@@ -28,4 +39,5 @@
         android:layout_width="4dp"
         android:layout_marginBottom="8dp"
         android:layout_height="4dp" />
+</LinearLayout>
 </LinearLayout>

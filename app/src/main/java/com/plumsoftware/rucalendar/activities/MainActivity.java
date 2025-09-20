@@ -1,10 +1,12 @@
 package com.plumsoftware.rucalendar.activities;
 
+import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -16,15 +18,19 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 
 /**
@@ -142,8 +148,18 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         super.onCreate(savedInstanceState);
 //        Заглушка для темы
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        setStatusBarColor();
+        setupEdgeToEdge();
         setContentView(R.layout.menu_layout);
+
+        View rootView = findViewById(R.id.root_layout);
+        rootView.setBackgroundColor(ContextCompat.getColor(this, R.color.status_bar_color));
+        rootView.setOnApplyWindowInsetsListener((v, insets) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                int statusBarHeight = insets.getInsets(WindowInsets.Type.statusBars()).top;
+                v.setPadding(v.getPaddingLeft(), statusBarHeight, v.getPaddingRight(), v.getPaddingBottom());
+            }
+            return insets;
+        });
 
         MobileAds.initialize(this, () -> {
         });
@@ -151,73 +167,66 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         Context context = MainActivity.this;
         Activity activity = MainActivity.this;
 
-        View rootView = findViewById(R.id.root_layout);
-
-        if (Build.VERSION.SDK_INT <= 35) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
-                Insets insets1 = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
-                Insets insets2 = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
-
-                v.setPadding(0,insets1.top, 0, insets2.bottom);
-
-                return windowInsets;
-            });
-        }
-
+        SharedPreferences sp = getSharedPreferences("ads_showing", Context.MODE_APPEND);
+        int open = sp.getInt("open", 0);
+        int banner = sp.getInt("banner", 0);
 
 //        region::App open Ads
-        progressDialog.showDialog(context);
-        final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
-        final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
-        final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
+        if (open >= 7) {
+            progressDialog.showDialog(context);
+            final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
+            final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
+            final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
 
-        AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
-            @Override
-            public void onAdShown() {
-                // Called when ad is shown.
-            }
+            AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
+                @Override
+                public void onAdShown() {
+                    // Called when ad is shown.
+                }
 
-            @Override
-            public void onAdFailedToShow(@NonNull final AdError adError) {
-                // Called when ad failed to show.
-            }
+                @Override
+                public void onAdFailedToShow(@NonNull final AdError adError) {
+                    // Called when ad failed to show.
+                }
 
-            @Override
-            public void onAdDismissed() {
-                // Called when ad is dismissed.
-                // Clean resources after dismiss and preload new ad.
-                clearAppOpenAd();
-            }
+                @Override
+                public void onAdDismissed() {
+                    // Called when ad is dismissed.
+                    // Clean resources after dismiss and preload new ad.
+                    clearAppOpenAd();
+                }
 
-            @Override
-            public void onAdClicked() {
-                // Called when a click is recorded for an ad.
-            }
+                @Override
+                public void onAdClicked() {
+                    // Called when a click is recorded for an ad.
+                }
 
-            @Override
-            public void onAdImpression(@Nullable final ImpressionData impressionData) {
-                // Called when an impression is recorded for an ad.
-            }
-        };
+                @Override
+                public void onAdImpression(@Nullable final ImpressionData impressionData) {
+                    // Called when an impression is recorded for an ad.
+                }
+            };
 
-        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
-            @Override
-            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
-                mAppOpenAd = appOpenAd;
-                mAppOpenAd.setAdEventListener(appOpenAdEventListener);
-                progressDialog.dismiss();
-                showAppOpenAd();
-            }
+            AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
+                @Override
+                public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
+                    mAppOpenAd = appOpenAd;
+                    mAppOpenAd.setAdEventListener(appOpenAdEventListener);
+                    progressDialog.dismiss();
+                    showAppOpenAd();
+                }
 
-            @Override
-            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                progressDialog.dismiss();
-            }
-        };
+                @Override
+                public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+                    progressDialog.dismiss();
+                }
+            };
 
-        appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
-        appOpenAdLoader.loadAd(adRequestConfiguration);
-
+            appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
+            appOpenAdLoader.loadAd(adRequestConfiguration);
+        } else {
+            sp.edit().putInt("open", (open + 1)).apply();
+        }
 //        endregion
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
@@ -226,6 +235,41 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         animationView = (LottieAnimationView) activity.findViewById(R.id.animationView);
         nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+        if (appBarLayout != null) {
+            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                private int lastOffset = 0;
+
+                @Override
+                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                    if (verticalOffset > lastOffset) {
+                        // 👆 Скролл ВВЕРХ (AppBarLayout раскрывается)
+                        Log.d("SCROLL", "Scrolling UP");
+
+                        if (verticalOffset >= -270) {
+                            // Полностью раскрыт — меняем цвет
+                            runOnUiThread(() -> {
+                                int color = ContextCompat.getColor(MainActivity.this, R.color.status_bar_color);
+                                setStatusBarColor(color);
+                                rootView.setBackgroundColor(color);
+                            });
+                        }
+
+                    } else if (verticalOffset < lastOffset) {
+                        // 👇 Скролл ВНИЗ (AppBarLayout схлопывается)
+                        Log.d("SCROLL", "Scrolling DOWN");
+                        if (verticalOffset <= -270) {
+                            runOnUiThread(() -> {
+                                int color = getThemeColor(android.R.attr.colorBackground);
+                                setStatusBarColor(color);
+                                rootView.setBackgroundColor(color);
+                            });
+                        }
+                    }
+
+                    lastOffset = verticalOffset;
+                }
+            });
+        }
 //        TextView textView = (TextView) activity.findViewById(R.id.textView);
         HashMap<Object, Property> mapDescToProp = new HashMap<>();
         List<CelebrationItem> celebrations = new ArrayList<>();
@@ -252,61 +296,65 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         swipeRefreshLayout.setColorSchemeResources(R.color.blue_, R.color.red_, R.color.green_, R.color.orange_);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int screenWidth = displayMetrics.widthPixels;
-        int screenHeight = displayMetrics.heightPixels;
+        if (banner >= 2) {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int screenWidth = displayMetrics.widthPixels;
+            int screenHeight = displayMetrics.heightPixels;
 
-        double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
-                Math.pow(screenHeight / displayMetrics.ydpi, 2));
+            double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
+                    Math.pow(screenHeight / displayMetrics.ydpi, 2));
 
-        int bannerHeight;
-        if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
-            bannerHeight = (int) (screenHeight * 0.08);
+            int bannerHeight;
+            if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
+                bannerHeight = (int) (screenHeight * 0.08);
+            } else {
+                bannerHeight = (int) (screenHeight * 0.036);
+            }
+            BannerAdView mBannerAdView = (BannerAdView) findViewById(R.id.adView);
+            mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
+            mBannerAdView.setAdSize(BannerAdSize.inlineSize(context, screenWidth, bannerHeight));
+
+            final AdRequest adRequest = new AdRequest.Builder().build();
+
+            // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+            mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
+                @Override
+                public void onAdLoaded() {
+                    //progressDialog.dismiss();
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+                    //progressDialog.dismiss();
+                }
+
+                @Override
+                public void onAdClicked() {
+
+                }
+
+                @Override
+                public void onLeftApplication() {
+                    //progressDialog.dismiss();
+                }
+
+                @Override
+                public void onReturnedToApplication() {
+
+                }
+
+                @Override
+                public void onImpression(@Nullable ImpressionData impressionData) {
+
+                }
+            });
+
+            // Загрузка объявления.
+            mBannerAdView.loadAd(adRequest);
         } else {
-            bannerHeight = (int) (screenHeight * 0.036);
+            sp.edit().putInt("banner", (banner + 1)).apply();
         }
-        BannerAdView mBannerAdView = (BannerAdView) findViewById(R.id.adView);
-        mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(context, screenWidth, bannerHeight));
-
-        final AdRequest adRequest = new AdRequest.Builder().build();
-
-        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-            @Override
-            public void onAdLoaded() {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onAdClicked() {
-
-            }
-
-            @Override
-            public void onLeftApplication() {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onReturnedToApplication() {
-
-            }
-
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
-
-            }
-        });
-
-        // Загрузка объявления.
-        mBannerAdView.loadAd(adRequest);
 
 
 //        if (b) {
@@ -410,6 +458,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             @SuppressLint("ResourceType")
             @Override
             public void onDateSelected(View view, Calendar selectedDate, Object desc) {
+                runOnUiThread(() -> {
+                    int newColor = getThemeColor(android.R.attr.colorBackground);
+                    rootView.setBackgroundColor(newColor);
+                });
                 celebrations.clear();
                 String name1 = "";
                 String descS1 = "";
@@ -644,23 +696,81 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        }
     }
 
-    void setStatusBarColor() {
-        int color;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            color = getColor(R.color.status_bar_color);
+    @SuppressLint("NewApi")
+    void setStatusBarColor(int color) {
+        Window window = getWindow();
+
+        boolean isDarkBackground = ColorUtils.calculateLuminance(color) < 0.5;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                if (isDarkBackground) {
+                    controller.setSystemBarsAppearance(
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                    );
+                } else {
+                    controller.setSystemBarsAppearance(
+                            0,
+                            0
+                    );
+                }
+            }
+
+            window.setStatusBarColor(color);
+
+            // 👇 ВАЖНО: принудительно обновляем системный UI
+            window.getDecorView().requestApplyInsets();
+
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(color);
+
+            if (isDarkBackground) {
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            } else {
+                getWindow().getDecorView().setSystemUiVisibility(0);
+            }
+
         } else {
-            color = ContextCompat.getColor(this, R.color.status_bar_color);
+            window.setStatusBarColor(color);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { // Android 15+
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            getWindow().setStatusBarColor(color);
-        } else {
-            // For Android 14 and below
-            getWindow().setStatusBarColor(color);
+        // 👇 Принудительный редрав ВСЕХ view
+        getWindow().getDecorView().post(() -> {
+            getWindow().getDecorView().invalidate();
+            getWindow().getDecorView().requestLayout();
+        });
+    }
+
+    private void setupEdgeToEdge() {
+        Window window = getWindow();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Отключаем старое поведение fitsSystemWindows
+            window.setDecorFitsSystemWindows(false);
         }
 
+        // Принудительно включаем edge-to-edge для всех версий
+        View decorView = window.getDecorView();
+        int flags = decorView.getSystemUiVisibility();
+        flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+        decorView.setSystemUiVisibility(flags);
+    }
+
+    public int getThemeColor(@AttrRes int attr) {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(attr, typedValue, true);
+        if (typedValue.resourceId != 0) {
+            return ContextCompat.getColor(this, typedValue.resourceId);
+        } else {
+            return typedValue.data;
+        }
     }
 
     @Override

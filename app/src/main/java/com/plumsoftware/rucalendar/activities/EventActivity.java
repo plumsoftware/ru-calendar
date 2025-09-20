@@ -81,6 +81,10 @@ public class EventActivity extends AppCompatActivity {
 
         });
 
+        SharedPreferences sp = getSharedPreferences("ads_showing", Context.MODE_APPEND);
+        int interstitial = sp.getInt("interstitial", 0);
+        int banner = sp.getInt("banner2", 0);
+
         View rootView = findViewById(R.id.root_layout);
         if (Build.VERSION.SDK_INT <= 35) {
             ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
@@ -103,8 +107,6 @@ public class EventActivity extends AppCompatActivity {
 
 //         Создание объекта таргетирования рекламы.
         final AdRequest adRequestB = new AdRequest.Builder().build();
-
-        mInterstitialAdLoader = new InterstitialAdLoader(EventActivity.this);
 
 //        Setup event data
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -158,56 +160,64 @@ public class EventActivity extends AppCompatActivity {
         });
 
         //Ads
-        mInterstitialAdLoader.setAdLoadListener(new InterstitialAdLoadListener() {
-            @Override
-            public void onAdLoaded(@NonNull final InterstitialAd interstitialAd) {
-                mInterstitialAd = interstitialAd;
-                progressDialog.dismiss();
-                showAd();
-            }
+        if (interstitial >= 4) {
+            mInterstitialAdLoader = new InterstitialAdLoader(EventActivity.this);
+            mInterstitialAdLoader.setAdLoadListener(new InterstitialAdLoadListener() {
+                @Override
+                public void onAdLoaded(@NonNull final InterstitialAd interstitialAd) {
+                    mInterstitialAd = interstitialAd;
+                    progressDialog.dismiss();
+                    showAd();
+                }
 
-            @Override
-            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                progressDialog.dismiss();
-                finish();
-            }
-        });
-
-//         Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-            @Override
-            public void onAdLoaded() {
-
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-
-            }
-
-            @Override
-            public void onAdClicked() {
-
-            }
-
-            @Override
-            public void onLeftApplication() {
-
-            }
-
-            @Override
-            public void onReturnedToApplication() {
-
-            }
-
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
-
-            }
-        });
+                @Override
+                public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+                    progressDialog.dismiss();
+                    finish();
+                }
+            });
+        } else {
+            sp.edit().putInt("interstitial", (interstitial + 1)).apply();
+        }
 
         // Загрузка объявления.
-        mBannerAdView.loadAd(adRequestB);
+        if (banner >= 2) {
+            //         Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+            mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
+                @Override
+                public void onAdLoaded() {
+
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+
+                }
+
+                @Override
+                public void onAdClicked() {
+
+                }
+
+                @Override
+                public void onLeftApplication() {
+
+                }
+
+                @Override
+                public void onReturnedToApplication() {
+
+                }
+
+                @Override
+                public void onImpression(@Nullable ImpressionData impressionData) {
+
+                }
+            });
+            mBannerAdView.loadAd(adRequestB);
+        } else {
+            sp.edit().putInt("banner2", (banner + 1)).apply();
+        }
 
         // Получаем SharedPreferences
         SharedPreferences prefs = getSharedPreferences("WorkerPrefs", Context.MODE_PRIVATE);
@@ -274,11 +284,13 @@ public class EventActivity extends AppCompatActivity {
     public void onBackPressed() {
 //        super.onBackPressed();
         // Загрузка объявления
-        progressDialog.showDialog(EventActivity.this);
         if (mInterstitialAdLoader != null) {
+            progressDialog.showDialog(EventActivity.this);
             final AdRequestConfiguration adRequestConfiguration =
                     new AdRequestConfiguration.Builder(AdsConfig.INTERSTITIAL_AD).build(); //RuStore
             mInterstitialAdLoader.loadAd(adRequestConfiguration);
+        } else {
+            finish();
         }
     }
 
