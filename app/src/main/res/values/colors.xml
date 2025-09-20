@@ -69,17 +69,17 @@
 
     <!-- Cards colors-->
     <color name="red_">#6E4F4B</color>
-    <color name="red_container">#C64C4C</color>
+    <color name="red_container">#CE3D3D</color>
 
     <color name="orange_">#735943</color>
-    <color name="orange_container">#F9C298</color>
+    <color name="orange_container">#DDA479</color>
 
     <color name="blue_">#5c5d72</color>
-    <color name="blue_container">#A2B2F8</color>
+    <color name="blue_container">#7987D7</color>
 
     <color name="green_">#54634d</color>
-    <color name="green_container">#C4FBA3</color>
+    <color name="green_container">#7ABF4B</color>
 
     <color name="purple_">#655a6f</color>
-    <color name="purple_container">#CA93F2</color>
+    <color name="purple_container">#A871D1</color>
 </resources>
