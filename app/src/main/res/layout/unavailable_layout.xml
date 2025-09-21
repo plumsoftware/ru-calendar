@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="65dp"
-    android:layout_marginBottom="8dp"
+    android:layout_height="75dp"
     android:background="@drawable/top_stroke"
     android:foregroundGravity="center_horizontal|top"
     android:gravity="center_horizontal|top"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:paddingTop="8dp">
 
     <TextView
         android:id="@+id/textViewDate"
@@ -20,7 +19,7 @@
         android:gravity="center"
         android:padding="2dp"
         android:text="11"
-        android:textColor="#808E8E8E"
+        android:textColor="?attr/colorOnSurfaceDisabled"
         android:textSize="16sp" />
 
     <View

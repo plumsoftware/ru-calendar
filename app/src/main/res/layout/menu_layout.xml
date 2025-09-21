@@ -16,7 +16,6 @@
             android:layout_height="wrap_content"
             app:contentScrim="?android:attr/colorBackground"
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-
             app:toolbarId="@+id/toolbar">
 
 
@@ -42,7 +41,7 @@
                     app:left_button_src="@drawable/ic_keyboard_arrow_left_black_24dp"
                     app:month_year_format="full_month__with_year"
                     app:right_button_src="@drawable/ic_keyboard_arrow_right_black_24dp"
-                    app:row_height="62dp" />
+                    app:row_height="70dp" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 

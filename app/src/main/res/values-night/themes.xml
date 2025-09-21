@@ -30,6 +30,8 @@
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
         <item name="android:navigationBarColor">?android:attr/backdropColor</item>
+        <item name="statusBarColor">@color/status_bar_color_dark</item>
+        <item name="colorOnSurfaceDisabled">@color/disabled_text_color_dark</item>
     </style>
 
     <style name="ToolbarStyle" parent="Widget.AppCompat.Toolbar">

@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         setContentView(R.layout.menu_layout);
 
         View rootView = findViewById(R.id.root_layout);
-        rootView.setBackgroundColor(ContextCompat.getColor(this, R.color.status_bar_color));
+        rootView.setBackgroundColor(getThemeColor(R.attr.statusBarColor));
         rootView.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 int statusBarHeight = insets.getInsets(WindowInsets.Type.statusBars()).top;
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         if (verticalOffset >= -270) {
                             // Полностью раскрыт — меняем цвет
                             runOnUiThread(() -> {
-                                int color = ContextCompat.getColor(MainActivity.this, R.color.status_bar_color);
+                                int color = getThemeColor(R.attr.statusBarColor);
                                 setStatusBarColor(color);
                                 rootView.setBackgroundColor(color);
                             });

@@ -1,43 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="65dp"
-    android:layout_marginBottom="8dp"
+    android:layout_height="75dp"
+    android:background="@drawable/top_stroke"
     android:foregroundGravity="center_horizontal|top"
     android:gravity="center_horizontal|top"
-    android:background="@drawable/top_stroke"
     android:orientation="vertical"
     android:paddingHorizontal="2dp"
-    android:paddingBottom="2dp"
-    android:paddingTop="2dp">
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/current_back"
         android:foregroundGravity="center_horizontal|top"
         android:gravity="center_horizontal|top"
-        android:background="@drawable/current_back"
-        android:orientation="vertical"
-        android:paddingHorizontal="8dp"
-        android:paddingTop="8dp">
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textViewDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="6dp"
-        android:elevation="0dp"
-        android:fontFamily="@font/sf_pro_display_medium"
-        android:gravity="center"
-        android:padding="2dp"
-        android:text="11"
-        android:textColor="@android:color/black"
-        android:textSize="16sp" />
+        <TextView
+            android:id="@+id/textViewDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="6dp"
+            android:elevation="0dp"
+            android:fontFamily="@font/sf_pro_display_medium"
+            android:gravity="center"
+            android:padding="2dp"
+            android:text="11"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp" />
 
-    <View
-        android:layout_width="6dp"
-        android:layout_marginBottom="8dp"
-        android:layout_height="6dp" />
-</LinearLayout>
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginBottom="8dp" />
+    </LinearLayout>
 </LinearLayout>
