@@ -60,4 +60,43 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">@font/sf_pro_display_regular</item>
     </style>
+
+    <style name="smallText" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/sf_pro_display_regular</item>
+    </style>
+
+    <style name="normalText" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/sf_pro_display_regular</item>
+    </style>
+
+    <style name="mediumText" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/sf_pro_display_medium</item>
+    </style>
+
+    <style name="RoundedButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/sf_pro_display_regular</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="backgroundTint">@color/blue_container</item>
+
+        <!-- Убираем тень в обычном состоянии -->
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
+
+        <!-- Убираем тень при нажатии/фокусе -->
+        <item name="android:stateListAnimator">@null</item>
+
+        <!-- Убираем рамку (stroke), если не нужна -->
+        <item name="strokeWidth">0dp</item>
+
+        <!-- Паддинги -->
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
 </resources>

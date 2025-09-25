@@ -80,6 +80,7 @@
 
     <color name="blue_">#5c5d72</color>
     <color name="blue_container">#7987D7</color>
+    <color name="blue_gradient">#CBD3FF</color>
 
     <color name="green_">#54634d</color>
     <color name="green_container">#7ABF4B</color>
