@@ -1,91 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
-    android:layout_height="match_parent">
+    android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+    <com.plumsoftware.rucalendar.calendardata.MyCustomCalendar
+        android:id="@+id/custom_calendar"
         android:layout_width="match_parent"
-        android:layout_height="450dp">
+        android:layout_height="wrap_content"
+        android:elevation="0dp"
+        android:paddingBottom="0dp"
+        app:day_of_week_length="3"
+        app:day_of_week_start_from="понедельник"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:left_button_src="@drawable/ic_keyboard_arrow_left_black_24dp"
+        app:month_year_format="full_month__with_year"
+        app:right_button_src="@drawable/ic_keyboard_arrow_right_black_24dp"
+        app:row_height="70dp" />
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:contentScrim="?android:attr/colorBackground"
-            app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-            app:toolbarId="@+id/toolbar">
+    <!--    <androidx.core.widget.NestedScrollView-->
+    <!--        android:id="@+id/nestedScrollView"-->
+    <!--        android:fillViewport="true"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:background="?android:attr/colorBackground"-->
+    <!--        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">-->
 
+    <!--        <LinearLayout-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:orientation="vertical">-->
 
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/refreshLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+    <!--            <androidx.recyclerview.widget.RecyclerView-->
+    <!--                android:id="@+id/recyclerView"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_marginTop="4dp"-->
+    <!--                android:layout_weight="1" />-->
 
-                <com.plumsoftware.rucalendar.calendardata.MyCustomCalendar
-                    android:id="@+id/custom_calendar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="0dp"
-                    android:elevation="0dp"
-                    android:paddingBottom="0dp"
-                    app:day_of_week_length="3"
-                    app:day_of_week_start_from="понедельник"
-                    app:left_button_src="@drawable/ic_keyboard_arrow_left_black_24dp"
-                    app:month_year_format="full_month__with_year"
-                    app:right_button_src="@drawable/ic_keyboard_arrow_right_black_24dp"
-                    app:row_height="70dp" />
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    <!--            <com.airbnb.lottie.LottieAnimationView-->
+    <!--                android:id="@+id/animationView"-->
+    <!--                android:layout_width="240dp"-->
+    <!--                android:layout_gravity="center"-->
+    <!--                android:layout_height="240dp"-->
+    <!--                android:layout_marginBottom="150dp"-->
+    <!--                android:visibility="gone"-->
+    <!--                app:lottie_rawRes="@raw/animation_inyly_0av"-->
+    <!--                app:lottie_autoPlay="true"-->
+    <!--                app:lottie_loop="true"/>-->
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:visibility="gone"></androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
-        android:fillViewport="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_weight="1" />
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/animationView"
-                android:layout_width="240dp"
-                android:layout_gravity="center"
-                android:layout_height="240dp"
-                android:layout_marginBottom="150dp"
-                android:visibility="gone"
-                app:lottie_rawRes="@raw/animation_inyly_0av"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"/>
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    <!--        </LinearLayout>-->
+    <!--    </androidx.core.widget.NestedScrollView>-->
 
     <com.yandex.mobile.ads.banner.BannerAdView
         android:id="@+id/adView"
@@ -94,8 +66,35 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="44dp"
-        android:gravity="bottom" />
+        android:gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/custom_calendar"
+        app:layout_constraintVertical_bias="0.0" />
 
+    <include
+        android:id="@+id/blur"
+        layout="@layout/blur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <include
+        android:id="@+id/bottom_bar"
+        layout="@layout/bottom_sheet_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

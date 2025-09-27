@@ -63,17 +63,26 @@
 
     <style name="smallText" parent="Widget.AppCompat.TextView">
         <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:fontFamily">@font/sf_pro_display_regular</item>
     </style>
 
     <style name="normalText" parent="Widget.AppCompat.TextView">
         <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:fontFamily">@font/sf_pro_display_regular</item>
     </style>
 
     <style name="mediumText" parent="Widget.AppCompat.TextView">
         <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:fontFamily">@font/sf_pro_display_medium</item>
+    </style>
+
+    <style name="boldText" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:fontFamily">@font/sf_pro_display_bold</item>
     </style>
 
     <style name="RoundedButton" parent="Widget.MaterialComponents.Button">

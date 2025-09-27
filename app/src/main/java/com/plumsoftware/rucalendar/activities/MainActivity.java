@@ -7,39 +7,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.widget.NestedScrollView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  import org.naishadhparmar.zcustomcalendar.CustomCalendar;
  import org.naishadhparmar.zcustomcalendar.Property;
  **/
 
-import com.airbnb.lottie.LottieAnimationView;
-import com.google.android.material.appbar.AppBarLayout;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
 import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
@@ -62,7 +56,6 @@ import com.yandex.mobile.ads.common.AdRequest;
 import com.yandex.mobile.ads.common.AdRequestConfiguration;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
-import com.yandex.mobile.ads.common.InitializationListener;
 import com.yandex.mobile.ads.common.MobileAds;
 
 import java.io.BufferedReader;
@@ -72,9 +65,11 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -82,10 +77,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements OnNavigationButtonClickedListener {
     protected MyCustomCalendar myCustomCalendar;
-    protected LottieAnimationView animationView;
     protected HashMap<Integer, Object> mapDateToDesc;
     protected Calendar calendar, extraCalendar;
-    protected SwipeRefreshLayout swipeRefreshLayout;
 
     private ProgressDialog progressDialog = new ProgressDialog();
     private final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
@@ -135,11 +128,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected List<List<Integer>> monthsPast;
     protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
 
-    protected NestedScrollView nestedScrollView;
-
-    protected AppBarLayout appBarLayout;
-    //    protected boolean b;
-
     private AppOpenAd mAppOpenAd = null;
 
     @SuppressLint("NotifyDataSetChanged")
@@ -151,15 +139,15 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         setupEdgeToEdge();
         setContentView(R.layout.menu_layout);
 
-        View rootView = findViewById(R.id.root_layout);
-        rootView.setBackgroundColor(getThemeColor(R.attr.statusBarColor));
+        View rootView = findViewById(android.R.id.content);
         rootView.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                int statusBarHeight = insets.getInsets(WindowInsets.Type.statusBars()).top;
-                v.setPadding(v.getPaddingLeft(), statusBarHeight, v.getPaddingRight(), v.getPaddingBottom());
+//                int bottomBarHeight = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
+                v.setPadding(v.getPaddingLeft(), 0, v.getPaddingRight(), 0);
             }
             return insets;
         });
+
 
         MobileAds.initialize(this, () -> {
         });
@@ -230,71 +218,45 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        endregion
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
-        swipeRefreshLayout = (SwipeRefreshLayout) activity.findViewById(R.id.refreshLayout);
-        RecyclerView recyclerView = (RecyclerView) activity.findViewById(R.id.recyclerView);
-        animationView = (LottieAnimationView) activity.findViewById(R.id.animationView);
-        nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
-        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-        if (appBarLayout != null) {
-            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-                private int lastOffset = 0;
-
-                @Override
-                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if (verticalOffset > lastOffset) {
-                        // 👆 Скролл ВВЕРХ (AppBarLayout раскрывается)
-                        Log.d("SCROLL", "Scrolling UP");
-
-                        if (verticalOffset >= -270) {
-                            // Полностью раскрыт — меняем цвет
-                            runOnUiThread(() -> {
-                                int color = getThemeColor(R.attr.statusBarColor);
-                                setStatusBarColor(color);
-                                rootView.setBackgroundColor(color);
-                            });
-                        }
-
-                    } else if (verticalOffset < lastOffset) {
-                        // 👇 Скролл ВНИЗ (AppBarLayout схлопывается)
-                        Log.d("SCROLL", "Scrolling DOWN");
-                        if (verticalOffset <= -270) {
-                            runOnUiThread(() -> {
-                                int color = getThemeColor(android.R.attr.colorBackground);
-                                setStatusBarColor(color);
-                                rootView.setBackgroundColor(color);
-                            });
-                        }
-                    }
-
-                    lastOffset = verticalOffset;
-                }
-            });
-        }
-//        TextView textView = (TextView) activity.findViewById(R.id.textView);
+        View blur = findViewById(R.id.blur);
+        View bottomBar = findViewById(R.id.bottom_bar);
+//        if (appBarLayout != null) {
+//            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+//                private int lastOffset = 0;
+//
+//                @Override
+//                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+//                    if (verticalOffset > lastOffset) {
+//                        // 👆 Скролл ВВЕРХ (AppBarLayout раскрывается)
+//                        Log.d("SCROLL", "Scrolling UP");
+//
+//                        if (verticalOffset >= -270) {
+//                            // Полностью раскрыт — меняем цвет
+//                            runOnUiThread(() -> {
+//                                int color = getThemeColor(R.attr.statusBarColor);
+//                                setStatusBarColor(color);
+//                                rootView.setBackgroundColor(color);
+//                            });
+//                        }
+//
+//                    } else if (verticalOffset < lastOffset) {
+//                        // 👇 Скролл ВНИЗ (AppBarLayout схлопывается)
+//                        Log.d("SCROLL", "Scrolling DOWN");
+//                        if (verticalOffset <= -270) {
+//                            runOnUiThread(() -> {
+//                                int color = getThemeColor(android.R.attr.colorBackground);
+//                                setStatusBarColor(color);
+//                                rootView.setBackgroundColor(color);
+//                            });
+//                        }
+//                    }
+//
+//                    lastOffset = verticalOffset;
+//                }
+//            });
+//        }
         HashMap<Object, Property> mapDescToProp = new HashMap<>();
         List<CelebrationItem> celebrations = new ArrayList<>();
-//        b = countryCode.equals("ru");
-
-//        if (!countryCode.equals("ru") && !countryCode.equals("kz") && !countryCode.equals("ua") && !countryCode.equals("by")) {
-//            Toast.makeText(this, "Data is not available in your country. Default country is Russia.", Toast.LENGTH_LONG).show();
-//        }
-
-//        switch (countryCode) {
-//            case "kz":
-//                textView.setText("Календарь Казахстана");
-//                break;
-//            case "ua":
-//                textView.setText("Календарь Украины");
-//                break;
-//            case "by":
-//                textView.setText("Календарь РБ");
-//                break;
-//            case "ru":
-//                textView.setText("Календарь РФ");
-//                break;
-//        }
-
-        swipeRefreshLayout.setColorSchemeResources(R.color.blue_, R.color.red_, R.color.green_, R.color.orange_);
 
         if (banner >= 2) {
             DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -357,7 +319,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         }
 
 
-//        if (b) {
         Property propDefault = new Property();
         propDefault.layoutResource = R.layout.default_layout;
         propDefault.dateTextViewResource = R.id.textViewDate;
@@ -412,20 +373,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         int month = calendar.get(Calendar.MONTH) + 1;
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-                new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-            }
-        });
-
         String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
         new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
 
         myCustomCalendar.setDate(calendar, mapDateToDesc);
 
-//        if (b) {
         Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         String name1 = "";
         String descS1 = "";
@@ -444,13 +396,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             e.printStackTrace();
         }
 
-//        }
 
         CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
         celebrationAdapter.notifyDataSetChanged();
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(celebrationAdapter);
 
         myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
         myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
@@ -458,10 +406,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             @SuppressLint("ResourceType")
             @Override
             public void onDateSelected(View view, Calendar selectedDate, Object desc) {
-                runOnUiThread(() -> {
-                    int newColor = getThemeColor(android.R.attr.colorBackground);
-                    rootView.setBackgroundColor(newColor);
-                });
+//                runOnUiThread(() -> {
+//                    int newColor = getThemeColor(android.R.attr.colorBackground);
+//                    rootView.setBackgroundColor(newColor);
+//                });
                 celebrations.clear();
                 String name1 = "";
                 String descS1 = "";
@@ -470,30 +418,16 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
                 Celebrations celebrationsClass = new Celebrations(selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH));
 
-                try {
-                    celebrationsClass.getDescription();
-                    appBarLayout.setExpanded(false, true);
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
-
 
                 try {
                     String[] split = celebrationsClass.getDescription().split("~del");
-                    animationView.setVisibility(View.INVISIBLE);
-                    recyclerView.setVisibility(View.VISIBLE);
                     for (String s : split) {
                         name1 = s.split("~")[0];
                         descS1 = s.split("~")[1];
-//                            color = "#F57F17";
-//                            celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-
 //                            Проверяем вторые события
                         if (name1.equals("День российской науки")) {
-//                            if (b) {
                             color = "#ffdcc1";
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-//                            }
                         } else if (name1.equals("День юриста")) {
                             color = "#D8D7F8";
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
@@ -518,14 +452,18 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("current".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                recyclerView.setVisibility(View.VISIBLE);
+//                                recyclerView.setVisibility(View.VISIBLE);
                             }
                             if ("mDate".equals(desc)) {
                                 color = "#d7e8cd";
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("prof".equals(desc)) {
-                                color = "#D8D7F8";
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.blue_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
+                                }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("not official holiday".equals(desc)) {
@@ -536,29 +474,89 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     }
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
-                    recyclerView.setVisibility(View.INVISIBLE);
-                    animationView.setVisibility(View.VISIBLE);
                     if ("holiday".equals(desc)) {
                         celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
-                        animationView.setVisibility(View.INVISIBLE);
                     }
                 }
 
-//                RecyclerView recyclerViewBottomSheetDialog = (RecyclerView) view.findViewById(R.id.recyclerView);
-                celebrationAdapter.notifyDataSetChanged();
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setAdapter(celebrationAdapter);
-
                 if ("default".equals(desc)) {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    animationView.setVisibility(View.VISIBLE);
+//                    recyclerView.setVisibility(View.VISIBLE);
+//                    animationView.setVisibility(View.VISIBLE);
                 }
                 if ("unavailable".equals(desc)) {
-                    recyclerView.setVisibility(View.VISIBLE);
+//                    recyclerView.setVisibility(View.VISIBLE);
                 } else {
-                    recyclerView.setVisibility(View.VISIBLE);
+//                    recyclerView.setVisibility(View.VISIBLE);
                 }
+
+                blur.setVisibility(View.VISIBLE);
+
+                TextView nameTextView = bottomBar.findViewById(R.id.event_name);
+                TextView descTextView = bottomBar.findViewById(R.id.event_desc);
+                TextView eventTypeTextView = bottomBar.findViewById(R.id.event_type);
+                TextView eventDateTextView = bottomBar.findViewById(R.id.event_date);
+                View next = bottomBar.findViewById(R.id.next);
+                View previous = bottomBar.findViewById(R.id.previous);
+                ImageView close = bottomBar.findViewById(R.id.close);
+
+                nameTextView.setText(celebrations.get(0).getName());
+                descTextView.setText(celebrations.get(0).getDesc());
+                eventDateTextView.setText("• " + new SimpleDateFormat("dd MMMM EEEE", Locale.getDefault()).format(new Date(celebrations.get(0).getTimeInMillis())));
+
+                eventDateTextView.setTextColor(Integer.parseInt(celebrations.get(0).getColor()));
+
+                if (celebrations.size() == 1) {
+                    next.setVisibility(View.GONE);
+                    previous.setVisibility(View.GONE);
+                }
+
+                close.setOnClickListener(view1 -> {
+                            bottomBar.post(() -> {
+                                float height = 500f;
+
+                                // Анимация исчезновения
+                                bottomBar.animate()
+                                        .scaleY(0f)
+                                        .translationY(height / 2)
+                                        .setDuration(200)
+                                        .setInterpolator(new AccelerateDecelerateInterpolator())
+                                        .withEndAction(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                // Скрываем элемент после завершения анимации
+                                                bottomBar.setVisibility(View.GONE);
+                                                blur.setVisibility(View.GONE);
+
+                                                // Опционально: сбрасываем значения для возможного повторного использования
+                                                bottomBar.setScaleY(1f);
+                                                bottomBar.setTranslationY(0f);
+                                            }
+                                        })
+                                        .start();
+                            });
+                        }
+                );
+
+
+                bottomBar.post(() -> {
+                    float height = 500f;
+
+                    // Устанавливаем начальное состояние ДО показа элемента
+                    bottomBar.setScaleY(0f);
+                    bottomBar.setPivotY(height);
+                    bottomBar.setTranslationY(height / 2);
+
+                    // Только ПОСЛЕ установки начального состояния показываем элемент
+                    bottomBar.setVisibility(View.VISIBLE);
+
+                    // Анимация
+                    bottomBar.animate()
+                            .scaleY(1f)
+                            .translationY(0f)
+                            .setDuration(200)
+                            .setInterpolator(new AccelerateDecelerateInterpolator())
+                            .start();
+                });
             }
         });
 
@@ -751,16 +749,71 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     private void setupEdgeToEdge() {
         Window window = getWindow();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Отключаем старое поведение fitsSystemWindows
-            window.setDecorFitsSystemWindows(false);
+        // Определяем текущую тему (светлая/темная)
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        boolean isDarkTheme = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+
+        int systemUiVisibilityFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+
+        // Делаем статус бар и нав бар прозрачными
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Настройка цвета иконок для Android 5-10
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!isDarkTheme) {
+                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
+                    systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                }
+                // Для темной темы оставляем светлые иконки (по умолчанию)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!isDarkTheme) {
+                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ НАВИГАЦИИ
+                    systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                }
+                // Для темной темы оставляем светлые иконки (по умолчанию)
+            }
+
+            window.getDecorView().setSystemUiVisibility(systemUiVisibilityFlags);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         }
 
-        // Принудительно включаем edge-to-edge для всех версий
-        View decorView = window.getDecorView();
-        int flags = decorView.getSystemUiVisibility();
-        flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-        decorView.setSystemUiVisibility(flags);
+        // Для Android 10+ убираем затемнение под нав баром
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.setNavigationBarContrastEnforced(false);
+        }
+
+        // Для Android 11+ используем новый API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false);
+
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                // Убеждаемся, что нав бар остается видимым
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+
+                // Настройка цвета иконок для Android 11+
+                if (!isDarkTheme) {
+                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
+                    controller.setSystemBarsAppearance(
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
+                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
+                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    );
+                } else {
+                    // ТЕМНАЯ ТЕМА - СВЕТЛЫЕ ИКОНКИ (убираем флаги светлых иконок)
+                    controller.setSystemBarsAppearance(
+                            0,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
+                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    );
+                }
+            }
+        }
     }
 
     public int getThemeColor(@AttrRes int attr) {
@@ -1128,7 +1181,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         protected void onPreExecute() {
             super.onPreExecute();
             myCustomCalendar.setVisibility(View.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -1397,7 +1449,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
                     myCustomCalendar.setDate(calendar, mapDateToDesc);
                     myCustomCalendar.setVisibility(View.VISIBLE);
-                    swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }

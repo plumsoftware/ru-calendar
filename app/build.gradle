@@ -32,6 +32,9 @@ android {
         buildConfigField "String", "openAdsId", "\"${openAdsId}\""
         buildConfigField "String", "interstitialAdsId", "\"${interstitialAdsId}\""
         buildConfigField "String", "eventScreenBannerId", "\"${eventScreenBannerId}\""
+
+        renderscriptTargetApi 23
+        renderscriptSupportModeEnabled true
     }
 
     buildTypes {
@@ -134,6 +137,7 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar', '*.libs'], dir: 'libs')
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
@@ -167,6 +171,9 @@ dependencies {
     //Lottie
     def lottieVersion = "3.4.0"
     implementation "com.airbnb.android:lottie:$lottieVersion"
+
+    //Blur
+    implementation("com.github.mmin18:realtimeblurview:f54dc3c34d")
 
     //Worker
     implementation "androidx.work:work-runtime:2.8.1"
