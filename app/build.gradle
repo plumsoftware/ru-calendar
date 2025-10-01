@@ -156,7 +156,7 @@ dependencies {
 
 
     //noinspection MobileAdsSdkVersion
-    implementation 'com.yandex.android:mobileads:7.15.1'
+    implementation 'com.yandex.android:mobileads:7.16.0'
 
     //Animations
     implementation 'io.noties:tumbleweed-android:2.0.0'
