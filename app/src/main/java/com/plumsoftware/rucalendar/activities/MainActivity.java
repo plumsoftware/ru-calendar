@@ -12,7 +12,9 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -26,6 +28,7 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -426,28 +429,51 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         descS1 = s.split("~")[1];
 //                            Проверяем вторые события
                         if (name1.equals("День российской науки")) {
-                            color = "#ffdcc1";
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                color = String.valueOf(getColor(R.color.green_container));
+                            } else {
+                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
+                            }
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                         } else if (name1.equals("День юриста")) {
-                            color = "#D8D7F8";
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                color = String.valueOf(getColor(R.color.blue_container));
+                            } else {
+                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
+                            }
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                         } else {
                             if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
-                                celebrations.add(new CelebrationItem(name1, descS1, "#ffdad5", timeInMillis));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.red_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
+                                }
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("holiday".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.red_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
+                                }
+                                celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", color, timeInMillis));
                             }
                             if ("short".equals(desc)) {
-                                celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.purple_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.purple_container));
+                                }
+                                celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", color, timeInMillis));
                             }
                             if ("current".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
 //                                    color = String.valueOf(getAttrColor(context, com.google.android.material.R.attr.colorTertiary));
-//                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary));
-                                if (AppCompatDelegate.getDefaultNightMode() == 1) {
-                                    color = "#715573";
+//                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.blue_container));
                                 } else {
-                                    color = "#DEBCDF";
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
                                 }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
@@ -455,7 +481,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //                                recyclerView.setVisibility(View.VISIBLE);
                             }
                             if ("mDate".equals(desc)) {
-                                color = "#d7e8cd";
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.green_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
+                                }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("prof".equals(desc)) {
@@ -467,7 +497,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("not official holiday".equals(desc)) {
-                                color = "#ffdcc1";
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.orange_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.orange_container));
+                                }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                         }
@@ -475,7 +509,12 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
                     if ("holiday".equals(desc)) {
-                        celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            color = String.valueOf(getColor(R.color.red_container));
+                        } else {
+                            color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
+                        }
+                        celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", color, timeInMillis));
                     }
                 }
 
@@ -496,6 +535,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 TextView eventTypeTextView = bottomBar.findViewById(R.id.event_type);
                 TextView eventDateTextView = bottomBar.findViewById(R.id.event_date);
                 View next = bottomBar.findViewById(R.id.next);
+                Button more = bottomBar.findViewById(R.id.more);
                 View previous = bottomBar.findViewById(R.id.previous);
                 ImageView close = bottomBar.findViewById(R.id.close);
 
@@ -504,6 +544,24 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                 eventDateTextView.setText("• " + new SimpleDateFormat("dd MMMM EEEE", Locale.getDefault()).format(new Date(celebrations.get(0).getTimeInMillis())));
 
                 eventDateTextView.setTextColor(Integer.parseInt(celebrations.get(0).getColor()));
+
+                more.setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(celebrations.get(0).getColor())));
+
+                more.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context, EventActivity.class);
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                            intent.putExtra("event", celebrations.get(0));
+                        } else {
+                            intent.putExtra("time", celebrations.get(0).getTimeInMillis());
+                            intent.putExtra("name", celebrations.get(0).getName());
+                            intent.putExtra("desc", celebrations.get(0).getDesc());
+//                        intent.putExtra("color", celebrations.get(position).getColor());
+                        }
+                        activity.startActivity(intent);
+                    }
+                });
 
                 if (celebrations.size() == 1) {
                     next.setVisibility(View.GONE);
