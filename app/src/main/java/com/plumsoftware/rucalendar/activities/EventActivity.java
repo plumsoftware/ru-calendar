@@ -28,6 +28,7 @@ import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,21 +100,11 @@ public class EventActivity extends AppCompatActivity {
         int interstitial = sp.getInt("interstitial", 0);
         int banner = sp.getInt("banner2", 0);
 
-//        View rootView = findViewById(R.id.root_layout);
-//        if (Build.VERSION.SDK_INT <= 35) {
-//            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
-//                Insets insets1 = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
-//                Insets insets2 = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
-//
-//                v.setPadding(0,insets1.top, 0, insets2.bottom);
-//
-//                return windowInsets;
-//            });
-//        }
-
         TextView textView = findViewById(R.id.textDescription);
         CheckBox reminde = findViewById(R.id.reminde);
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar2);
+        TextView dateTextView = findViewById(R.id.event_date);
+        TextView nameTextView = findViewById(R.id.event_name);
+        ImageView back = findViewById(R.id.back);
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
 
         mBannerAdView.setAdUnitId(AdsConfig.BANNER_EVENT_SCREEN_AD);
@@ -133,10 +124,10 @@ public class EventActivity extends AppCompatActivity {
                 textView.setText(celebrationItem.getDesc());
             }
             if (celebrationItem != null) {
-                toolbar.setTitle(name);
+                nameTextView.setText(name);
             }
             if (celebrationItem != null) {
-                toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
+                dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
             }
         } else {
 
@@ -144,34 +135,32 @@ public class EventActivity extends AppCompatActivity {
             date = getIntent().getLongExtra("time", 1000000);
 
             textView.setText(getIntent().getStringExtra("desc"));
-            toolbar.setTitle(name);
-            toolbar.setSubtitle(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
+            nameTextView.setText(name);
+            dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
         }
 
 //        Clickers
         long finalDate = date;
         String finalName = name;
-        toolbar.setOnMenuItemClickListener(new androidx.appcompat.widget.Toolbar.OnMenuItemClickListener() {
+
+        back.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-
-                switch (item.getItemId()) {
-                    case R.id.bug_report:
-                        String message = "Ошибка в событии " + new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(finalDate));
-                        message = message + "\n" + finalName;
-                        message += "\n" + "Комментарий:" + "\n";
-                        String subject = "Отчёт об ошибке";
-                        String TO = "plumsoftwareofficial@gmail.com";
-
-                        Intent mailIntent = new Intent(Intent.ACTION_VIEW);
-                        Uri data = Uri.parse("mailto:?subject=" + subject + "&body=" + message + "&to=" + TO);
-                        mailIntent.setData(data);
-                        startActivity(Intent.createChooser(mailIntent, "Отправить отчёт о неточности с помощью..."));
-                        return true;
-                }
-                return false;
+            public void onClick(View view) {
+                finish();
             }
         });
+
+//        String message = "Ошибка в событии " + new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(finalDate));
+//        message = message + "\n" + finalName;
+//        message += "\n" + "Комментарий:" + "\n";
+//        String subject = "Отчёт об ошибке";
+//        String TO = "plumsoftwareofficial@gmail.com";
+//
+//        Intent mailIntent = new Intent(Intent.ACTION_VIEW);
+//        Uri data = Uri.parse("mailto:?subject=" + subject + "&body=" + message + "&to=" + TO);
+//        mailIntent.setData(data);
+//        startActivity(Intent.createChooser(mailIntent, "Отправить отчёт о неточности с помощью..."));
+
 
         //Ads
         if (interstitial >= 4) {

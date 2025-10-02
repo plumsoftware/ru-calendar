@@ -88,7 +88,12 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="6dp"
-                android:text="Подробнее" />
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="Подробнее"
+                android:textAllCaps="false" />
         </LinearLayout>
 
         <ImageView

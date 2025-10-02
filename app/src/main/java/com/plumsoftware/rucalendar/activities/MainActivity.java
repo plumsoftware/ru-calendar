@@ -17,17 +17,21 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -528,93 +532,105 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //                    recyclerView.setVisibility(View.VISIBLE);
                 }
 
-                blur.setVisibility(View.VISIBLE);
+                if (celebrations.size() > 0) {
+                    blur.setVisibility(View.VISIBLE);
 
-                TextView nameTextView = bottomBar.findViewById(R.id.event_name);
-                TextView descTextView = bottomBar.findViewById(R.id.event_desc);
-                TextView eventTypeTextView = bottomBar.findViewById(R.id.event_type);
-                TextView eventDateTextView = bottomBar.findViewById(R.id.event_date);
-                View next = bottomBar.findViewById(R.id.next);
-                Button more = bottomBar.findViewById(R.id.more);
-                View previous = bottomBar.findViewById(R.id.previous);
-                ImageView close = bottomBar.findViewById(R.id.close);
+                    TextView nameTextView = bottomBar.findViewById(R.id.event_name);
+                    TextView descTextView = bottomBar.findViewById(R.id.event_desc);
+                    TextView eventTypeTextView = bottomBar.findViewById(R.id.event_type);
+                    TextView eventDateTextView = bottomBar.findViewById(R.id.event_date);
+                    View next = bottomBar.findViewById(R.id.next);
+                    Button more = bottomBar.findViewById(R.id.more);
+                    View previous = bottomBar.findViewById(R.id.previous);
+                    ImageView close = bottomBar.findViewById(R.id.close);
 
-                nameTextView.setText(celebrations.get(0).getName());
-                descTextView.setText(celebrations.get(0).getDesc());
-                eventDateTextView.setText("• " + new SimpleDateFormat("dd MMMM EEEE", Locale.getDefault()).format(new Date(celebrations.get(0).getTimeInMillis())));
+                    String type = "";
+                    System.out.println(type);
 
-                eventDateTextView.setTextColor(Integer.parseInt(celebrations.get(0).getColor()));
+                    int targetColor = Integer.parseInt(celebrations.get(0).getColor());
+                    int blueColor = ContextCompat.getColor(getApplicationContext(), R.color.blue_container);
+                    int redColor = ContextCompat.getColor(getApplicationContext(), R.color.red_container);
+                    int greenColor = ContextCompat.getColor(getApplicationContext(), R.color.green_container);
+                    int purpleColor = ContextCompat.getColor(getApplicationContext(), R.color.purple_container);
 
-                more.setBackgroundTintList(ColorStateList.valueOf(Integer.parseInt(celebrations.get(0).getColor())));
-
-                more.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(context, EventActivity.class);
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                            intent.putExtra("event", celebrations.get(0));
-                        } else {
-                            intent.putExtra("time", celebrations.get(0).getTimeInMillis());
-                            intent.putExtra("name", celebrations.get(0).getName());
-                            intent.putExtra("desc", celebrations.get(0).getDesc());
-//                        intent.putExtra("color", celebrations.get(position).getColor());
-                        }
-                        activity.startActivity(intent);
+                    if (targetColor == blueColor) {
+                        type = "Профессиональный праздник";
+                    } else if (targetColor == redColor) {
+                        type = "Праздничный день";
+                    } else if (targetColor == greenColor) {
+                        type = "Памятная дата";
+                    } else if (targetColor == purpleColor) {
+                        type = "Сокращенный день";
                     }
-                });
 
-                if (celebrations.size() == 1) {
-                    next.setVisibility(View.GONE);
-                    previous.setVisibility(View.GONE);
-                }
+                    eventTypeTextView.setText(type);
 
-                close.setOnClickListener(view1 -> {
-                            bottomBar.post(() -> {
-                                float height = 500f;
+                    nameTextView.setText(celebrations.get(0).getName());
+                    descTextView.setText(celebrations.get(0).getDesc());
+                    eventDateTextView.setText("• " + new SimpleDateFormat("dd MMMM EEEE", Locale.getDefault()).format(new Date(celebrations.get(0).getTimeInMillis())));
 
-                                // Анимация исчезновения
+                    eventDateTextView.setTextColor(targetColor);
+
+                    more.setBackgroundTintList(ColorStateList.valueOf(targetColor));
+
+                    GradientDrawable newDrawable = new GradientDrawable();
+                    newDrawable.setShape(GradientDrawable.OVAL);
+                    newDrawable.setColor(Integer.parseInt(celebrations.get(0).getColor()));
+                    close.setBackground(newDrawable);
+
+                    more.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(context, EventActivity.class);
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                intent.putExtra("event", celebrations.get(0));
+                            } else {
+                                intent.putExtra("time", celebrations.get(0).getTimeInMillis());
+                                intent.putExtra("name", celebrations.get(0).getName());
+                                intent.putExtra("desc", celebrations.get(0).getDesc());
+//                        intent.putExtra("color", celebrations.get(position).getColor());
+                            }
+                            activity.startActivity(intent);
+                        }
+                    });
+
+                    if (celebrations.size() == 1) {
+                        next.setVisibility(View.GONE);
+                        previous.setVisibility(View.GONE);
+                    }
+
+                    close.setOnClickListener(view1 -> {
                                 bottomBar.animate()
-                                        .scaleY(0f)
-                                        .translationY(height / 2)
+                                        .translationY(500f) // или screenHeight — см. ниже
                                         .setDuration(200)
-                                        .setInterpolator(new AccelerateDecelerateInterpolator())
-                                        .withEndAction(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                // Скрываем элемент после завершения анимации
-                                                bottomBar.setVisibility(View.GONE);
-                                                blur.setVisibility(View.GONE);
-
-                                                // Опционально: сбрасываем значения для возможного повторного использования
-                                                bottomBar.setScaleY(1f);
-                                                bottomBar.setTranslationY(0f);
-                                            }
+                                        .setInterpolator(new AccelerateInterpolator()) // ускорение вниз
+                                        .withEndAction(() -> {
+                                            bottomBar.setVisibility(View.GONE);
+                                            blur.setVisibility(View.GONE);
                                         })
                                         .start();
-                            });
-                        }
-                );
+                            }
+                    );
 
 
-                bottomBar.post(() -> {
-                    float height = 500f;
+                    bottomBar.post(() -> {
+                        float height = 500f;
 
-                    // Устанавливаем начальное состояние ДО показа элемента
-                    bottomBar.setScaleY(0f);
-                    bottomBar.setPivotY(height);
-                    bottomBar.setTranslationY(height / 2);
+                        // Устанавливаем начальное состояние ДО показа элемента
+                        bottomBar.setPivotY(height);
+                        bottomBar.setTranslationY(height / 2);
 
-                    // Только ПОСЛЕ установки начального состояния показываем элемент
-                    bottomBar.setVisibility(View.VISIBLE);
+                        // Только ПОСЛЕ установки начального состояния показываем элемент
+                        bottomBar.setVisibility(View.VISIBLE);
 
-                    // Анимация
-                    bottomBar.animate()
-                            .scaleY(1f)
-                            .translationY(0f)
-                            .setDuration(200)
-                            .setInterpolator(new AccelerateDecelerateInterpolator())
-                            .start();
-                });
+                        // Анимация
+                        bottomBar.animate()
+                                .translationY(0f)
+                                .setDuration(200)
+                                .setInterpolator(new AccelerateDecelerateInterpolator())
+                                .start();
+                    });
+                }
             }
         });
 

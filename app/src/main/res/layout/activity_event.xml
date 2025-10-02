@@ -8,6 +8,61 @@
     android:orientation="vertical"
     tools:context=".activities.EventActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="44dp"
+        android:background="?attr/statusBarColor"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:background="@drawable/event_nav_button_back"
+            android:padding="8dp"
+            app:srcCompat="@drawable/back" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="8dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/event_name"
+                android:textAlignment="center"
+                style="@style/boldText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/event_date"
+                android:textAlignment="center"
+                style="@style/normalText"
+                android:textColor="@color/blue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/notif"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:background="@drawable/event_nav_button_back_white"
+            android:padding="8dp"
+            app:srcCompat="@drawable/interface_alert_alarm_bell_2__alert_bell_ring_notification_alarm" />
+
+    </LinearLayout>
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar2"
         style="@style/ToolbarStyle"
@@ -18,6 +73,7 @@
         android:maxLines="2"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/event_menu" />
 
@@ -40,22 +96,21 @@
                 android:id="@+id/reminde"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:text="  Напомнить" />
 
             <TextView
                 android:id="@+id/textDescription"
+                style="@style/normalText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="18dp"
+                android:layout_margin="16dp"
                 android:fontFamily="@font/sf_pro_display_regular"
                 android:lineSpacingExtra="6dp"
-                android:padding="0dp"
-                android:paddingLeft="0dp"
-                android:paddingTop="4dp"
-                android:paddingRight="0dp"
-                android:paddingBottom="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:textColor="?attr/colorOnBackground"
-                android:textSize="16sp" />
+                android:textSize="18sp" />
 
         </LinearLayout>
     </ScrollView>

@@ -48,10 +48,10 @@
                 android:id="@+id/tv_month_year"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
+                android:fontFamily="@font/sf_pro_display_bold"
                 android:textAlignment="center"
                 android:textColor="?attr/colorOnBackground"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:textStyle="normal" />
 
             <androidx.cardview.widget.CardView
@@ -81,8 +81,8 @@
             android:id="@+id/textViewYear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/sf_pro_display_bold"
-            android:textColor="#4B6DC5"
+            android:fontFamily="@font/sf_pro_display_medium"
+            android:textColor="@color/blue"
             android:textSize="14sp"
             android:textStyle="normal" />
 
