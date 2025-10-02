@@ -1,90 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".activities.EventActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="16dp"
-        android:paddingTop="44dp"
-        android:background="?attr/statusBarColor"
-        android:orientation="horizontal">
+        android:background="?attr/statusBarColor">
 
-        <ImageView
-            android:id="@+id/back"
-            android:layout_width="wrap_content"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:background="@drawable/event_nav_button_back"
-            android:padding="8dp"
-            app:srcCompat="@drawable/back" />
+            android:layout_gravity="center_vertical"
+            android:foregroundGravity="center_vertical"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:contentScrim="?attr/statusBarColor">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="8dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/event_name"
-                android:textAlignment="center"
-                style="@style/boldText"
+            <!-- Расширенный заголовок (исчезает при скролле) -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="TextView" />
+                android:orientation="vertical"
+                android:paddingTop="44dp"
+                android:paddingBottom="16dp"
+                android:paddingHorizontal="64dp">
 
-            <TextView
-                android:id="@+id/event_date"
-                android:textAlignment="center"
-                style="@style/normalText"
-                android:textColor="@color/blue"
+                <TextView
+                    android:id="@+id/event_name"
+                    style="@style/boldText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="20sp"
+                    android:text=""
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/event_date"
+                    style="@style/normalText"
+                    android:textColor="@color/blue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="" />
+
+            </LinearLayout>
+
+            <!-- Свёрнутый тулбар (остаётся при скролле) -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-        </LinearLayout>
+                android:layout_height="98dp"
+                android:layout_marginEnd="14dp"
+                android:paddingBottom="14dp"
+                android:paddingTop="44dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                app:layout_collapseMode="pin"
+                android:background="@android:color/transparent">
 
-        <ImageView
-            android:id="@+id/notif"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:background="@drawable/event_nav_button_back_white"
-            android:padding="8dp"
-            app:srcCompat="@drawable/interface_alert_alarm_bell_2__alert_bell_ring_notification_alarm" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/back"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:padding="8dp"
+                        android:background="@drawable/event_nav_button_back"
+                        app:srcCompat="@drawable/back" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar2"
-        style="@style/ToolbarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/colorBackground"
-        android:elevation="4dp"
-        android:maxLines="2"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/event_menu" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
 
-    <ScrollView
+                    <ImageView
+                        android:id="@+id/notif"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:padding="8dp"
+                        android:background="@drawable/event_nav_button_back_white"
+                        app:srcCompat="@drawable/interface_alert_alarm_bell_2__alert_bell_ring_notification_alarm" />
+
+                </LinearLayout>
+
+            </androidx.appcompat.widget.Toolbar>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Контент -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -92,12 +113,12 @@
             android:orientation="vertical">
 
             <CheckBox
-                android:layout_marginHorizontal="14dp"
                 android:id="@+id/reminde"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="  Напомнить" />
+                android:layout_marginHorizontal="14dp"
+                android:text="  Напомнить"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/textDescription"
@@ -108,22 +129,19 @@
                 android:fontFamily="@font/sf_pro_display_regular"
                 android:lineSpacingExtra="6dp"
                 android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingBottom="16dp"
                 android:textColor="?attr/colorOnBackground"
                 android:textSize="18sp" />
 
         </LinearLayout>
-    </ScrollView>
 
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Реклама -->
     <com.yandex.mobile.ads.banner.BannerAdView
         android:id="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
-        android:layout_centerHorizontal="false"
-        android:layout_gravity="center"
-        android:layout_weight="0"
-        android:gravity="center"
-        android:visibility="visible" />
+        android:layout_gravity="bottom" />
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

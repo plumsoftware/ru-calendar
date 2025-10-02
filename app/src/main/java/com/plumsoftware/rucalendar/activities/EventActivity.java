@@ -1,8 +1,11 @@
 package com.plumsoftware.rucalendar.activities;
 
+import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -15,11 +18,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -91,10 +98,9 @@ public class EventActivity extends AppCompatActivity {
 
         long date;
         String name;
+        String color;
 
-        MobileAds.initialize(EventActivity.this, () -> {
-
-        });
+        MobileAds.initialize(EventActivity.this, () -> {});
 
         SharedPreferences sp = getSharedPreferences("ads_showing", Context.MODE_APPEND);
         int interstitial = sp.getInt("interstitial", 0);
@@ -105,10 +111,18 @@ public class EventActivity extends AppCompatActivity {
         TextView dateTextView = findViewById(R.id.event_date);
         TextView nameTextView = findViewById(R.id.event_name);
         ImageView back = findViewById(R.id.back);
+        ImageView notif = findViewById(R.id.notif);
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
 
         mBannerAdView.setAdUnitId(AdsConfig.BANNER_EVENT_SCREEN_AD);
         mBannerAdView.setAdSize(BannerAdSize.inlineSize(EventActivity.this, screenWidth, 50));
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false); // отключаем стандартную стрелку
+            getSupportActionBar().setDisplayShowTitleEnabled(false); // скрываем заголовок
+        }
 
 //         Создание объекта таргетирования рекламы.
         final AdRequest adRequestB = new AdRequest.Builder().build();
@@ -117,8 +131,22 @@ public class EventActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             CelebrationItem celebrationItem = getIntent().getSerializableExtra("event", CelebrationItem.class);
 
+            assert celebrationItem != null;
             name = celebrationItem.getName();
             date = celebrationItem.getTimeInMillis();
+            color = celebrationItem.getColor();
+
+            // Получаем текущий фон как RippleDrawable
+            RippleDrawable rippleDrawable = (RippleDrawable) back.getBackground();
+
+            // Получаем "основной" слой (item без ripple — это первый layer)
+            Drawable layer = rippleDrawable.getDrawable(0);
+
+            // Если это GradientDrawable (shape oval), меняем его цвет
+            if (layer instanceof GradientDrawable) {
+                ((GradientDrawable) layer).setColor(Integer.parseInt(color));
+            }
+
 
             if (celebrationItem != null) {
                 textView.setText(celebrationItem.getDesc());
@@ -134,13 +162,26 @@ public class EventActivity extends AppCompatActivity {
             name = getIntent().getStringExtra("name");
             date = getIntent().getLongExtra("time", 1000000);
 
+            color = getIntent().getStringExtra("color");
+
+            // Получаем текущий фон как RippleDrawable
+            RippleDrawable rippleDrawable = (RippleDrawable) back.getBackground();
+
+            // Получаем "основной" слой (item без ripple — это первый layer)
+            Drawable layer = rippleDrawable.getDrawable(0);
+
+            // Если это GradientDrawable (shape oval), меняем его цвет
+            if (layer instanceof GradientDrawable) {
+                assert color != null;
+                ((GradientDrawable) layer).setColor(Integer.parseInt(color));
+            }
+
             textView.setText(getIntent().getStringExtra("desc"));
             nameTextView.setText(name);
             dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
         }
 
 //        Clickers
-        long finalDate = date;
         String finalName = name;
 
         back.setOnClickListener(new View.OnClickListener() {
@@ -225,60 +266,87 @@ public class EventActivity extends AppCompatActivity {
         // Получаем SharedPreferences
         SharedPreferences prefs = getSharedPreferences("WorkerPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        boolean isCheckedPref = prefs.getBoolean(name, false);
-        reminde.setChecked(isCheckedPref);
+        final boolean[] isCheckedPref = {prefs.getBoolean(name, false)};
 
-        reminde.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+        RippleDrawable rippleDrawable = (RippleDrawable) notif.getBackground();
+        Drawable layer = rippleDrawable.getDrawable(0);
+        if (isCheckedPref[0]) {
+            // Если это GradientDrawable (shape oval), меняем его цвет
+            if (layer instanceof GradientDrawable) {
+                assert color != null;
+                ((GradientDrawable) layer).setColor(Integer.parseInt(color));
+            }
+        } else {
+            // Если это GradientDrawable (shape oval), меняем его цвет
+            if (layer instanceof GradientDrawable) {
+                ((GradientDrawable) layer).setColor(ContextCompat.getColor(this, android.R.color.white));
+            }
+        }
 
-            if (isChecked) {
+        notif.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isCheckedPref[0]) {
+                    isCheckedPref[0] = true;
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(date);
+                    calendar.set(Calendar.HOUR_OF_DAY, 10);
+                    calendar.set(Calendar.MINUTE, 0);
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(date);
-                calendar.set(Calendar.HOUR_OF_DAY, 10);
-                calendar.set(Calendar.MINUTE, 0);
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
+                    long targetTime = calendar.getTimeInMillis();
 
-                long targetTime = calendar.getTimeInMillis();
+                    long currentTime = System.currentTimeMillis();
+                    long delay = targetTime - currentTime;
 
-                long currentTime = System.currentTimeMillis();
-                long delay = targetTime - currentTime;
+                    // Подготавливаем данные
+                    Data inputData = new Data.Builder()
+                            .putString("notification_title", finalName)
+                            .build();
 
-                // Подготавливаем данные
-                Data inputData = new Data.Builder()
-                        .putString("notification_title", finalName)
-                        .build();
+                    // Создаём WorkRequest
+                    OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MyNotificationWorker.class)
+                            .setInputData(inputData)
+                            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                            .build();
 
-                // Создаём WorkRequest
-                OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MyNotificationWorker.class)
-                        .setInputData(inputData)
-                        .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                        .build();
+                    // Сохраняем ID воркера
+                    UUID workId = workRequest.getId();
+                    editor.putBoolean(finalName, true);
+                    editor.putString(finalName + "_reminder_worker_id", workId.toString());
+                    editor.apply();
 
-                // Сохраняем ID воркера
-                UUID workId = workRequest.getId();
-                editor.putBoolean(finalName, true);
-                editor.putString(finalName + "_reminder_worker_id", workId.toString());
-                editor.apply();
+                    // Запускаем воркер
+                    WorkManager.getInstance(EventActivity.this).enqueue(workRequest);
 
-                // Запускаем воркер
-                WorkManager.getInstance(this).enqueue(workRequest);
-            } else {
-                // Читаем сохранённый ID
-                String workIdStr = prefs.getString(finalName + "_reminder_worker_id", null);
-                if (workIdStr != null) {
-                    try {
-                        UUID workId = UUID.fromString(workIdStr);
-                        WorkManager.getInstance(this).cancelWorkById(workId);
-                    } catch (IllegalArgumentException e) {
-                        Log.e("Worker", "Invalid UUID saved", e);
+                    // Если это GradientDrawable (shape oval), меняем его цвет
+                    if (layer instanceof GradientDrawable) {
+                        assert color != null;
+                        ((GradientDrawable) layer).setColor(Integer.parseInt(color));
+                    }
+                } else {
+                    // Читаем сохранённый ID
+                    isCheckedPref[0] = false;
+                    String workIdStr = prefs.getString(finalName + "_reminder_worker_id", null);
+                    if (workIdStr != null) {
+                        try {
+                            UUID workId = UUID.fromString(workIdStr);
+                            WorkManager.getInstance(EventActivity.this).cancelWorkById(workId);
+                        } catch (IllegalArgumentException e) {
+                            Log.e("Worker", "Invalid UUID saved", e);
+                        }
+                    }
+
+                    // Обновляем состояние
+                    editor.putBoolean(finalName, false);
+                    editor.remove(finalName + "_reminder_worker_id"); // можно удалить, можно оставить
+                    editor.apply();
+
+                    if (layer instanceof GradientDrawable) {
+                        ((GradientDrawable) layer).setColor(ContextCompat.getColor(EventActivity.this, android.R.color.white));
                     }
                 }
-
-                // Обновляем состояние
-                editor.putBoolean(finalName, false);
-                editor.remove(finalName + "_reminder_worker_id"); // можно удалить, можно оставить
-                editor.apply();
             }
         });
     }
@@ -297,21 +365,31 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.event_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.bug_report:
-
-                break;
+    public int getThemeColor(@AttrRes int attr) {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(attr, typedValue, true);
+        if (typedValue.resourceId != 0) {
+            return ContextCompat.getColor(this, typedValue.resourceId);
+        } else {
+            return typedValue.data;
         }
-        return super.onOptionsItemSelected(item);
     }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.event_menu, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.bug_report:
+//
+//                break;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     private void showAd() {
         if (mInterstitialAd != null) {

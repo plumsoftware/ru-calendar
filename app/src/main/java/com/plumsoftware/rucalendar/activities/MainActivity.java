@@ -551,6 +551,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     int blueColor = ContextCompat.getColor(getApplicationContext(), R.color.blue_container);
                     int redColor = ContextCompat.getColor(getApplicationContext(), R.color.red_container);
                     int greenColor = ContextCompat.getColor(getApplicationContext(), R.color.green_container);
+                    int orangeColor = ContextCompat.getColor(getApplicationContext(), R.color.orange_container);
                     int purpleColor = ContextCompat.getColor(getApplicationContext(), R.color.purple_container);
 
                     if (targetColor == blueColor) {
@@ -561,6 +562,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                         type = "Памятная дата";
                     } else if (targetColor == purpleColor) {
                         type = "Сокращенный день";
+                    } else if (targetColor == orangeColor) {
+                        type = "Неофициальный праздник";
                     }
 
                     eventTypeTextView.setText(type);
@@ -588,9 +591,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                                 intent.putExtra("time", celebrations.get(0).getTimeInMillis());
                                 intent.putExtra("name", celebrations.get(0).getName());
                                 intent.putExtra("desc", celebrations.get(0).getDesc());
-//                        intent.putExtra("color", celebrations.get(position).getColor());
+                                intent.putExtra("color", celebrations.get(0).getColor());
                             }
                             activity.startActivity(intent);
+                            close.performClick();
                         }
                     });
 
