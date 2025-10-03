@@ -6,13 +6,13 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="false"
     tools:context=".activities.EventActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/statusBarColor">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
@@ -20,36 +20,38 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:foregroundGravity="center_vertical"
+            android:background="?attr/statusBarColor"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="?attr/statusBarColor">
+            android:fitsSystemWindows="false">
 
             <!-- Расширенный заголовок (исчезает при скролле) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?attr/statusBarColor"
                 android:orientation="vertical"
-                android:paddingTop="44dp"
+                android:paddingTop="30dp"
                 android:paddingBottom="16dp"
-                android:paddingHorizontal="64dp">
+                android:paddingHorizontal="60dp">
 
                 <TextView
                     android:id="@+id/event_name"
                     style="@style/boldText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:textSize="20sp"
+                    android:layout_marginBottom="8dp"
                     android:text=""
-                    android:layout_marginBottom="8dp" />
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
 
                 <TextView
                     android:id="@+id/event_date"
                     style="@style/normalText"
-                    android:textColor="@color/blue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text=""
                     android:textAlignment="center"
-                    android:text="" />
+                    android:textColor="@color/blue" />
 
             </LinearLayout>
 
@@ -104,7 +106,7 @@
     <!-- Контент -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -112,24 +114,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <CheckBox
-                android:id="@+id/reminde"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="14dp"
-                android:text="  Напомнить"
-                android:visibility="gone" />
-
             <TextView
                 android:id="@+id/textDescription"
                 style="@style/normalText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
                 android:fontFamily="@font/sf_pro_display_regular"
+                android:paddingVertical="16dp"
+                android:paddingHorizontal="16dp"
                 android:lineSpacingExtra="6dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="16dp"
                 android:textColor="?attr/colorOnBackground"
                 android:textSize="18sp" />
 
@@ -141,7 +134,7 @@
     <com.yandex.mobile.ads.banner.BannerAdView
         android:id="@+id/adView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_gravity="bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

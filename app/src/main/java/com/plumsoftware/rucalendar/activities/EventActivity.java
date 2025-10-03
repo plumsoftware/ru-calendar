@@ -107,7 +107,6 @@ public class EventActivity extends AppCompatActivity {
         int banner = sp.getInt("banner2", 0);
 
         TextView textView = findViewById(R.id.textDescription);
-        CheckBox reminde = findViewById(R.id.reminde);
         TextView dateTextView = findViewById(R.id.event_date);
         TextView nameTextView = findViewById(R.id.event_name);
         ImageView back = findViewById(R.id.back);

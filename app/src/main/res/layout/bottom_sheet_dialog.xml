@@ -92,6 +92,8 @@
                 android:paddingTop="8dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="8dp"
+                android:fontFamily="@font/sf_pro_display_regular"
+                android:textSize="14sp"
                 android:text="Подробнее"
                 android:textAllCaps="false" />
         </LinearLayout>
