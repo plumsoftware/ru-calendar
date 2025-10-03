@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical">
 
     <com.plumsoftware.rucalendar.calendardata.MyCustomCalendar
@@ -14,6 +16,8 @@
         android:elevation="0dp"
         android:paddingBottom="0dp"
         app:day_of_week_length="3"
+        android:clickable="true"
+        android:focusable="true"
         app:day_of_week_start_from="понедельник"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

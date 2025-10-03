@@ -70,6 +70,18 @@ public class MyCustomCalendar extends LinearLayout {
         this.initialize();
     }
 
+    public ImageButton getButRight() {
+        return butRight;
+    }
+
+    public ImageButton getButLeft() {
+        return butLeft;
+    }
+
+    public LinearLayout getLlWeeks() {
+        return llWeeks;
+    }
+
     private void initialize() {
         this.view = inflate(this.context, R.layout.customcalendar, this);
         this.butLeft = (ImageButton)this.findViewById(R.id.but_left);

@@ -23,6 +23,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -51,6 +53,7 @@ import com.plumsoftware.rucalendar.repositories.OnDateSelectedListener;
 import com.plumsoftware.rucalendar.repositories.OnNavigationButtonClickedListener;
 import com.plumsoftware.rucalendar.calendardata.Property;
 import com.plumsoftware.rucalendar.R;
+import com.plumsoftware.rucalendar.repositories.SwipeGestureListener;
 import com.yandex.mobile.ads.appopenad.AppOpenAd;
 import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener;
 import com.yandex.mobile.ads.appopenad.AppOpenAdLoadListener;
@@ -173,49 +176,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
             final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
 
-            AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
-                @Override
-                public void onAdShown() {
-                    // Called when ad is shown.
-                }
-
-                @Override
-                public void onAdFailedToShow(@NonNull final AdError adError) {
-                    // Called when ad failed to show.
-                }
-
-                @Override
-                public void onAdDismissed() {
-                    // Called when ad is dismissed.
-                    // Clean resources after dismiss and preload new ad.
-                    clearAppOpenAd();
-                }
-
-                @Override
-                public void onAdClicked() {
-                    // Called when a click is recorded for an ad.
-                }
-
-                @Override
-                public void onAdImpression(@Nullable final ImpressionData impressionData) {
-                    // Called when an impression is recorded for an ad.
-                }
-            };
-
-            AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
-                @Override
-                public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
-                    mAppOpenAd = appOpenAd;
-                    mAppOpenAd.setAdEventListener(appOpenAdEventListener);
-                    progressDialog.dismiss();
-                    showAppOpenAd();
-                }
-
-                @Override
-                public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                    progressDialog.dismiss();
-                }
-            };
+            AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
 
             appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
             appOpenAdLoader.loadAd(adRequestConfiguration);
@@ -225,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        endregion
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
+        View rootLayout = findViewById(R.id.root_layout);
         View blur = findViewById(R.id.blur);
         View bottomBar = findViewById(R.id.bottom_bar);
 //        if (appBarLayout != null) {
@@ -324,7 +286,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         } else {
             sp.edit().putInt("banner", (banner + 1)).apply();
         }
-
 
         Property propDefault = new Property();
         propDefault.layoutResource = R.layout.default_layout;
@@ -646,6 +607,37 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
         new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
+
+        GestureDetector gestureDetector = new GestureDetector(this, new SwipeGestureListener() {
+            @Override
+            public void onSwipeRight() {
+                myCustomCalendar.getButRight().performClick();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                myCustomCalendar.getButLeft().performClick();
+            }
+        });
+
+        rootLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+        myCustomCalendar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+        myCustomCalendar.getLlWeeks().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
 //        } else {
 //            Property propDefault = new Property();
 //            propDefault.layoutResource = R.layout.default_layout;
@@ -770,6 +762,54 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
 //            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
 //        }
+    }
+
+    @NonNull
+    private AppOpenAdLoadListener getAppOpenAdLoadListener() {
+        AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
+            @Override
+            public void onAdShown() {
+                // Called when ad is shown.
+            }
+
+            @Override
+            public void onAdFailedToShow(@NonNull final AdError adError) {
+                // Called when ad failed to show.
+            }
+
+            @Override
+            public void onAdDismissed() {
+                // Called when ad is dismissed.
+                // Clean resources after dismiss and preload new ad.
+                clearAppOpenAd();
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Called when a click is recorded for an ad.
+            }
+
+            @Override
+            public void onAdImpression(@Nullable final ImpressionData impressionData) {
+                // Called when an impression is recorded for an ad.
+            }
+        };
+
+        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
+            @Override
+            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
+                mAppOpenAd = appOpenAd;
+                mAppOpenAd.setAdEventListener(appOpenAdEventListener);
+                progressDialog.dismiss();
+                showAppOpenAd();
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+                progressDialog.dismiss();
+            }
+        };
+        return appOpenAdLoadListener;
     }
 
     @SuppressLint("NewApi")
