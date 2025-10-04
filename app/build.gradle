@@ -177,4 +177,10 @@ dependencies {
 
     //Worker
     implementation "androidx.work:work-runtime:2.8.1"
+
+    // VK AD
+    implementation "com.my.target:mytarget-sdk:5.6.+"
+
+    // Analytics
+    implementation 'com.google.firebase:firebase-analytics:23.0.0'
 }
