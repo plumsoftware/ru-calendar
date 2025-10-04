@@ -13,11 +13,11 @@
         android:id="@+id/custom_calendar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
         android:elevation="0dp"
+        android:focusable="true"
         android:paddingBottom="0dp"
         app:day_of_week_length="3"
-        android:clickable="true"
-        android:focusable="true"
         app:day_of_week_start_from="понедельник"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -76,6 +76,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/custom_calendar"
         app:layout_constraintVertical_bias="0.0" />
+
+    <com.my.target.ads.MyTargetView
+        android:id="@+id/view_ad"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/custom_calendar"
+        app:layout_constraintVertical_bias="0.0"
+        app:myTarget_adSize="banner_320x50"
+        app:myTarget_isRefreshAd="false"
+        app:myTarget_slotId="1919524" />
 
     <include
         android:id="@+id/blur"

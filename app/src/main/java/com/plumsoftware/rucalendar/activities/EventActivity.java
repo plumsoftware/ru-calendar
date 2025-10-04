@@ -39,6 +39,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.my.target.ads.MyTargetView;
+import com.my.target.common.MyTargetManager;
+import com.my.target.common.models.IAdLoadingError;
+import com.plumsoftware.rucalendar.BuildConfig;
 import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
@@ -74,7 +79,12 @@ public class EventActivity extends AppCompatActivity {
     private InterstitialAd mInterstitialAd = null;
     @Nullable
     private InterstitialAdLoader mInterstitialAdLoader = null;
+
+    private FirebaseAnalytics mFirebaseAnalytics;
+
+    private MyTargetView adView;
     private BannerAdView mBannerAdView;
+    private com.my.target.ads.InterstitialAd adVkInt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +101,8 @@ public class EventActivity extends AppCompatActivity {
             return insets;
         });
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
@@ -100,7 +112,8 @@ public class EventActivity extends AppCompatActivity {
         String name;
         String color;
 
-        MobileAds.initialize(EventActivity.this, () -> {});
+        MobileAds.initialize(EventActivity.this, () -> {
+        });
 
         SharedPreferences sp = getSharedPreferences("ads_showing", Context.MODE_APPEND);
         int interstitial = sp.getInt("interstitial", 0);
@@ -111,10 +124,11 @@ public class EventActivity extends AppCompatActivity {
         TextView nameTextView = findViewById(R.id.event_name);
         ImageView back = findViewById(R.id.back);
         ImageView notif = findViewById(R.id.notif);
-        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
+        adView = findViewById(R.id.view_ad_e);
+        mBannerAdView = findViewById(R.id.ad_view_id);
+        adView.setSlotId(AdsConfig.BANNER_EVENT_SCREEN_AD_VK);
 
-        mBannerAdView.setAdUnitId(AdsConfig.BANNER_EVENT_SCREEN_AD);
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(EventActivity.this, screenWidth, 50));
+        MyTargetManager.setDebugMode(BuildConfig.DEBUG);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -211,12 +225,12 @@ public class EventActivity extends AppCompatActivity {
                     mInterstitialAd = interstitialAd;
                     progressDialog.dismiss();
                     showAd();
+                    mFirebaseAnalytics.logEvent("RSY_INTERSTITIAL_LOADED", null);
                 }
 
                 @Override
                 public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                    progressDialog.dismiss();
-                    finish();
+                    showVkIntAd();
                 }
             });
         } else {
@@ -224,40 +238,8 @@ public class EventActivity extends AppCompatActivity {
         }
 
         // Загрузка объявления.
-        if (banner >= 2) {
-            //         Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-            mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-                @Override
-                public void onAdLoaded() {
-
-                }
-
-                @Override
-                public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-
-                }
-
-                @Override
-                public void onAdClicked() {
-
-                }
-
-                @Override
-                public void onLeftApplication() {
-
-                }
-
-                @Override
-                public void onReturnedToApplication() {
-
-                }
-
-                @Override
-                public void onImpression(@Nullable ImpressionData impressionData) {
-
-                }
-            });
-            mBannerAdView.loadAd(adRequestB);
+        if (banner >= 3) {
+            loadRSYAds();
         } else {
             sp.edit().putInt("banner2", (banner + 1)).apply();
         }
@@ -355,12 +337,9 @@ public class EventActivity extends AppCompatActivity {
 //        super.onBackPressed();
         // Загрузка объявления
         if (mInterstitialAdLoader != null) {
-            progressDialog.showDialog(EventActivity.this);
-            final AdRequestConfiguration adRequestConfiguration =
-                    new AdRequestConfiguration.Builder(AdsConfig.INTERSTITIAL_AD).build(); //RuStore
-            mInterstitialAdLoader.loadAd(adRequestConfiguration);
+            showRsyIntAd();
         } else {
-            finish();
+            showVkIntAd();
         }
     }
 
@@ -401,7 +380,7 @@ public class EventActivity extends AppCompatActivity {
                 @Override
                 public void onAdFailedToShow(@NonNull final AdError adError) {
                     // Called when an InterstitialAd failed to show.
-                    finish();
+                    showVkIntAd();
                 }
 
                 @Override
@@ -427,7 +406,173 @@ public class EventActivity extends AppCompatActivity {
                 }
             });
             mInterstitialAd.show(this);
+        } else {
+            showVkIntAd();
         }
+    }
+
+    private void loadVkId() {
+        adView.setAdSize(MyTargetView.AdSize.ADSIZE_320x50);
+        adView.setListener(new MyTargetView.MyTargetViewListener() {
+            @Override
+            public void onLoad(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onLoad");
+                rsyBannerShow(false);
+                vkBannerShow(true);
+
+                mFirebaseAnalytics.logEvent("VK_BANNER_LOADED", null);
+            }
+
+            @Override
+            public void onNoAd(@NonNull IAdLoadingError iAdLoadingError, @NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onNoAd");
+                loadRSYAds();
+            }
+
+            @Override
+            public void onShow(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onShow");
+            }
+
+            @Override
+            public void onClick(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onClick");
+            }
+        });
+        adView.load();
+    }
+
+    private void loadRSYAds() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+        double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
+                Math.pow(screenHeight / displayMetrics.ydpi, 2));
+
+        int bannerHeight;
+        if (screenInches >= MainActivity.TABLET_SCREEN_SIZE_THRESHOLD) {
+            bannerHeight = (int) (screenHeight * 0.08);
+        } else {
+            bannerHeight = (int) (screenHeight * 0.036);
+        }
+        mBannerAdView.setAdUnitId(AdsConfig.BANNER_EVENT_SCREEN_AD);
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(this, screenWidth, bannerHeight));
+
+        final AdRequest adRequest = new AdRequest.Builder().build();
+
+        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
+            @Override
+            public void onAdLoaded() {
+                rsyBannerShow(true);
+                vkBannerShow(false);
+
+                mFirebaseAnalytics.logEvent("RSY_BANNER_LOADED", null);
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+                loadVkId();
+            }
+
+            @Override
+            public void onAdClicked() {
+
+            }
+
+            @Override
+            public void onLeftApplication() {
+                //progressDialog.dismiss();
+            }
+
+            @Override
+            public void onReturnedToApplication() {
+
+            }
+
+            @Override
+            public void onImpression(@Nullable ImpressionData impressionData) {
+
+            }
+        });
+
+        // Загрузка объявления.
+        mBannerAdView.loadAd(adRequest);
+    }
+
+    private void rsyBannerShow(boolean isShow) {
+        if (isShow) {
+            mBannerAdView.setVisibility(View.VISIBLE);
+        } else {
+            mBannerAdView.setVisibility(View.GONE);
+        }
+    }
+
+    private void vkBannerShow(boolean isShow) {
+        if (isShow) {
+            adView.setVisibility(View.VISIBLE);
+        } else {
+            adView.setVisibility(View.GONE);
+        }
+    }
+
+    private void showVkIntAd() {
+        adVkInt = new com.my.target.ads.InterstitialAd(AdsConfig.INTERSTITIAL_AD_VK, this);
+        adVkInt.setListener(new com.my.target.ads.InterstitialAd.InterstitialAdListener() {
+
+            @Override
+            public void onLoad(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
+                progressDialog.dismiss();
+
+                mFirebaseAnalytics.logEvent("VK_INTERSTITIAL_LOADED", null);
+            }
+
+            @Override
+            public void onNoAd(@NonNull IAdLoadingError iAdLoadingError, @NonNull com.my.target.ads.InterstitialAd interstitialAd) {
+                progressDialog.dismiss();
+                finish();
+            }
+
+            @Override
+            public void onClick(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
+
+            }
+
+            @Override
+            public void onFailedToShow(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
+                progressDialog.dismiss();
+                finish();
+            }
+
+            @Override
+            public void onDismiss(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
+                progressDialog.dismiss();
+                finish();
+            }
+
+            @Override
+            public void onVideoCompleted(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
+
+            }
+
+            @Override
+            public void onDisplay(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
+                progressDialog.dismiss();
+            }
+        });
+
+        // Запускаем загрузку данных
+        adVkInt.load();
+    }
+
+    private void showRsyIntAd() {
+        progressDialog.showDialog(EventActivity.this);
+        final AdRequestConfiguration adRequestConfiguration =
+                new AdRequestConfiguration.Builder(AdsConfig.INTERSTITIAL_AD).build();
+        assert mInterstitialAdLoader != null;
+        mInterstitialAdLoader.loadAd(adRequestConfiguration);
     }
 
     @Override

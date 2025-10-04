@@ -44,6 +44,11 @@ import android.widget.TextView;
  import org.naishadhparmar.zcustomcalendar.Property;
  **/
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.my.target.ads.MyTargetView;
+import com.my.target.common.MyTargetManager;
+import com.my.target.common.models.IAdLoadingError;
+import com.plumsoftware.rucalendar.BuildConfig;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
 import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
@@ -92,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected Calendar calendar, extraCalendar;
 
     private ProgressDialog progressDialog = new ProgressDialog();
-    private final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
+    static final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
 
     protected List<Integer>
             januaryList,
@@ -140,6 +145,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
 
     private AppOpenAd mAppOpenAd = null;
+    private MyTargetView adView;
+    private BannerAdView mBannerAdView;
+
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -159,9 +168,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             return insets;
         });
 
-        MobileAds.initialize(this, () -> {
-        });
-
         Context context = MainActivity.this;
         Activity activity = MainActivity.this;
 
@@ -169,26 +175,43 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         int open = sp.getInt("open", 0);
         int banner = sp.getInt("banner", 0);
 
-//        region::App open Ads
-        if (open >= 7) {
-            progressDialog.showDialog(context);
-            final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
-            final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
-            final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
-
-            AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
-
-            appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
-            appOpenAdLoader.loadAd(adRequestConfiguration);
-        } else {
-            sp.edit().putInt("open", (open + 1)).apply();
-        }
-//        endregion
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
         View rootLayout = findViewById(R.id.root_layout);
         View blur = findViewById(R.id.blur);
         View bottomBar = findViewById(R.id.bottom_bar);
+        adView = findViewById(R.id.view_ad);
+        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
+        adView.setSlotId(AdsConfig.BANNER_MAIN_SCREEN_AD_VK);
+
+        MyTargetManager.setDebugMode(BuildConfig.DEBUG);
+
+        MobileAds.initialize(context, () -> {
+            if (banner >= 3) {
+                loadRSYAds();
+            } else {
+                sp.edit().putInt("banner", (banner + 1)).apply();
+            }
+        });
+
+//        region::App open Ads
+        if (AdsConfig.SHOW_OPEN_MAIN_SCREEN_AD) {
+            if (open >= 7) {
+                progressDialog.showDialog(context);
+                final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
+                final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
+                final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
+
+                AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
+
+                appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
+                appOpenAdLoader.loadAd(adRequestConfiguration);
+            } else {
+                sp.edit().putInt("open", (open + 1)).apply();
+            }
+        }
+//        endregion
 //        if (appBarLayout != null) {
 //            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
 //                private int lastOffset = 0;
@@ -226,66 +249,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //        }
         HashMap<Object, Property> mapDescToProp = new HashMap<>();
         List<CelebrationItem> celebrations = new ArrayList<>();
-
-        if (banner >= 2) {
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int screenWidth = displayMetrics.widthPixels;
-            int screenHeight = displayMetrics.heightPixels;
-
-            double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
-                    Math.pow(screenHeight / displayMetrics.ydpi, 2));
-
-            int bannerHeight;
-            if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
-                bannerHeight = (int) (screenHeight * 0.08);
-            } else {
-                bannerHeight = (int) (screenHeight * 0.036);
-            }
-            BannerAdView mBannerAdView = (BannerAdView) findViewById(R.id.adView);
-            mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
-            mBannerAdView.setAdSize(BannerAdSize.inlineSize(context, screenWidth, bannerHeight));
-
-            final AdRequest adRequest = new AdRequest.Builder().build();
-
-            // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-            mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-                @Override
-                public void onAdLoaded() {
-                    //progressDialog.dismiss();
-                }
-
-                @Override
-                public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-                    //progressDialog.dismiss();
-                }
-
-                @Override
-                public void onAdClicked() {
-
-                }
-
-                @Override
-                public void onLeftApplication() {
-                    //progressDialog.dismiss();
-                }
-
-                @Override
-                public void onReturnedToApplication() {
-
-                }
-
-                @Override
-                public void onImpression(@Nullable ImpressionData impressionData) {
-
-                }
-            });
-
-            // Загрузка объявления.
-            mBannerAdView.loadAd(adRequest);
-        } else {
-            sp.edit().putInt("banner", (banner + 1)).apply();
-        }
 
         Property propDefault = new Property();
         propDefault.layoutResource = R.layout.default_layout;
@@ -413,8 +376,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                                 color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
                             }
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                        }
-                        else {
+                        } else {
                             if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     color = String.valueOf(getColor(R.color.red_container));
@@ -2208,6 +2170,113 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, year);
         return cal.getActualMaximum(Calendar.DAY_OF_YEAR) > 365;
+    }
+
+    private void loadVkId() {
+        adView.setAdSize(MyTargetView.AdSize.ADSIZE_320x50);
+        adView.setListener(new MyTargetView.MyTargetViewListener() {
+            @Override
+            public void onLoad(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onLoad");
+                rsyBannerShow(false);
+                vkBannerShow(true);
+
+                mFirebaseAnalytics.logEvent("VK_BANNER_LOADED", null);
+            }
+
+            @Override
+            public void onNoAd(@NonNull IAdLoadingError iAdLoadingError, @NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onNoAd");
+                loadRSYAds();
+            }
+
+            @Override
+            public void onShow(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onShow");
+            }
+
+            @Override
+            public void onClick(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onClick");
+            }
+        });
+        adView.load();
+    }
+
+    private void loadRSYAds() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+        double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
+                Math.pow(screenHeight / displayMetrics.ydpi, 2));
+
+        int bannerHeight;
+        if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
+            bannerHeight = (int) (screenHeight * 0.08);
+        } else {
+            bannerHeight = (int) (screenHeight * 0.036);
+        }
+        mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(this, screenWidth, bannerHeight));
+
+        final AdRequest adRequest = new AdRequest.Builder().build();
+
+        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
+            @Override
+            public void onAdLoaded() {
+                rsyBannerShow(true);
+                vkBannerShow(false);
+
+                mFirebaseAnalytics.logEvent("RSY_BANNER_LOADED", null);
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+                loadVkId();
+            }
+
+            @Override
+            public void onAdClicked() {
+
+            }
+
+            @Override
+            public void onLeftApplication() {
+                //progressDialog.dismiss();
+            }
+
+            @Override
+            public void onReturnedToApplication() {
+
+            }
+
+            @Override
+            public void onImpression(@Nullable ImpressionData impressionData) {
+
+            }
+        });
+
+        // Загрузка объявления.
+        mBannerAdView.loadAd(adRequest);
+    }
+
+    private void rsyBannerShow(boolean isShow) {
+        if (isShow) {
+            mBannerAdView.setVisibility(View.VISIBLE);
+        } else {
+            mBannerAdView.setVisibility(View.GONE);
+        }
+    }
+
+    private void vkBannerShow(boolean isShow) {
+        if (isShow) {
+            adView.setVisibility(View.VISIBLE);
+        } else {
+            adView.setVisibility(View.GONE);
+        }
     }
 
     @Override
