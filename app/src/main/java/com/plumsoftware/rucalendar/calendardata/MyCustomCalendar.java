@@ -70,6 +70,18 @@ public class MyCustomCalendar extends LinearLayout {
         this.initialize();
     }
 
+    public ImageButton getButRight() {
+        return butRight;
+    }
+
+    public ImageButton getButLeft() {
+        return butLeft;
+    }
+
+    public LinearLayout getLlWeeks() {
+        return llWeeks;
+    }
+
     private void initialize() {
         this.view = inflate(this.context, R.layout.customcalendar, this);
         this.butLeft = (ImageButton)this.findViewById(R.id.but_left);
@@ -142,7 +154,7 @@ public class MyCustomCalendar extends LinearLayout {
         this.llWeeks.removeAllViews();
         this.btnAll = new View[this.selectedDate.getActualMaximum(5)];
         LinearLayout llWeek = new LinearLayout(this.context);
-        llWeek.setLayoutParams(new LayoutParams(-1, this.rowHeight == 0.0F ? -2 : (int)this.rowHeight));
+        llWeek.setLayoutParams(new LayoutParams(-1, this.rowHeight == 0.0F ? -2 : ((int)this.rowHeight)));
         llWeek.setOrientation(0);
         Calendar previousMonth = Calendar.getInstance();
         previousMonth.set(2, this.selectedDate.get(2) - 1 != -1 ? this.selectedDate.get(2) - 1 : 11);
@@ -232,7 +244,7 @@ public class MyCustomCalendar extends LinearLayout {
     }
 
     private void readyDaysOfWeek() {
-        String[] arrOfDaysOfWeek = this.getResources().getStringArray(R.array.days_of_week);
+        String[] arrOfDaysOfWeek = this.getResources().getStringArray(R.array.days_of_week_short);
         int j = 0;
 
         int i;

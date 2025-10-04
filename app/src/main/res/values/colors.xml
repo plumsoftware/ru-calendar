@@ -16,8 +16,8 @@
     <color name="md_theme_light_errorContainer">#FFDAD6</color>
     <color name="md_theme_light_onError">#FFFFFF</color>
     <color name="md_theme_light_onErrorContainer">#410002</color>
-    <color name="md_theme_light_background">#FEFBFF</color>
-    <color name="md_theme_light_onBackground">#1B1B1F</color>
+    <color name="md_theme_light_background">#FFFFFF</color>
+    <color name="md_theme_light_onBackground">#000000</color>
     <color name="md_theme_light_surface">#FEFBFF</color>
     <color name="md_theme_light_onSurface">#1B1B1F</color>
     <color name="md_theme_light_surfaceVariant">#F3F3F3</color>
@@ -65,19 +65,30 @@
     <color name="md_theme_dark_outlineVariant">#44474F</color>
     <color name="md_theme_dark_scrim">#000000</color>
 
+    <color name="status_bar_color_light">#EDEDED</color>
+    <color name="status_bar_color_dark">#3A3A3A</color>
+
+    <color name="disabled_text_color_light">#808E8E8E</color>
+    <color name="disabled_text_color_dark">#80FFFFFF</color>
+
     <!-- Cards colors-->
     <color name="red_">#6E4F4B</color>
-    <color name="red_container">#F99B8E</color>
+    <color name="red_container">#CE3D3D</color>
 
     <color name="orange_">#735943</color>
-    <color name="orange_container">#F9C298</color>
+    <color name="orange_container">#F49955</color>
 
     <color name="blue_">#5c5d72</color>
-    <color name="blue_container">#A2B2F8</color>
+    <color name="blue_container">#7987D7</color>
+    <color name="blue_gradient">#8293FB</color>
 
     <color name="green_">#54634d</color>
-    <color name="green_container">#C4FBA3</color>
+    <color name="green_container">#7ABF4B</color>
 
     <color name="purple_">#655a6f</color>
-    <color name="purple_container">#CA93F2</color>
+    <color name="purple_container">#A871D1</color>
+
+    <color name="blue">#4B6DC5</color>
+
+    <color name="svo_color">#FD911B</color>
 </resources>

@@ -1,37 +1,54 @@
 package com.plumsoftware.rucalendar.activities;
 
+import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.widget.NestedScrollView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  import org.naishadhparmar.zcustomcalendar.CustomCalendar;
  import org.naishadhparmar.zcustomcalendar.Property;
  **/
 
-import com.airbnb.lottie.LottieAnimationView;
-import com.google.android.material.appbar.AppBarLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.my.target.ads.MyTargetView;
+import com.my.target.common.MyTargetManager;
+import com.my.target.common.models.IAdLoadingError;
+import com.plumsoftware.rucalendar.BuildConfig;
 import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
 import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
@@ -42,6 +59,7 @@ import com.plumsoftware.rucalendar.repositories.OnDateSelectedListener;
 import com.plumsoftware.rucalendar.repositories.OnNavigationButtonClickedListener;
 import com.plumsoftware.rucalendar.calendardata.Property;
 import com.plumsoftware.rucalendar.R;
+import com.plumsoftware.rucalendar.repositories.SwipeGestureListener;
 import com.yandex.mobile.ads.appopenad.AppOpenAd;
 import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener;
 import com.yandex.mobile.ads.appopenad.AppOpenAdLoadListener;
@@ -54,7 +72,6 @@ import com.yandex.mobile.ads.common.AdRequest;
 import com.yandex.mobile.ads.common.AdRequestConfiguration;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
-import com.yandex.mobile.ads.common.InitializationListener;
 import com.yandex.mobile.ads.common.MobileAds;
 
 import java.io.BufferedReader;
@@ -64,9 +81,11 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -74,13 +93,11 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements OnNavigationButtonClickedListener {
     protected MyCustomCalendar myCustomCalendar;
-    protected LottieAnimationView animationView;
     protected HashMap<Integer, Object> mapDateToDesc;
     protected Calendar calendar, extraCalendar;
-    protected SwipeRefreshLayout swipeRefreshLayout;
 
     private ProgressDialog progressDialog = new ProgressDialog();
-    private final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
+    static final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
 
     protected List<Integer>
             januaryList,
@@ -127,12 +144,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     protected List<List<Integer>> monthsPast;
     protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
 
-    protected NestedScrollView nestedScrollView;
-
-    protected AppBarLayout appBarLayout;
-    //    protected boolean b;
-
     private AppOpenAd mAppOpenAd = null;
+    private MyTargetView adView;
+    private BannerAdView mBannerAdView;
+
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -140,173 +156,100 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         super.onCreate(savedInstanceState);
 //        Заглушка для темы
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        setupEdgeToEdge();
         setContentView(R.layout.menu_layout);
 
-        MobileAds.initialize(this, () -> {
+        View rootView = findViewById(android.R.id.content);
+        rootView.setOnApplyWindowInsetsListener((v, insets) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//                int bottomBarHeight = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
+                v.setPadding(v.getPaddingLeft(), 0, v.getPaddingRight(), 0);
+            }
+            return insets;
         });
 
         Context context = MainActivity.this;
         Activity activity = MainActivity.this;
 
-        View rootView = findViewById(R.id.root_layout);
+        SharedPreferences sp = getSharedPreferences("ads_showing", Context.MODE_APPEND);
+        int open = sp.getInt("open", 0);
+        int banner = sp.getInt("banner", 0);
 
-        if (Build.VERSION.SDK_INT <= 35) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
-                Insets insets1 = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
-                Insets insets2 = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
-
-                v.setPadding(0,insets1.top, 0, insets2.bottom);
-
-                return windowInsets;
-            });
-        }
-
-
-//        region::App open Ads
-        progressDialog.showDialog(context);
-        final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
-        final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
-        final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
-
-        AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
-            @Override
-            public void onAdShown() {
-                // Called when ad is shown.
-            }
-
-            @Override
-            public void onAdFailedToShow(@NonNull final AdError adError) {
-                // Called when ad failed to show.
-            }
-
-            @Override
-            public void onAdDismissed() {
-                // Called when ad is dismissed.
-                // Clean resources after dismiss and preload new ad.
-                clearAppOpenAd();
-            }
-
-            @Override
-            public void onAdClicked() {
-                // Called when a click is recorded for an ad.
-            }
-
-            @Override
-            public void onAdImpression(@Nullable final ImpressionData impressionData) {
-                // Called when an impression is recorded for an ad.
-            }
-        };
-
-        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
-            @Override
-            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
-                mAppOpenAd = appOpenAd;
-                mAppOpenAd.setAdEventListener(appOpenAdEventListener);
-                progressDialog.dismiss();
-                showAppOpenAd();
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                progressDialog.dismiss();
-            }
-        };
-
-        appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
-        appOpenAdLoader.loadAd(adRequestConfiguration);
-
-//        endregion
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
-        swipeRefreshLayout = (SwipeRefreshLayout) activity.findViewById(R.id.refreshLayout);
-        RecyclerView recyclerView = (RecyclerView) activity.findViewById(R.id.recyclerView);
-        animationView = (LottieAnimationView) activity.findViewById(R.id.animationView);
-        nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
-        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-//        TextView textView = (TextView) activity.findViewById(R.id.textView);
-        HashMap<Object, Property> mapDescToProp = new HashMap<>();
-        List<CelebrationItem> celebrations = new ArrayList<>();
-//        b = countryCode.equals("ru");
+        View rootLayout = findViewById(R.id.root_layout);
+        View blur = findViewById(R.id.blur);
+        View bottomBar = findViewById(R.id.bottom_bar);
+        adView = findViewById(R.id.view_ad);
+        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
+        adView.setSlotId(AdsConfig.BANNER_MAIN_SCREEN_AD_VK);
 
-//        if (!countryCode.equals("ru") && !countryCode.equals("kz") && !countryCode.equals("ua") && !countryCode.equals("by")) {
-//            Toast.makeText(this, "Data is not available in your country. Default country is Russia.", Toast.LENGTH_LONG).show();
-//        }
+        MyTargetManager.setDebugMode(BuildConfig.DEBUG);
 
-//        switch (countryCode) {
-//            case "kz":
-//                textView.setText("Календарь Казахстана");
-//                break;
-//            case "ua":
-//                textView.setText("Календарь Украины");
-//                break;
-//            case "by":
-//                textView.setText("Календарь РБ");
-//                break;
-//            case "ru":
-//                textView.setText("Календарь РФ");
-//                break;
-//        }
-
-        swipeRefreshLayout.setColorSchemeResources(R.color.blue_, R.color.red_, R.color.green_, R.color.orange_);
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int screenWidth = displayMetrics.widthPixels;
-        int screenHeight = displayMetrics.heightPixels;
-
-        double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
-                Math.pow(screenHeight / displayMetrics.ydpi, 2));
-
-        int bannerHeight;
-        if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
-            bannerHeight = (int) (screenHeight * 0.08);
-        } else {
-            bannerHeight = (int) (screenHeight * 0.036);
-        }
-        BannerAdView mBannerAdView = (BannerAdView) findViewById(R.id.adView);
-        mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(context, screenWidth, bannerHeight));
-
-        final AdRequest adRequest = new AdRequest.Builder().build();
-
-        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-            @Override
-            public void onAdLoaded() {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onAdClicked() {
-
-            }
-
-            @Override
-            public void onLeftApplication() {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onReturnedToApplication() {
-
-            }
-
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
-
+        MobileAds.initialize(context, () -> {
+            if (banner >= 3) {
+                loadRSYAds();
+            } else {
+                sp.edit().putInt("banner", (banner + 1)).apply();
             }
         });
 
-        // Загрузка объявления.
-        mBannerAdView.loadAd(adRequest);
+//        region::App open Ads
+        if (AdsConfig.SHOW_OPEN_MAIN_SCREEN_AD) {
+            if (open >= 7) {
+                progressDialog.showDialog(context);
+                final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
+                final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
+                final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
 
+                AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
 
-//        if (b) {
+                appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
+                appOpenAdLoader.loadAd(adRequestConfiguration);
+            } else {
+                sp.edit().putInt("open", (open + 1)).apply();
+            }
+        }
+//        endregion
+//        if (appBarLayout != null) {
+//            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+//                private int lastOffset = 0;
+//
+//                @Override
+//                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+//                    if (verticalOffset > lastOffset) {
+//                        // 👆 Скролл ВВЕРХ (AppBarLayout раскрывается)
+//                        Log.d("SCROLL", "Scrolling UP");
+//
+//                        if (verticalOffset >= -270) {
+//                            // Полностью раскрыт — меняем цвет
+//                            runOnUiThread(() -> {
+//                                int color = getThemeColor(R.attr.statusBarColor);
+//                                setStatusBarColor(color);
+//                                rootView.setBackgroundColor(color);
+//                            });
+//                        }
+//
+//                    } else if (verticalOffset < lastOffset) {
+//                        // 👇 Скролл ВНИЗ (AppBarLayout схлопывается)
+//                        Log.d("SCROLL", "Scrolling DOWN");
+//                        if (verticalOffset <= -270) {
+//                            runOnUiThread(() -> {
+//                                int color = getThemeColor(android.R.attr.colorBackground);
+//                                setStatusBarColor(color);
+//                                rootView.setBackgroundColor(color);
+//                            });
+//                        }
+//                    }
+//
+//                    lastOffset = verticalOffset;
+//                }
+//            });
+//        }
+        HashMap<Object, Property> mapDescToProp = new HashMap<>();
+        List<CelebrationItem> celebrations = new ArrayList<>();
+
         Property propDefault = new Property();
         propDefault.layoutResource = R.layout.default_layout;
         propDefault.dateTextViewResource = R.id.textViewDate;
@@ -347,6 +290,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         propNOH.dateTextViewResource = R.id.textViewDate;
         mapDescToProp.put("not official holiday", propNOH);
 
+        Property propSvo = new Property();
+        propSvo.layoutResource = R.layout.svo_layout;
+        propSvo.dateTextViewResource = R.id.textViewSvo;
+        mapDescToProp.put("svo", propSvo);
+
         myCustomCalendar.setMapDescToProp(mapDescToProp);
 
         mapDateToDesc = new HashMap<>();
@@ -361,20 +309,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         int month = calendar.get(Calendar.MONTH) + 1;
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-                new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-            }
-        });
-
         String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
         new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
 
         myCustomCalendar.setDate(calendar, mapDateToDesc);
 
-//        if (b) {
         Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         String name1 = "";
         String descS1 = "";
@@ -393,13 +332,9 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             e.printStackTrace();
         }
 
-//        }
 
         CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
         celebrationAdapter.notifyDataSetChanged();
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(celebrationAdapter);
 
         myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
         myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
@@ -407,6 +342,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             @SuppressLint("ResourceType")
             @Override
             public void onDateSelected(View view, Calendar selectedDate, Object desc) {
+//                runOnUiThread(() -> {
+//                    int newColor = getThemeColor(android.R.attr.colorBackground);
+//                    rootView.setBackgroundColor(newColor);
+//                });
                 celebrations.clear();
                 String name1 = "";
                 String descS1 = "";
@@ -415,94 +354,223 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
                 Celebrations celebrationsClass = new Celebrations(selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH));
 
-                try {
-                    celebrationsClass.getDescription();
-                    appBarLayout.setExpanded(false, true);
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
-
 
                 try {
                     String[] split = celebrationsClass.getDescription().split("~del");
-                    animationView.setVisibility(View.INVISIBLE);
-                    recyclerView.setVisibility(View.VISIBLE);
+                    Log.d("TAG", String.valueOf(split.length));
                     for (String s : split) {
                         name1 = s.split("~")[0];
                         descS1 = s.split("~")[1];
-//                            color = "#F57F17";
-//                            celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-
 //                            Проверяем вторые события
                         if (name1.equals("День российской науки")) {
-//                            if (b) {
-                            color = "#ffdcc1";
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                color = String.valueOf(getColor(R.color.green_container));
+                            } else {
+                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
+                            }
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-//                            }
                         } else if (name1.equals("День юриста")) {
-                            color = "#D8D7F8";
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                color = String.valueOf(getColor(R.color.blue_container));
+                            } else {
+                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
+                            }
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                         } else {
                             if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
-                                celebrations.add(new CelebrationItem(name1, descS1, "#ffdad5", timeInMillis));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.red_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
+                                }
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("holiday".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.red_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
+                                }
+                                celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", color, timeInMillis));
                             }
                             if ("short".equals(desc)) {
-                                celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.purple_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.purple_container));
+                                }
+                                celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", color, timeInMillis));
                             }
                             if ("current".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
 //                                    color = String.valueOf(getAttrColor(context, com.google.android.material.R.attr.colorTertiary));
-//                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary));
-                                if (AppCompatDelegate.getDefaultNightMode() == 1) {
-                                    color = "#715573";
+//                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.blue_container));
                                 } else {
-                                    color = "#DEBCDF";
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
                                 }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("current".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                recyclerView.setVisibility(View.VISIBLE);
+//                                recyclerView.setVisibility(View.VISIBLE);
                             }
                             if ("mDate".equals(desc)) {
-                                color = "#d7e8cd";
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.green_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
+                                }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("prof".equals(desc)) {
-                                color = "#D8D7F8";
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.blue_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
+                                }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                             if ("not official holiday".equals(desc)) {
-                                color = "#ffdcc1";
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.orange_container));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.orange_container));
+                                }
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                            }
+                            if ("svo".equals(desc)) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.svo_color));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.svo_color));
+                                }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
                         }
                     }
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
-                    recyclerView.setVisibility(View.INVISIBLE);
-                    animationView.setVisibility(View.VISIBLE);
                     if ("holiday".equals(desc)) {
-                        celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
-                        animationView.setVisibility(View.INVISIBLE);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            color = String.valueOf(getColor(R.color.red_container));
+                        } else {
+                            color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
+                        }
+                        celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", color, timeInMillis));
                     }
                 }
 
-//                RecyclerView recyclerViewBottomSheetDialog = (RecyclerView) view.findViewById(R.id.recyclerView);
-                celebrationAdapter.notifyDataSetChanged();
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setAdapter(celebrationAdapter);
-
                 if ("default".equals(desc)) {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    animationView.setVisibility(View.VISIBLE);
+//                    recyclerView.setVisibility(View.VISIBLE);
+//                    animationView.setVisibility(View.VISIBLE);
                 }
                 if ("unavailable".equals(desc)) {
-                    recyclerView.setVisibility(View.VISIBLE);
+//                    recyclerView.setVisibility(View.VISIBLE);
                 } else {
-                    recyclerView.setVisibility(View.VISIBLE);
+//                    recyclerView.setVisibility(View.VISIBLE);
+                }
+
+                if (!celebrations.isEmpty()) {
+                    blur.setVisibility(View.VISIBLE);
+
+                    TextView nameTextView = bottomBar.findViewById(R.id.event_name);
+                    TextView descTextView = bottomBar.findViewById(R.id.event_desc);
+                    TextView eventTypeTextView = bottomBar.findViewById(R.id.event_type);
+                    TextView eventDateTextView = bottomBar.findViewById(R.id.event_date);
+                    View next = bottomBar.findViewById(R.id.next);
+                    Button more = bottomBar.findViewById(R.id.more);
+                    View previous = bottomBar.findViewById(R.id.previous);
+                    ImageView close = bottomBar.findViewById(R.id.close);
+
+                    String type = "";
+
+                    int targetColor = Integer.parseInt(celebrations.get(0).getColor());
+                    int blueColor = ContextCompat.getColor(getApplicationContext(), R.color.blue_container);
+                    int redColor = ContextCompat.getColor(getApplicationContext(), R.color.red_container);
+                    int greenColor = ContextCompat.getColor(getApplicationContext(), R.color.green_container);
+                    int orangeColor = ContextCompat.getColor(getApplicationContext(), R.color.orange_container);
+                    int purpleColor = ContextCompat.getColor(getApplicationContext(), R.color.purple_container);
+
+                    if (targetColor == blueColor) {
+                        type = "Профессиональный праздник";
+                    } else if (targetColor == redColor) {
+                        type = "Праздничный день";
+                    } else if (targetColor == greenColor) {
+                        type = "Памятная дата";
+                    } else if (targetColor == purpleColor) {
+                        type = "Сокращенный день";
+                    } else if (targetColor == orangeColor) {
+                        type = "Неофициальный праздник";
+                    }
+
+                    eventTypeTextView.setText(type);
+
+                    nameTextView.setText(celebrations.get(0).getName());
+                    descTextView.setText(celebrations.get(0).getDesc());
+                    eventDateTextView.setText("• " + new SimpleDateFormat("dd MMMM EEEE", Locale.getDefault()).format(new Date(celebrations.get(0).getTimeInMillis())));
+
+                    eventDateTextView.setTextColor(targetColor);
+
+                    more.setBackgroundTintList(ColorStateList.valueOf(targetColor));
+
+                    GradientDrawable newDrawable = new GradientDrawable();
+                    newDrawable.setShape(GradientDrawable.OVAL);
+                    newDrawable.setColor(Integer.parseInt(celebrations.get(0).getColor()));
+                    close.setBackground(newDrawable);
+
+                    more.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(context, EventActivity.class);
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                intent.putExtra("event", celebrations.get(0));
+                            } else {
+                                intent.putExtra("time", celebrations.get(0).getTimeInMillis());
+                                intent.putExtra("name", celebrations.get(0).getName());
+                                intent.putExtra("desc", celebrations.get(0).getDesc());
+                                intent.putExtra("color", celebrations.get(0).getColor());
+                            }
+                            activity.startActivity(intent);
+                            close.performClick();
+                        }
+                    });
+
+                    if (celebrations.size() == 1) {
+                        next.setVisibility(View.GONE);
+                        previous.setVisibility(View.GONE);
+                    }
+
+                    close.setOnClickListener(view1 -> {
+                                bottomBar.animate()
+                                        .translationY(500f) // или screenHeight — см. ниже
+                                        .setDuration(200)
+                                        .setInterpolator(new AccelerateInterpolator()) // ускорение вниз
+                                        .withEndAction(() -> {
+                                            bottomBar.setVisibility(View.GONE);
+                                            blur.setVisibility(View.GONE);
+                                        })
+                                        .start();
+                            }
+                    );
+
+
+                    bottomBar.post(() -> {
+                        float height = 500f;
+
+                        // Устанавливаем начальное состояние ДО показа элемента
+                        bottomBar.setPivotY(height);
+                        bottomBar.setTranslationY(height / 2);
+
+                        // Только ПОСЛЕ установки начального состояния показываем элемент
+                        bottomBar.setVisibility(View.VISIBLE);
+
+                        // Анимация
+                        bottomBar.animate()
+                                .translationY(0f)
+                                .setDuration(200)
+                                .setInterpolator(new AccelerateDecelerateInterpolator())
+                                .start();
+                    });
                 }
             }
         });
@@ -515,6 +583,37 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
         new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
+
+        GestureDetector gestureDetector = new GestureDetector(this, new SwipeGestureListener() {
+            @Override
+            public void onSwipeRight() {
+                myCustomCalendar.getButRight().performClick();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                myCustomCalendar.getButLeft().performClick();
+            }
+        });
+
+        rootLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+        myCustomCalendar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+        myCustomCalendar.getLlWeeks().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
 //        } else {
 //            Property propDefault = new Property();
 //            propDefault.layoutResource = R.layout.default_layout;
@@ -639,6 +738,186 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
 //            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
 //        }
+    }
+
+    @NonNull
+    private AppOpenAdLoadListener getAppOpenAdLoadListener() {
+        AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
+            @Override
+            public void onAdShown() {
+                // Called when ad is shown.
+            }
+
+            @Override
+            public void onAdFailedToShow(@NonNull final AdError adError) {
+                // Called when ad failed to show.
+            }
+
+            @Override
+            public void onAdDismissed() {
+                // Called when ad is dismissed.
+                // Clean resources after dismiss and preload new ad.
+                clearAppOpenAd();
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Called when a click is recorded for an ad.
+            }
+
+            @Override
+            public void onAdImpression(@Nullable final ImpressionData impressionData) {
+                // Called when an impression is recorded for an ad.
+            }
+        };
+
+        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
+            @Override
+            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
+                mAppOpenAd = appOpenAd;
+                mAppOpenAd.setAdEventListener(appOpenAdEventListener);
+                progressDialog.dismiss();
+                showAppOpenAd();
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+                progressDialog.dismiss();
+            }
+        };
+        return appOpenAdLoadListener;
+    }
+
+    @SuppressLint("NewApi")
+    void setStatusBarColor(int color) {
+        Window window = getWindow();
+
+        boolean isDarkBackground = ColorUtils.calculateLuminance(color) < 0.5;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                if (isDarkBackground) {
+                    controller.setSystemBarsAppearance(
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                    );
+                } else {
+                    controller.setSystemBarsAppearance(
+                            0,
+                            0
+                    );
+                }
+            }
+
+            window.setStatusBarColor(color);
+
+            // 👇 ВАЖНО: принудительно обновляем системный UI
+            window.getDecorView().requestApplyInsets();
+
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(color);
+
+            if (isDarkBackground) {
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            } else {
+                getWindow().getDecorView().setSystemUiVisibility(0);
+            }
+
+        } else {
+            window.setStatusBarColor(color);
+        }
+
+        // 👇 Принудительный редрав ВСЕХ view
+        getWindow().getDecorView().post(() -> {
+            getWindow().getDecorView().invalidate();
+            getWindow().getDecorView().requestLayout();
+        });
+    }
+
+    private void setupEdgeToEdge() {
+        Window window = getWindow();
+
+        // Определяем текущую тему (светлая/темная)
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        boolean isDarkTheme = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+
+        int systemUiVisibilityFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+
+        // Делаем статус бар и нав бар прозрачными
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Настройка цвета иконок для Android 5-10
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!isDarkTheme) {
+                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
+                    systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                }
+                // Для темной темы оставляем светлые иконки (по умолчанию)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!isDarkTheme) {
+                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ НАВИГАЦИИ
+                    systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                }
+                // Для темной темы оставляем светлые иконки (по умолчанию)
+            }
+
+            window.getDecorView().setSystemUiVisibility(systemUiVisibilityFlags);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
+        }
+
+        // Для Android 10+ убираем затемнение под нав баром
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.setNavigationBarContrastEnforced(false);
+        }
+
+        // Для Android 11+ используем новый API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false);
+
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                // Убеждаемся, что нав бар остается видимым
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+
+                // Настройка цвета иконок для Android 11+
+                if (!isDarkTheme) {
+                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
+                    controller.setSystemBarsAppearance(
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
+                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
+                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    );
+                } else {
+                    // ТЕМНАЯ ТЕМА - СВЕТЛЫЕ ИКОНКИ (убираем флаги светлых иконок)
+                    controller.setSystemBarsAppearance(
+                            0,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
+                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    );
+                }
+            }
+        }
+    }
+
+    public int getThemeColor(@AttrRes int attr) {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(attr, typedValue, true);
+        if (typedValue.resourceId != 0) {
+            return ContextCompat.getColor(this, typedValue.resourceId);
+        } else {
+            return typedValue.data;
+        }
     }
 
     @Override
@@ -827,6 +1106,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     arr[0].put(14, "not official holiday");//День святого Валентина
                     arr[0].put(15, "mDate");//День памяти воинов-интернационалистов
                     arr[0].put(23, "holiday");
+                    arr[0].put(24, "svo");
                     arr[0].put(27, "prof");//День Сил специальных операций
                     arr[1] = null;
                     break;
@@ -923,7 +1203,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     arr[0].put(26, "prof");
                     arr[0].put(27, "not official holiday");
                     arr[0].put(28, "prof");
-                    arr[0].put(30, "prof");
+                    arr[0].put(30, "svo");
                     arr[1] = null;
                     break;
                 case Calendar.OCTOBER:
@@ -996,7 +1276,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         protected void onPreExecute() {
             super.onPreExecute();
             myCustomCalendar.setVisibility(View.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -1128,6 +1407,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             mapDateToDesc.put(14, "not official holiday");//День святого Валентина
                             mapDateToDesc.put(15, "mDate");//День памяти воинов-интернационалистов
                             mapDateToDesc.put(23, "holiday");
+                            mapDateToDesc.put(24, "svo"); //Начало СВО
                             mapDateToDesc.put(27, "prof");//День Сил специальных операций
                             break;
                         case Calendar.MARCH:
@@ -1217,7 +1497,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             mapDateToDesc.put(26, "prof");
                             mapDateToDesc.put(27, "not official holiday");
                             mapDateToDesc.put(28, "prof");
-                            mapDateToDesc.put(30, "prof");
+                            mapDateToDesc.put(30, "svo");
                             break;
                         case Calendar.OCTOBER:
                             mapDateToDesc.put(1, "not official holiday");
@@ -1265,7 +1545,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
                     myCustomCalendar.setDate(calendar, mapDateToDesc);
                     myCustomCalendar.setVisibility(View.VISIBLE);
-                    swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
@@ -1891,6 +2170,113 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, year);
         return cal.getActualMaximum(Calendar.DAY_OF_YEAR) > 365;
+    }
+
+    private void loadVkId() {
+        adView.setAdSize(MyTargetView.AdSize.ADSIZE_320x50);
+        adView.setListener(new MyTargetView.MyTargetViewListener() {
+            @Override
+            public void onLoad(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onLoad");
+                rsyBannerShow(false);
+                vkBannerShow(true);
+
+                mFirebaseAnalytics.logEvent("VK_BANNER_LOADED", null);
+            }
+
+            @Override
+            public void onNoAd(@NonNull IAdLoadingError iAdLoadingError, @NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onNoAd");
+                loadRSYAds();
+            }
+
+            @Override
+            public void onShow(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onShow");
+            }
+
+            @Override
+            public void onClick(@NonNull MyTargetView myTargetView) {
+                Log.d("[myTarget]", "onClick");
+            }
+        });
+        adView.load();
+    }
+
+    private void loadRSYAds() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+        double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
+                Math.pow(screenHeight / displayMetrics.ydpi, 2));
+
+        int bannerHeight;
+        if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
+            bannerHeight = (int) (screenHeight * 0.08);
+        } else {
+            bannerHeight = (int) (screenHeight * 0.036);
+        }
+        mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
+        mBannerAdView.setAdSize(BannerAdSize.inlineSize(this, screenWidth, bannerHeight));
+
+        final AdRequest adRequest = new AdRequest.Builder().build();
+
+        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
+            @Override
+            public void onAdLoaded() {
+                rsyBannerShow(true);
+                vkBannerShow(false);
+
+                mFirebaseAnalytics.logEvent("RSY_BANNER_LOADED", null);
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+                loadVkId();
+            }
+
+            @Override
+            public void onAdClicked() {
+
+            }
+
+            @Override
+            public void onLeftApplication() {
+                //progressDialog.dismiss();
+            }
+
+            @Override
+            public void onReturnedToApplication() {
+
+            }
+
+            @Override
+            public void onImpression(@Nullable ImpressionData impressionData) {
+
+            }
+        });
+
+        // Загрузка объявления.
+        mBannerAdView.loadAd(adRequest);
+    }
+
+    private void rsyBannerShow(boolean isShow) {
+        if (isShow) {
+            mBannerAdView.setVisibility(View.VISIBLE);
+        } else {
+            mBannerAdView.setVisibility(View.GONE);
+        }
+    }
+
+    private void vkBannerShow(boolean isShow) {
+        if (isShow) {
+            adView.setVisibility(View.VISIBLE);
+        } else {
+            adView.setVisibility(View.GONE);
+        }
     }
 
     @Override
