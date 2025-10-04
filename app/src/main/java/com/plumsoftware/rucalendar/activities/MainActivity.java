@@ -158,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             return insets;
         });
 
-
         MobileAds.initialize(this, () -> {
         });
 
@@ -327,6 +326,11 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         propNOH.dateTextViewResource = R.id.textViewDate;
         mapDescToProp.put("not official holiday", propNOH);
 
+        Property propSvo = new Property();
+        propSvo.layoutResource = R.layout.svo_layout;
+        propSvo.dateTextViewResource = R.id.textViewSvo;
+        mapDescToProp.put("svo", propSvo);
+
         myCustomCalendar.setMapDescToProp(mapDescToProp);
 
         mapDateToDesc = new HashMap<>();
@@ -469,6 +473,14 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                                 }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
+                            if ("svo".equals(desc)) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    color = String.valueOf(getColor(R.color.svo_color));
+                                } else {
+                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.svo_color));
+                                }
+                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+                            }
                         }
                     }
                 } catch (IndexOutOfBoundsException e) {
@@ -493,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //                    recyclerView.setVisibility(View.VISIBLE);
                 }
 
-                if (celebrations.size() > 0) {
+                if (!celebrations.isEmpty()) {
                     blur.setVisibility(View.VISIBLE);
 
                     TextView nameTextView = bottomBar.findViewById(R.id.event_name);
@@ -1130,6 +1142,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     arr[0].put(14, "not official holiday");//День святого Валентина
                     arr[0].put(15, "mDate");//День памяти воинов-интернационалистов
                     arr[0].put(23, "holiday");
+                    arr[0].put(24, "svo");
                     arr[0].put(27, "prof");//День Сил специальных операций
                     arr[1] = null;
                     break;
@@ -1430,6 +1443,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             mapDateToDesc.put(14, "not official holiday");//День святого Валентина
                             mapDateToDesc.put(15, "mDate");//День памяти воинов-интернационалистов
                             mapDateToDesc.put(23, "holiday");
+                            mapDateToDesc.put(24, "svo"); //Начало СВО
                             mapDateToDesc.put(27, "prof");//День Сил специальных операций
                             break;
                         case Calendar.MARCH:
