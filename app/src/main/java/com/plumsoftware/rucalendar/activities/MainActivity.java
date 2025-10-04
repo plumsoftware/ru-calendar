@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -393,6 +394,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
                 try {
                     String[] split = celebrationsClass.getDescription().split("~del");
+                    Log.d("TAG", String.valueOf(split.length));
                     for (String s : split) {
                         name1 = s.split("~")[0];
                         descS1 = s.split("~")[1];
@@ -401,17 +403,18 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 color = String.valueOf(getColor(R.color.green_container));
                             } else {
-                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
+                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
                             }
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                         } else if (name1.equals("День юриста")) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 color = String.valueOf(getColor(R.color.blue_container));
                             } else {
-                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
+                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
                             }
                             celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                        } else {
+                        }
+                        else {
                             if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     color = String.valueOf(getColor(R.color.red_container));
@@ -518,7 +521,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     ImageView close = bottomBar.findViewById(R.id.close);
 
                     String type = "";
-                    System.out.println(type);
 
                     int targetColor = Integer.parseInt(celebrations.get(0).getColor());
                     int blueColor = ContextCompat.getColor(getApplicationContext(), R.color.blue_container);
@@ -1239,7 +1241,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     arr[0].put(26, "prof");
                     arr[0].put(27, "not official holiday");
                     arr[0].put(28, "prof");
-                    arr[0].put(30, "prof");
+                    arr[0].put(30, "svo");
                     arr[1] = null;
                     break;
                 case Calendar.OCTOBER:
@@ -1533,7 +1535,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             mapDateToDesc.put(26, "prof");
                             mapDateToDesc.put(27, "not official holiday");
                             mapDateToDesc.put(28, "prof");
-                            mapDateToDesc.put(30, "prof");
+                            mapDateToDesc.put(30, "svo");
                             break;
                         case Calendar.OCTOBER:
                             mapDateToDesc.put(1, "not official holiday");
