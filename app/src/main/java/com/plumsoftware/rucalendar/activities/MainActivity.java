@@ -292,10 +292,10 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         propNOH.dateTextViewResource = R.id.textViewDate;
         mapDescToProp.put("not official holiday", propNOH);
 
-        Property propSvo = new Property();
-        propSvo.layoutResource = R.layout.svo_layout;
-        propSvo.dateTextViewResource = R.id.textViewSvo;
-        mapDescToProp.put("svo", propSvo);
+//        Property propSvo = new Property();
+//        propSvo.layoutResource = R.layout.svo_layout;
+//        propSvo.dateTextViewResource = R.id.textViewSvo;
+//        mapDescToProp.put("svo", propSvo);
 
         myCustomCalendar.setMapDescToProp(mapDescToProp);
 
@@ -440,14 +440,14 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                                 }
                                 celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
                             }
-                            if ("svo".equals(desc)) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.svo_color));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.svo_color));
-                                }
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                            }
+//                            if ("svo".equals(desc)) {
+//                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                                    color = String.valueOf(getColor(R.color.svo_color));
+//                                } else {
+//                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.svo_color));
+//                                }
+//                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
+//                            }
                         }
                     }
                 } catch (IndexOutOfBoundsException e) {
@@ -1108,7 +1108,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     arr[0].put(14, "not official holiday");//День святого Валентина
                     arr[0].put(15, "mDate");//День памяти воинов-интернационалистов
                     arr[0].put(23, "holiday");
-                    arr[0].put(24, "svo");
+//                    arr[0].put(24, "svo");
                     arr[0].put(27, "prof");//День Сил специальных операций
                     arr[1] = null;
                     break;
@@ -1205,7 +1205,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                     arr[0].put(26, "prof");
                     arr[0].put(27, "not official holiday");
                     arr[0].put(28, "prof");
-                    arr[0].put(30, "svo");
+//                    arr[0].put(30, "svo");
                     arr[1] = null;
                     break;
                 case Calendar.OCTOBER:
@@ -1409,7 +1409,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             mapDateToDesc.put(14, "not official holiday");//День святого Валентина
                             mapDateToDesc.put(15, "mDate");//День памяти воинов-интернационалистов
                             mapDateToDesc.put(23, "holiday");
-                            mapDateToDesc.put(24, "svo"); //Начало СВО
+//                            mapDateToDesc.put(24, "svo"); //Начало СВО
                             mapDateToDesc.put(27, "prof");//День Сил специальных операций
                             break;
                         case Calendar.MARCH:
@@ -1499,7 +1499,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
                             mapDateToDesc.put(26, "prof");
                             mapDateToDesc.put(27, "not official holiday");
                             mapDateToDesc.put(28, "prof");
-                            mapDateToDesc.put(30, "svo");
+//                            mapDateToDesc.put(30, "svo");
                             break;
                         case Calendar.OCTOBER:
                             mapDateToDesc.put(1, "not official holiday");
