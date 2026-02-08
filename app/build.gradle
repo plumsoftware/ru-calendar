@@ -22,8 +22,8 @@ android {
         applicationId "com.plumsoftware.rucalendar"
         minSdk 21
         targetSdk 36
-        versionCode 66
-        versionName "4.1.7"
+        versionCode 67
+        versionName "4.1.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -156,7 +156,7 @@ dependencies {
 
 
     //noinspection MobileAdsSdkVersion
-    implementation 'com.yandex.android:mobileads:7.18.1'
+    implementation 'com.yandex.android:mobileads:7.18.2'
 
     //Animations
     implementation 'io.noties:tumbleweed-android:2.0.0'
