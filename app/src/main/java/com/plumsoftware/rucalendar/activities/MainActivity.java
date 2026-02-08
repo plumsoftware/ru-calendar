@@ -188,6 +188,22 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         MyTargetManager.setDebugMode(BuildConfig.DEBUG);
 
         MobileAds.initialize(context, () -> {
+            if (AdsConfig.SHOW_OPEN_MAIN_SCREEN_AD) {
+                if (open >= 5) {
+                    progressDialog.showDialog(context);
+                    final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
+                    final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
+                    final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
+
+                    AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
+
+                    appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
+                    appOpenAdLoader.loadAd(adRequestConfiguration);
+                } else {
+                    sp.edit().putInt("open", (open + 1)).apply();
+                }
+            }
+
             if (banner >= 3) {
                 loadRSYAds();
             } else {
@@ -196,21 +212,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         });
 
 //        region::App open Ads
-        if (AdsConfig.SHOW_OPEN_MAIN_SCREEN_AD) {
-            if (open >= 7) {
-                progressDialog.showDialog(context);
-                final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
-                final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
-                final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
 
-                AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
-
-                appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
-                appOpenAdLoader.loadAd(adRequestConfiguration);
-            } else {
-                sp.edit().putInt("open", (open + 1)).apply();
-            }
-        }
 //        endregion
 //        if (appBarLayout != null) {
 //            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
