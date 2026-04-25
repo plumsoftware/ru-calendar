@@ -13,6 +13,8 @@ import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,6 +50,7 @@ import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
 import com.plumsoftware.rucalendar.R;
+import com.plumsoftware.rucalendar.services.EventNotificationScheduler;
 import com.yandex.mobile.ads.banner.BannerAdEventListener;
 import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
@@ -267,8 +270,13 @@ public class EventActivity extends AppCompatActivity {
         notif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Создаем уникальный ID для конкретного праздника
+                assert finalName != null;
+                int uniqueId = finalName.hashCode();
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(EventActivity.this, EventNotificationScheduler.class);
+
                 if (!isCheckedPref[0]) {
-                    isCheckedPref[0] = true;
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(date);
                     calendar.set(Calendar.HOUR_OF_DAY, 10);
@@ -277,56 +285,68 @@ public class EventActivity extends AppCompatActivity {
                     calendar.set(Calendar.MILLISECOND, 0);
 
                     long targetTime = calendar.getTimeInMillis();
-
                     long currentTime = System.currentTimeMillis();
-                    long delay = targetTime - currentTime;
 
-                    // Подготавливаем данные
-                    Data inputData = new Data.Builder()
-                            .putString("notification_title", finalName)
-                            .build();
+                    // Проверка: не пытаемся ли мы поставить будильник в прошлое?
+                    if (targetTime <= currentTime) {
+                        Toast.makeText(EventActivity.this, "Невозможно установить уведомление", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                    // Создаём WorkRequest
-                    OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MyNotificationWorker.class)
-                            .setInputData(inputData)
-                            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                            .build();
+                    intent.putExtra("notification_title", finalName);
+                    intent.putExtra("notification_id", uniqueId);
 
-                    // Сохраняем ID воркера
-                    UUID workId = workRequest.getId();
+                    // Обязательно флаг FLAG_IMMUTABLE для Android 12+
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                            EventActivity.this,
+                            uniqueId,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    );
+
+                    // Ставим точный будильник с учетом версии Android
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12+
+                        if (alarmManager.canScheduleExactAlarms()) {
+                            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
+                        } else {
+                            // Если пользователь запретил точные будильники, ставим примерный
+                            alarmManager.set(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
+                        }
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
+                    } else {
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
+                    }
+
+                    // Сохраняем состояние
+                    isCheckedPref[0] = true;
                     editor.putBoolean(finalName, true);
-                    editor.putString(finalName + "_reminder_worker_id", workId.toString());
                     editor.apply();
 
-                    // Запускаем воркер
-                    WorkManager.getInstance(EventActivity.this).enqueue(workRequest);
-
-                    // Если это GradientDrawable (shape oval), меняем его цвет
                     if (layer instanceof GradientDrawable) {
                         assert color != null;
                         ((GradientDrawable) layer).setColor(Integer.parseInt(color));
                     }
-                } else {
-                    // Читаем сохранённый ID
-                    isCheckedPref[0] = false;
-                    String workIdStr = prefs.getString(finalName + "_reminder_worker_id", null);
-                    if (workIdStr != null) {
-                        try {
-                            UUID workId = UUID.fromString(workIdStr);
-                            WorkManager.getInstance(EventActivity.this).cancelWorkById(workId);
-                        } catch (IllegalArgumentException e) {
-                            Log.e("Worker", "Invalid UUID saved", e);
-                        }
-                    }
+                    Toast.makeText(EventActivity.this, "Уведомление включено", Toast.LENGTH_SHORT).show();
 
-                    // Обновляем состояние
+                } else {
+                    // Отменяем уведомление
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                            EventActivity.this,
+                            uniqueId,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    );
+                    alarmManager.cancel(pendingIntent);
+
+                    isCheckedPref[0] = false;
                     editor.putBoolean(finalName, false);
-                    editor.remove(finalName + "_reminder_worker_id"); // можно удалить, можно оставить
                     editor.apply();
 
                     if (layer instanceof GradientDrawable) {
                         ((GradientDrawable) layer).setColor(ContextCompat.getColor(EventActivity.this, android.R.color.white));
                     }
+                    Toast.makeText(EventActivity.this, "Уведомление выключено", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -1,5 +1,7 @@
 package com.plumsoftware.rucalendar.activities;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,12 +10,14 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -99,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     private ProgressDialog progressDialog = new ProgressDialog();
     static final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
 
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+
     protected List<Integer>
             januaryList,
             februaryList,
@@ -176,6 +182,14 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         int banner = sp.getInt("banner", 0);
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        // Инициализация лаунчера для запроса разрешения на уведомления
+        requestPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {}
+        );
+        // Вызов метода проверки/запроса
+        askNotificationPermission();
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
         View rootLayout = findViewById(R.id.root_layout);
@@ -2297,6 +2311,28 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         if (mAppOpenAd != null) {
             mAppOpenAd.setAdEventListener(null);
             mAppOpenAd = null;
+        }
+    }
+
+    private void askNotificationPermission() {
+        // Разрешение POST_NOTIFICATIONS требуется только для Android 13 (API 33) и выше
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                // Разрешение уже выдано ранее
+                Log.d("Permissions", "Уведомления уже разрешены");
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // Пользователь ранее отклонял запрос.
+                // Здесь можно показать кастомный диалог с объяснением, зачем вашему календарю уведомления,
+                // а затем снова запросить разрешение:
+                // requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+
+                // В простом варианте запрашиваем сразу:
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                // Запрашиваем разрешение впервые
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
         }
     }
 }
