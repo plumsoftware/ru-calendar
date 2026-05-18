@@ -73,10 +73,9 @@ import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdError;
 import com.yandex.mobile.ads.common.AdRequest;
-import com.yandex.mobile.ads.common.AdRequestConfiguration;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
-import com.yandex.mobile.ads.common.MobileAds;
+import com.yandex.mobile.ads.common.YandexAds;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -201,18 +200,17 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
         MyTargetManager.setDebugMode(BuildConfig.DEBUG);
 
-        MobileAds.initialize(context, () -> {
+        YandexAds.initialize(context, () -> {
             if (AdsConfig.SHOW_OPEN_MAIN_SCREEN_AD) {
                 if (open >= 5) {
                     progressDialog.showDialog(context);
                     final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
                     final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
-                    final AdRequestConfiguration adRequestConfiguration = new AdRequestConfiguration.Builder(AD_UNIT_ID).build();
 
+                    final AdRequest adRequest = new AdRequest.Builder(AD_UNIT_ID).build();
                     AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
 
-                    appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener);
-                    appOpenAdLoader.loadAd(adRequestConfiguration);
+                    appOpenAdLoader.loadAd(adRequest, appOpenAdLoadListener);
                 } else {
                     sp.edit().putInt("open", (open + 1)).apply();
                 }
@@ -2234,10 +2232,8 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         } else {
             bannerHeight = (int) (screenHeight * 0.036);
         }
-        mBannerAdView.setAdUnitId(AdsConfig.BANNER_MAIN_SCREEN_AD);
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(this, screenWidth, bannerHeight));
 
-        final AdRequest adRequest = new AdRequest.Builder().build();
+        mBannerAdView.setAdSize(BannerAdSize.inline(this, screenWidth, bannerHeight));
 
         // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
         mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
@@ -2245,8 +2241,6 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
             public void onAdLoaded() {
                 rsyBannerShow(true);
                 vkBannerShow(false);
-
-                mFirebaseAnalytics.logEvent("RSY_BANNER_LOADED", null);
             }
 
             @Override
@@ -2256,27 +2250,14 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 
             @Override
             public void onAdClicked() {
-
-            }
-
-            @Override
-            public void onLeftApplication() {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onReturnedToApplication() {
-
             }
 
             @Override
             public void onImpression(@Nullable ImpressionData impressionData) {
-
             }
         });
 
-        // Загрузка объявления.
-        mBannerAdView.loadAd(adRequest);
+        mBannerAdView.loadAd(new AdRequest.Builder(AdsConfig.BANNER_MAIN_SCREEN_AD).build());
     }
 
     private void rsyBannerShow(boolean isShow) {
