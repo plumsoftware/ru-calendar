@@ -55,11 +55,10 @@ import com.yandex.mobile.ads.banner.BannerAdEventListener;
 import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequest;
-import com.yandex.mobile.ads.common.AdRequestConfiguration;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
 import com.yandex.mobile.ads.common.InitializationListener;
-import com.yandex.mobile.ads.common.MobileAds;
+import com.yandex.mobile.ads.common.YandexAds;
 import com.yandex.mobile.ads.common.AdError;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener;
@@ -98,7 +97,6 @@ public class EventActivity extends AppCompatActivity {
         View rootView = findViewById(android.R.id.content);
         rootView.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                int bottomBarHeight = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
                 v.setPadding(v.getPaddingLeft(), 0, v.getPaddingRight(), 0);
             }
             return insets;
@@ -115,7 +113,8 @@ public class EventActivity extends AppCompatActivity {
         String name;
         String color;
 
-        MobileAds.initialize(EventActivity.this, () -> {
+        // Инициализация остается без изменений
+        YandexAds.initialize(EventActivity.this, () -> {
         });
 
         SharedPreferences sp = getSharedPreferences("ads_showing", Context.MODE_APPEND);
@@ -136,14 +135,11 @@ public class EventActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false); // отключаем стандартную стрелку
-            getSupportActionBar().setDisplayShowTitleEnabled(false); // скрываем заголовок
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-//         Создание объекта таргетирования рекламы.
-        final AdRequest adRequestB = new AdRequest.Builder().build();
-
-//        Setup event data
+        // Setup event data
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             CelebrationItem celebrationItem = getIntent().getSerializableExtra("event", CelebrationItem.class);
 
@@ -152,17 +148,12 @@ public class EventActivity extends AppCompatActivity {
             date = celebrationItem.getTimeInMillis();
             color = celebrationItem.getColor();
 
-            // Получаем текущий фон как RippleDrawable
             RippleDrawable rippleDrawable = (RippleDrawable) back.getBackground();
-
-            // Получаем "основной" слой (item без ripple — это первый layer)
             Drawable layer = rippleDrawable.getDrawable(0);
 
-            // Если это GradientDrawable (shape oval), меняем его цвет
             if (layer instanceof GradientDrawable) {
                 ((GradientDrawable) layer).setColor(Integer.parseInt(color));
             }
-
 
             if (celebrationItem != null) {
                 textView.setText(celebrationItem.getDesc());
@@ -174,19 +165,13 @@ public class EventActivity extends AppCompatActivity {
                 dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
             }
         } else {
-
             name = getIntent().getStringExtra("name");
             date = getIntent().getLongExtra("time", 1000000);
-
             color = getIntent().getStringExtra("color");
 
-            // Получаем текущий фон как RippleDrawable
             RippleDrawable rippleDrawable = (RippleDrawable) back.getBackground();
-
-            // Получаем "основной" слой (item без ripple — это первый layer)
             Drawable layer = rippleDrawable.getDrawable(0);
 
-            // Если это GradientDrawable (shape oval), меняем его цвет
             if (layer instanceof GradientDrawable) {
                 assert color != null;
                 ((GradientDrawable) layer).setColor(Integer.parseInt(color));
@@ -197,9 +182,7 @@ public class EventActivity extends AppCompatActivity {
             dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
         }
 
-//        Clickers
         String finalName = name;
-
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -207,47 +190,20 @@ public class EventActivity extends AppCompatActivity {
             }
         });
 
-//        String message = "Ошибка в событии " + new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(finalDate));
-//        message = message + "\n" + finalName;
-//        message += "\n" + "Комментарий:" + "\n";
-//        String subject = "Отчёт об ошибке";
-//        String TO = "plumsoftwareofficial@gmail.com";
-//
-//        Intent mailIntent = new Intent(Intent.ACTION_VIEW);
-//        Uri data = Uri.parse("mailto:?subject=" + subject + "&body=" + message + "&to=" + TO);
-//        mailIntent.setData(data);
-//        startActivity(Intent.createChooser(mailIntent, "Отправить отчёт о неточности с помощью..."));
-
-
-        //Ads
+        // Ads
         if (interstitial >= 4) {
             mInterstitialAdLoader = new InterstitialAdLoader(EventActivity.this);
-            mInterstitialAdLoader.setAdLoadListener(new InterstitialAdLoadListener() {
-                @Override
-                public void onAdLoaded(@NonNull final InterstitialAd interstitialAd) {
-                    mInterstitialAd = interstitialAd;
-                    progressDialog.dismiss();
-                    showAd();
-                    mFirebaseAnalytics.logEvent("RSY_INTERSTITIAL_LOADED", null);
-                }
-
-                @Override
-                public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                    showVkIntAd();
-                }
-            });
+            showRsyIntAd();
         } else {
             sp.edit().putInt("interstitial", (interstitial + 1)).apply();
         }
 
-        // Загрузка объявления.
         if (banner >= 3) {
             loadRSYAds();
         } else {
             sp.edit().putInt("banner2", (banner + 1)).apply();
         }
 
-        // Получаем SharedPreferences
         SharedPreferences prefs = getSharedPreferences("WorkerPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         final boolean[] isCheckedPref = {prefs.getBoolean(name, false)};
@@ -255,13 +211,11 @@ public class EventActivity extends AppCompatActivity {
         RippleDrawable rippleDrawable = (RippleDrawable) notif.getBackground();
         Drawable layer = rippleDrawable.getDrawable(0);
         if (isCheckedPref[0]) {
-            // Если это GradientDrawable (shape oval), меняем его цвет
             if (layer instanceof GradientDrawable) {
                 assert color != null;
                 ((GradientDrawable) layer).setColor(Integer.parseInt(color));
             }
         } else {
-            // Если это GradientDrawable (shape oval), меняем его цвет
             if (layer instanceof GradientDrawable) {
                 ((GradientDrawable) layer).setColor(ContextCompat.getColor(this, android.R.color.white));
             }
@@ -270,7 +224,6 @@ public class EventActivity extends AppCompatActivity {
         notif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Создаем уникальный ID для конкретного праздника
                 assert finalName != null;
                 int uniqueId = finalName.hashCode();
                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -287,7 +240,6 @@ public class EventActivity extends AppCompatActivity {
                     long targetTime = calendar.getTimeInMillis();
                     long currentTime = System.currentTimeMillis();
 
-                    // Проверка: не пытаемся ли мы поставить будильник в прошлое?
                     if (targetTime <= currentTime) {
                         Toast.makeText(EventActivity.this, "Невозможно установить уведомление", Toast.LENGTH_SHORT).show();
                         return;
@@ -296,7 +248,6 @@ public class EventActivity extends AppCompatActivity {
                     intent.putExtra("notification_title", finalName);
                     intent.putExtra("notification_id", uniqueId);
 
-                    // Обязательно флаг FLAG_IMMUTABLE для Android 12+
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(
                             EventActivity.this,
                             uniqueId,
@@ -304,12 +255,10 @@ public class EventActivity extends AppCompatActivity {
                             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                     );
 
-                    // Ставим точный будильник с учетом версии Android
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         if (alarmManager.canScheduleExactAlarms()) {
                             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
                         } else {
-                            // Если пользователь запретил точные будильники, ставим примерный
                             alarmManager.set(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
                         }
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -318,7 +267,6 @@ public class EventActivity extends AppCompatActivity {
                         alarmManager.setExact(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
                     }
 
-                    // Сохраняем состояние
                     isCheckedPref[0] = true;
                     editor.putBoolean(finalName, true);
                     editor.apply();
@@ -330,7 +278,6 @@ public class EventActivity extends AppCompatActivity {
                     Toast.makeText(EventActivity.this, "Уведомление включено", Toast.LENGTH_SHORT).show();
 
                 } else {
-                    // Отменяем уведомление
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(
                             EventActivity.this,
                             uniqueId,
@@ -354,10 +301,9 @@ public class EventActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
-        // Загрузка объявления
         if (mInterstitialAdLoader != null) {
-            showRsyIntAd();
+            progressDialog.showDialog(EventActivity.this);
+            showAd();
         } else {
             showVkIntAd();
         }
@@ -373,40 +319,23 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.event_menu, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.bug_report:
-//
-//                break;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-
     private void showAd() {
         if (mInterstitialAd != null) {
             mInterstitialAd.setAdEventListener(new InterstitialAdEventListener() {
                 @Override
                 public void onAdShown() {
-                    // Called when ad is shown.
+                    progressDialog.dismiss();
                 }
 
                 @Override
                 public void onAdFailedToShow(@NonNull final AdError adError) {
-                    // Called when an InterstitialAd failed to show.
+                    progressDialog.dismiss();
                     showVkIntAd();
                 }
 
                 @Override
                 public void onAdDismissed() {
-                    // Called when ad is dismissed.
-                    // Clean resources after Ad dismissed
+                    progressDialog.dismiss();
                     if (mInterstitialAd != null) {
                         mInterstitialAd.setAdEventListener(null);
                         mInterstitialAd = null;
@@ -416,14 +345,13 @@ public class EventActivity extends AppCompatActivity {
 
                 @Override
                 public void onAdClicked() {
-                    // Called when a click is recorded for an ad.
+
+                    progressDialog.dismiss();
                     finish();
                 }
 
                 @Override
-                public void onAdImpression(@Nullable final ImpressionData impressionData) {
-                    // Called when an impression is recorded for an ad.
-                }
+                public void onAdImpression(@Nullable final ImpressionData impressionData) { }
             });
             mInterstitialAd.show(this);
         } else {
@@ -477,18 +405,13 @@ public class EventActivity extends AppCompatActivity {
         } else {
             bannerHeight = (int) (screenHeight * 0.036);
         }
-        mBannerAdView.setAdUnitId(AdsConfig.BANNER_EVENT_SCREEN_AD);
-        mBannerAdView.setAdSize(BannerAdSize.inlineSize(this, screenWidth, bannerHeight));
+        mBannerAdView.setAdSize(BannerAdSize.inline(this, screenWidth, bannerHeight));
 
-        final AdRequest adRequest = new AdRequest.Builder().build();
-
-        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
         mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
             @Override
             public void onAdLoaded() {
                 rsyBannerShow(true);
                 vkBannerShow(false);
-
                 mFirebaseAnalytics.logEvent("RSY_BANNER_LOADED", null);
             }
 
@@ -498,28 +421,12 @@ public class EventActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAdClicked() {
-
-            }
+            public void onAdClicked() { }
 
             @Override
-            public void onLeftApplication() {
-                //progressDialog.dismiss();
-            }
-
-            @Override
-            public void onReturnedToApplication() {
-
-            }
-
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
-
-            }
+            public void onImpression(@Nullable ImpressionData impressionData) { }
         });
-
-        // Загрузка объявления.
-        mBannerAdView.loadAd(adRequest);
+        mBannerAdView.loadAd(new AdRequest.Builder(AdsConfig.BANNER_EVENT_SCREEN_AD).build());
     }
 
     private void rsyBannerShow(boolean isShow) {
@@ -545,7 +452,6 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onLoad(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
                 progressDialog.dismiss();
-
                 mFirebaseAnalytics.logEvent("VK_INTERSTITIAL_LOADED", null);
             }
 
@@ -556,9 +462,7 @@ public class EventActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onClick(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
-
-            }
+            public void onClick(@NonNull com.my.target.ads.InterstitialAd interstitialAd) { }
 
             @Override
             public void onFailedToShow(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
@@ -573,9 +477,7 @@ public class EventActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onVideoCompleted(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
-
-            }
+            public void onVideoCompleted(@NonNull com.my.target.ads.InterstitialAd interstitialAd) { }
 
             @Override
             public void onDisplay(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
@@ -583,23 +485,31 @@ public class EventActivity extends AppCompatActivity {
             }
         });
 
-        // Запускаем загрузку данных
         adVkInt.load();
     }
 
     private void showRsyIntAd() {
-        progressDialog.showDialog(EventActivity.this);
-        final AdRequestConfiguration adRequestConfiguration =
-                new AdRequestConfiguration.Builder(AdsConfig.INTERSTITIAL_AD).build();
+        final AdRequest adRequest = new AdRequest.Builder(AdsConfig.INTERSTITIAL_AD).build();
+
         assert mInterstitialAdLoader != null;
-        mInterstitialAdLoader.loadAd(adRequestConfiguration);
+
+        mInterstitialAdLoader.loadAd(adRequest, new InterstitialAdLoadListener() {
+            @Override
+            public void onAdLoaded(@NonNull final InterstitialAd interstitialAd) {
+                mInterstitialAd = interstitialAd;
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
+                showVkIntAd();
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mInterstitialAdLoader != null) {
-            mInterstitialAdLoader.setAdLoadListener(null);
             mInterstitialAdLoader = null;
         }
         destroyInterstitialAd();
@@ -615,7 +525,6 @@ public class EventActivity extends AppCompatActivity {
     private void setupEdgeToEdge() {
         Window window = getWindow();
 
-        // Определяем текущую тему (светлая/темная)
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         boolean isDarkTheme = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
 
@@ -623,23 +532,17 @@ public class EventActivity extends AppCompatActivity {
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
 
-        // Делаем статус бар и нав бар прозрачными
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Настройка цвета иконок для Android 5-10
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!isDarkTheme) {
-                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
                     systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
                 }
-                // Для темной темы оставляем светлые иконки (по умолчанию)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!isDarkTheme) {
-                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ НАВИГАЦИИ
                     systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
                 }
-                // Для темной темы оставляем светлые иконки (по умолчанию)
             }
 
             window.getDecorView().setSystemUiVisibility(systemUiVisibilityFlags);
@@ -647,23 +550,18 @@ public class EventActivity extends AppCompatActivity {
             window.setNavigationBarColor(Color.TRANSPARENT);
         }
 
-        // Для Android 10+ убираем затемнение под нав баром
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.setNavigationBarContrastEnforced(false);
         }
 
-        // Для Android 11+ используем новый API
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false);
 
             WindowInsetsController controller = window.getInsetsController();
             if (controller != null) {
-                // Убеждаемся, что нав бар остается видимым
                 controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
 
-                // Настройка цвета иконок для Android 11+
                 if (!isDarkTheme) {
-                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
                     controller.setSystemBarsAppearance(
                             WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
                                     WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
@@ -671,7 +569,6 @@ public class EventActivity extends AppCompatActivity {
                                     WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
                     );
                 } else {
-                    // ТЕМНАЯ ТЕМА - СВЕТЛЫЕ ИКОНКИ (убираем флаги светлых иконок)
                     controller.setSystemBarsAppearance(
                             0,
                             WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
