@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_week_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:id="@+id/widget_week_strip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/day0_root"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/day0_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="7sp" />
+
+            <TextView
+                android:id="@+id/day0_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/day0_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/day0_dot0"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day0_dot1"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day0_dot2"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/day1_root"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/day1_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="7sp" />
+
+            <TextView
+                android:id="@+id/day1_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/day1_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/day1_dot0"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day1_dot1"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day1_dot2"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/day2_root"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/day2_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="7sp" />
+
+            <TextView
+                android:id="@+id/day2_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/day2_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/day2_dot0"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day2_dot1"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day2_dot2"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/day3_root"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/day3_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="7sp" />
+
+            <TextView
+                android:id="@+id/day3_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/day3_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/day3_dot0"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day3_dot1"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day3_dot2"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/day4_root"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/day4_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="7sp" />
+
+            <TextView
+                android:id="@+id/day4_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/day4_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/day4_dot0"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day4_dot1"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day4_dot2"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/day5_root"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/day5_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="7sp" />
+
+            <TextView
+                android:id="@+id/day5_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/day5_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/day5_dot0"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day5_dot1"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day5_dot2"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/day6_root"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/day6_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="7sp" />
+
+            <TextView
+                android:id="@+id/day6_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/day6_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/day6_dot0"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day6_dot1"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="1dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/day6_dot2"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_dot_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="4dp"
+        android:contentDescription="@null"
+        android:src="@drawable/widget_divider" />
+
+    <TextView
+        android:id="@+id/widget_week_upcoming_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_week_upcoming"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="8sp" />
+
+    <ListView
+        android:id="@+id/widget_week_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="2dp"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="2dp" />
+
+</LinearLayout>

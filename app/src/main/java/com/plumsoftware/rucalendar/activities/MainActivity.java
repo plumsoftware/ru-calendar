@@ -65,6 +65,8 @@ import com.plumsoftware.rucalendar.repositories.OnNavigationButtonClickedListene
 import com.plumsoftware.rucalendar.calendardata.Property;
 import com.plumsoftware.rucalendar.R;
 import com.plumsoftware.rucalendar.repositories.SwipeGestureListener;
+import com.plumsoftware.rucalendar.widgets.WidgetDateUtils;
+import com.plumsoftware.rucalendar.widgets.WidgetUtils;
 import com.yandex.mobile.ads.appopenad.AppOpenAd;
 import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener;
 import com.yandex.mobile.ads.appopenad.AppOpenAdLoadListener;
@@ -763,6 +765,7 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
 //            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
 //        }
+        handleOpenDateIntent(getIntent());
     }
 
     @Override
@@ -770,6 +773,48 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         super.onNewIntent(intent);
         setIntent(intent);
         handleDeepLinkIntent(intent);
+        handleOpenDateIntent(intent);
+    }
+
+    private void handleOpenDateIntent(Intent intent) {
+        if (intent == null || !intent.hasExtra(WidgetUtils.EXTRA_OPEN_DATE) || myCustomCalendar == null) {
+            return;
+        }
+
+        long epochDay = intent.getLongExtra(WidgetUtils.EXTRA_OPEN_DATE, -1);
+        if (epochDay < 0) {
+            return;
+        }
+
+        Calendar target = WidgetDateUtils.fromEpochDay(epochDay);
+        boolean monthChanged = calendar.get(Calendar.YEAR) != target.get(Calendar.YEAR)
+                || calendar.get(Calendar.MONTH) != target.get(Calendar.MONTH);
+
+        calendar.set(Calendar.YEAR, target.get(Calendar.YEAR));
+        calendar.set(Calendar.MONTH, target.get(Calendar.MONTH));
+        calendar.set(Calendar.DAY_OF_MONTH, target.get(Calendar.DAY_OF_MONTH));
+
+        if (monthChanged) {
+            mapDateToDesc.clear();
+            for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
+                mapDateToDesc.put(i + 1, "default");
+            }
+
+            int month = calendar.get(Calendar.MONTH) + 1;
+            String extraLink = new Link().buildLink(
+                    calendar.get(Calendar.YEAR),
+                    month,
+                    countryCode,
+                    1,
+                    0,
+                    0
+            );
+            new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
+        }
+
+        myCustomCalendar.setDate(calendar, mapDateToDesc);
+        myCustomCalendar.selectDay(target.get(Calendar.DAY_OF_MONTH));
+        intent.removeExtra(WidgetUtils.EXTRA_OPEN_DATE);
     }
 
     private void handleDeepLinkIntent(Intent intent) {
