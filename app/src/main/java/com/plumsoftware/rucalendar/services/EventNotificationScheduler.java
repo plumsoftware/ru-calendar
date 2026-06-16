@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import com.plumsoftware.rucalendar.R;
@@ -25,10 +26,23 @@ public class EventNotificationScheduler extends BroadcastReceiver {
         if (title == null) title = "Напоминание о событии";
 
         int notificationId = intent.getIntExtra("notification_id", (int) System.currentTimeMillis());
+        long eventTime = intent.getLongExtra("event_time", -1L);
+        String eventName = intent.getStringExtra("event_name");
+        String eventDesc = intent.getStringExtra("event_desc");
+        String eventColor = intent.getStringExtra("event_color");
 
-        // Подготавливаем интент для открытия приложения при клике
-        Intent appIntent = new Intent(context, MainActivity.class);
-        appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        // Подготавливаем deep link для открытия приложения и текущего события
+        Uri deepLink = new Uri.Builder()
+                .scheme("rucalendar")
+                .authority("event")
+                .appendQueryParameter("name", eventName)
+                .appendQueryParameter("desc", eventDesc)
+                .appendQueryParameter("color", eventColor)
+                .appendQueryParameter("time", String.valueOf(eventTime))
+                .build();
+
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, deepLink, context, MainActivity.class);
+        appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
                 notificationId,
@@ -53,7 +67,7 @@ public class EventNotificationScheduler extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle("Напоминание")
                 .setContentText(title)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSmallIcon(R.drawable.ic_round_circle_notifications)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent);

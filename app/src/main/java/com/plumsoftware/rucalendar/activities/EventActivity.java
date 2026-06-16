@@ -10,11 +10,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +33,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -50,7 +52,7 @@ import com.plumsoftware.rucalendar.config.AdsConfig;
 import com.plumsoftware.rucalendar.events.CelebrationItem;
 import com.plumsoftware.rucalendar.dialog.ProgressDialog;
 import com.plumsoftware.rucalendar.R;
-import com.plumsoftware.rucalendar.services.EventNotificationScheduler;
+import com.plumsoftware.rucalendar.services.MyNotificationWorker;
 import com.yandex.mobile.ads.banner.BannerAdEventListener;
 import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
@@ -70,12 +72,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.plumsoftware.rucalendar.services.MyNotificationWorker;
-
 public class EventActivity extends AppCompatActivity {
+    private static final String BUG_REPORT_EMAIL = "Plumsoftware@yandex.ru";
+    private static final String BUG_REPORT_SUBJECT = "Баг в приложении \"Календарь - праздники России\"";
+
     private ProgressDialog progressDialog = new ProgressDialog();
     @Nullable
     private InterstitialAd mInterstitialAd = null;
@@ -124,11 +126,19 @@ public class EventActivity extends AppCompatActivity {
         TextView textView = findViewById(R.id.textDescription);
         TextView dateTextView = findViewById(R.id.event_date);
         TextView nameTextView = findViewById(R.id.event_name);
+        ImageView bugReportButton = findViewById(R.id.bug_report_button);
         ImageView back = findViewById(R.id.back);
         ImageView notif = findViewById(R.id.notif);
+        View bottomAdsContainer = findViewById(R.id.bottom_ads_container);
         adView = findViewById(R.id.view_ad_e);
         mBannerAdView = findViewById(R.id.ad_view_id);
         adView.setSlotId(AdsConfig.BANNER_EVENT_SCREEN_AD_VK);
+
+        bugReportButton.post(() -> {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) bugReportButton.getLayoutParams();
+            params.bottomMargin = bottomAdsContainer.getHeight() + 16;
+            bugReportButton.setLayoutParams(params);
+        });
 
         MyTargetManager.setDebugMode(BuildConfig.DEBUG);
 
@@ -139,54 +149,65 @@ public class EventActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-        // Setup event data
+        // Setup event data (поддерживает как Serializable, так и deep link extras)
+        CelebrationItem celebrationItem = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            CelebrationItem celebrationItem = getIntent().getSerializableExtra("event", CelebrationItem.class);
+            celebrationItem = getIntent().getSerializableExtra("event", CelebrationItem.class);
+        } else {
+            Object legacyEvent = getIntent().getSerializableExtra("event");
+            if (legacyEvent instanceof CelebrationItem) {
+                celebrationItem = (CelebrationItem) legacyEvent;
+            }
+        }
 
-            assert celebrationItem != null;
+        if (celebrationItem != null) {
             name = celebrationItem.getName();
             date = celebrationItem.getTimeInMillis();
             color = celebrationItem.getColor();
-
-            RippleDrawable rippleDrawable = (RippleDrawable) back.getBackground();
-            Drawable layer = rippleDrawable.getDrawable(0);
-
-            if (layer instanceof GradientDrawable) {
-                ((GradientDrawable) layer).setColor(Integer.parseInt(color));
-            }
-
-            if (celebrationItem != null) {
-                textView.setText(celebrationItem.getDesc());
-            }
-            if (celebrationItem != null) {
-                nameTextView.setText(name);
-            }
-            if (celebrationItem != null) {
-                dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
-            }
+            textView.setText(celebrationItem.getDesc());
         } else {
             name = getIntent().getStringExtra("name");
-            date = getIntent().getLongExtra("time", 1000000);
+            date = getIntent().getLongExtra("time", System.currentTimeMillis());
             color = getIntent().getStringExtra("color");
-
-            RippleDrawable rippleDrawable = (RippleDrawable) back.getBackground();
-            Drawable layer = rippleDrawable.getDrawable(0);
-
-            if (layer instanceof GradientDrawable) {
-                assert color != null;
-                ((GradientDrawable) layer).setColor(Integer.parseInt(color));
-            }
-
             textView.setText(getIntent().getStringExtra("desc"));
-            nameTextView.setText(name);
-            dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
         }
+
+        if (name == null) {
+            name = "";
+        }
+        if (color == null) {
+            color = String.valueOf(ContextCompat.getColor(this, R.color.blue_container));
+        }
+        final String finalColor = color;
+        final int eventColorInt = parseEventColor(finalColor);
+
+        applyNavButtonColor(back, eventColorInt);
+
+        nameTextView.setText(name);
+        dateTextView.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(new Date(date)));
 
         String finalName = name;
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+
+        bugReportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+                emailIntent.setData(Uri.parse("mailto:"));
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{BUG_REPORT_EMAIL});
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, BUG_REPORT_SUBJECT);
+
+                Intent chooserIntent = Intent.createChooser(emailIntent, getString(R.string.settings_choose_email));
+                if (emailIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(chooserIntent);
+                } else {
+                    Toast.makeText(EventActivity.this, "Почтовое приложение не найдено", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -207,96 +228,116 @@ public class EventActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("WorkerPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         final boolean[] isCheckedPref = {prefs.getBoolean(name, false)};
+        final long[] savedTriggerTime = {prefs.getLong(name + "_trigger_time", -1L)};
 
-        RippleDrawable rippleDrawable = (RippleDrawable) notif.getBackground();
-        Drawable layer = rippleDrawable.getDrawable(0);
         if (isCheckedPref[0]) {
-            if (layer instanceof GradientDrawable) {
-                assert color != null;
-                ((GradientDrawable) layer).setColor(Integer.parseInt(color));
-            }
+            applyNavButtonColor(notif, eventColorInt);
         } else {
-            if (layer instanceof GradientDrawable) {
-                ((GradientDrawable) layer).setColor(ContextCompat.getColor(this, android.R.color.white));
-            }
+            applyNavButtonColor(notif, ContextCompat.getColor(this, android.R.color.white));
         }
 
         notif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 assert finalName != null;
-                int uniqueId = finalName.hashCode();
-                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(EventActivity.this, EventNotificationScheduler.class);
+                int notificationId = finalName.hashCode();
+                String uniqueWorkName = "event_notification_" + notificationId;
 
                 if (!isCheckedPref[0]) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(date);
-                    calendar.set(Calendar.HOUR_OF_DAY, 10);
-                    calendar.set(Calendar.MINUTE, 0);
-                    calendar.set(Calendar.SECOND, 0);
-                    calendar.set(Calendar.MILLISECOND, 0);
-
-                    long targetTime = calendar.getTimeInMillis();
-                    long currentTime = System.currentTimeMillis();
-
-                    if (targetTime <= currentTime) {
-                        Toast.makeText(EventActivity.this, "Невозможно установить уведомление", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    intent.putExtra("notification_title", finalName);
-                    intent.putExtra("notification_id", uniqueId);
-
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                            EventActivity.this,
-                            uniqueId,
-                            intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                    );
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        if (alarmManager.canScheduleExactAlarms()) {
-                            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
-                        } else {
-                            alarmManager.set(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
+                    showDateTimePicker(savedTriggerTime[0], date, selectedTimeMillis -> {
+                        long delayMillis = selectedTimeMillis - System.currentTimeMillis();
+                        if (delayMillis <= 0) {
+                            Toast.makeText(EventActivity.this, "Невозможно установить уведомление", Toast.LENGTH_SHORT).show();
+                            return;
                         }
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
-                    } else {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, targetTime, pendingIntent);
-                    }
 
-                    isCheckedPref[0] = true;
-                    editor.putBoolean(finalName, true);
-                    editor.apply();
+                        Data inputData = new Data.Builder()
+                                .putString("notification_title", finalName)
+                                .putInt("notification_id", notificationId)
+                                .putLong("event_time", date)
+                                .putString("event_name", finalName)
+                                .putString("event_desc", textView.getText().toString())
+                                .putString("event_color", finalColor)
+                                .build();
 
-                    if (layer instanceof GradientDrawable) {
-                        assert color != null;
-                        ((GradientDrawable) layer).setColor(Integer.parseInt(color));
-                    }
-                    Toast.makeText(EventActivity.this, "Уведомление включено", Toast.LENGTH_SHORT).show();
+                        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MyNotificationWorker.class)
+                                .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
+                                .setInputData(inputData)
+                                .addTag(uniqueWorkName)
+                                .build();
+
+                        WorkManager.getInstance(EventActivity.this)
+                                .enqueueUniqueWork(uniqueWorkName, ExistingWorkPolicy.REPLACE, workRequest);
+
+                        savedTriggerTime[0] = selectedTimeMillis;
+                        isCheckedPref[0] = true;
+                        editor.putBoolean(finalName, true);
+                        editor.putLong(finalName + "_trigger_time", selectedTimeMillis);
+                        editor.apply();
+
+                        applyNavButtonColor(notif, eventColorInt);
+                        Toast.makeText(EventActivity.this, "Уведомление включено", Toast.LENGTH_SHORT).show();
+                    });
 
                 } else {
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                            EventActivity.this,
-                            uniqueId,
-                            intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                    );
-                    alarmManager.cancel(pendingIntent);
+                    WorkManager.getInstance(EventActivity.this).cancelUniqueWork(uniqueWorkName);
 
                     isCheckedPref[0] = false;
                     editor.putBoolean(finalName, false);
+                    editor.remove(finalName + "_trigger_time");
                     editor.apply();
 
-                    if (layer instanceof GradientDrawable) {
-                        ((GradientDrawable) layer).setColor(ContextCompat.getColor(EventActivity.this, android.R.color.white));
-                    }
+                    applyNavButtonColor(notif, ContextCompat.getColor(EventActivity.this, android.R.color.white));
                     Toast.makeText(EventActivity.this, "Уведомление выключено", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private interface OnDateTimeSelectedListener {
+        void onSelected(long selectedTimeMillis);
+    }
+
+    private void showDateTimePicker(long currentTriggerMillis, long defaultEventDateMillis, OnDateTimeSelectedListener listener) {
+        Calendar initialCalendar = Calendar.getInstance();
+        if (currentTriggerMillis > 0) {
+            initialCalendar.setTimeInMillis(currentTriggerMillis);
+        } else {
+            initialCalendar.setTimeInMillis(defaultEventDateMillis);
+            initialCalendar.set(Calendar.HOUR_OF_DAY, 10);
+            initialCalendar.set(Calendar.MINUTE, 0);
+            initialCalendar.set(Calendar.SECOND, 0);
+            initialCalendar.set(Calendar.MILLISECOND, 0);
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(Calendar.YEAR, year);
+                    selectedCalendar.set(Calendar.MONTH, month);
+                    selectedCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(
+                            EventActivity.this,
+                            (timeView, hourOfDay, minute) -> {
+                                selectedCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                selectedCalendar.set(Calendar.MINUTE, minute);
+                                selectedCalendar.set(Calendar.SECOND, 0);
+                                selectedCalendar.set(Calendar.MILLISECOND, 0);
+                                listener.onSelected(selectedCalendar.getTimeInMillis());
+                            },
+                            initialCalendar.get(Calendar.HOUR_OF_DAY),
+                            initialCalendar.get(Calendar.MINUTE),
+                            true
+                    );
+                    timePickerDialog.show();
+                },
+                initialCalendar.get(Calendar.YEAR),
+                initialCalendar.get(Calendar.MONTH),
+                initialCalendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
     }
 
     @Override
@@ -305,7 +346,7 @@ public class EventActivity extends AppCompatActivity {
             progressDialog.showDialog(EventActivity.this);
             showAd();
         } else {
-            showVkIntAd();
+            finish();
         }
     }
 
@@ -330,7 +371,7 @@ public class EventActivity extends AppCompatActivity {
                 @Override
                 public void onAdFailedToShow(@NonNull final AdError adError) {
                     progressDialog.dismiss();
-                    showVkIntAd();
+                    finish();
                 }
 
                 @Override
@@ -355,7 +396,7 @@ public class EventActivity extends AppCompatActivity {
             });
             mInterstitialAd.show(this);
         } else {
-            showVkIntAd();
+            finish();
         }
     }
 
@@ -458,7 +499,6 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onNoAd(@NonNull IAdLoadingError iAdLoadingError, @NonNull com.my.target.ads.InterstitialAd interstitialAd) {
                 progressDialog.dismiss();
-                finish();
             }
 
             @Override
@@ -467,7 +507,6 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onFailedToShow(@NonNull com.my.target.ads.InterstitialAd interstitialAd) {
                 progressDialog.dismiss();
-                finish();
             }
 
             @Override
@@ -501,7 +540,7 @@ public class EventActivity extends AppCompatActivity {
 
             @Override
             public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                showVkIntAd();
+                // Предзагрузка не удалась — не закрываем экран и не запускаем fallback
             }
         });
     }
@@ -519,6 +558,30 @@ public class EventActivity extends AppCompatActivity {
         if (mInterstitialAd != null) {
             mInterstitialAd.setAdEventListener(null);
             mInterstitialAd = null;
+        }
+    }
+
+    private int parseEventColor(String colorString) {
+        if (colorString == null || colorString.isEmpty()) {
+            return ContextCompat.getColor(this, R.color.blue_container);
+        }
+        try {
+            if (colorString.startsWith("#")) {
+                return Color.parseColor(colorString);
+            }
+            return Integer.parseInt(colorString);
+        } catch (IllegalArgumentException e) {
+            return ContextCompat.getColor(this, R.color.blue_container);
+        }
+    }
+
+    private void applyNavButtonColor(ImageView button, int color) {
+        Drawable background = button.getBackground();
+        if (background instanceof RippleDrawable) {
+            Drawable layer = ((RippleDrawable) background).getDrawable(0);
+            if (layer instanceof GradientDrawable) {
+                ((GradientDrawable) layer.mutate()).setColor(color);
+            }
         }
     }
 

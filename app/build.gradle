@@ -13,25 +13,21 @@ android {
         localProperties.load(new FileInputStream(localPropertiesFile))
     }
 
-    def mainBannerAdsId = localProperties.getProperty("mainScreenBannerId")
-    def eventScreenBannerId = localProperties.getProperty("eventScreenBannerId")
-    def openAdsId = localProperties.getProperty("openAdsId")
-    def interstitialAdsId = localProperties.getProperty("interstitialAdsId")
+    // 1 - RuStore, 2 - Huawei App Gallery, 3 - Google Play
+    def platform = 2
 
     defaultConfig {
         applicationId "com.plumsoftware.rucalendar"
         minSdk 21
         targetSdk 36
-        versionCode 69
-        versionName "4.2.0"
+        versionCode 70
+        versionName "4.2.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
-        buildConfigField "String", "mainScreenBannerId", "\"${mainBannerAdsId}\""
-        buildConfigField "String", "openAdsId", "\"${openAdsId}\""
-        buildConfigField "String", "interstitialAdsId", "\"${interstitialAdsId}\""
-        buildConfigField "String", "eventScreenBannerId", "\"${eventScreenBannerId}\""
+        buildConfigField "int", "PLATFORM", "${platform}"
+        buildConfigField "boolean", "SHOW_OPEN_AD", "false"
 
         renderscriptTargetApi 23
         renderscriptSupportModeEnabled true
@@ -42,10 +38,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            buildConfigField "String", "mainScreenBannerId", "\"${mainBannerAdsId}\""
-            buildConfigField "String", "openAdsId", "\"${openAdsId}\""
-            buildConfigField "String", "interstitialAdsId", "\"${interstitialAdsId}\""
-            buildConfigField "String", "eventScreenBannerId", "\"${eventScreenBannerId}\""
+            buildConfigField "int", "PLATFORM", "${platform}"
+            buildConfigField "boolean", "SHOW_OPEN_AD", "false"
             signingConfig signingConfigs.debug
         }
     }
@@ -157,7 +151,7 @@ dependencies {
 
 
     //noinspection MobileAdsSdkVersion
-    implementation 'com.yandex.android:mobileads:8.0.0'
+    implementation 'com.yandex.android:mobileads:8.1.0'
 
     //Animations
     implementation 'io.noties:tumbleweed-android:2.0.0'

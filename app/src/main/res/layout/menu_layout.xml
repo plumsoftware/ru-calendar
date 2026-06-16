@@ -29,6 +29,19 @@
         app:right_button_src="@drawable/ic_keyboard_arrow_right_black_24dp"
         app:row_height="70dp" />
 
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/event_nav_button_back"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_settings_dark"
+        app:tint="@android:color/white" />
+
     <!--    <androidx.core.widget.NestedScrollView-->
     <!--        android:id="@+id/nestedScrollView"-->
     <!--        android:fillViewport="true"-->
