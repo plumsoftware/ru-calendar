@@ -6,9 +6,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"
         tools:ignore="ScopedStorage" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -19,6 +21,7 @@
 
     <!-- Разрешение для точных будильников на Android 12+ -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:name=".App"
@@ -32,6 +35,9 @@
             android:name=".activities.EventActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.SettingsActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation"
             android:exported="true">
@@ -39,6 +45,15 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="event"
+                    android:scheme="rucalendar" />
             </intent-filter>
         </activity>
 
@@ -59,6 +74,9 @@
         </service>
 
         <service android:name=".services.EventService" />
+        <service
+            android:name=".services.AppForegroundService"
+            android:foregroundServiceType="dataSync" />
 
         <receiver android:name="com.plumsoftware.rucalendar.services.EventNotificationScheduler" android:exported="false"/>
 

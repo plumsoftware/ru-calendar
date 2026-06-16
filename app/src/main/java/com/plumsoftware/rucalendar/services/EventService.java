@@ -88,8 +88,7 @@ public class EventService extends Service {
                 .setContentText("\uD83C\uDF8A Узнайте детали в нашем календаре!")
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("\uD83C\uDF8A Узнайте детали в нашем календаре!"))
-//                .setSmallIcon(R.drawable.ic_round_circle_notifications)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSmallIcon(R.drawable.ic_round_circle_notifications)
                 .setAutoCancel(true)
                 .setContentIntent(PendingIntent.getActivity(EventService.this, 0, i, 0))
                 .build();
@@ -131,8 +130,7 @@ public class EventService extends Service {
         if (celebrations.size() != 0) {
             // Create notification builder
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "com.plumsoftware.rucalendar.default")
-//                    .setSmallIcon(R.drawable.ic_round_circle_notifications)
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setSmallIcon(R.drawable.ic_round_circle_notifications)
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .bigText("Узнать подробнее про " + celebrations.get(0).getName() + " можно в приложении"))
                     .setContentTitle("\uD83D\uDD14Сегодня события (" + Integer.toString(celebrations.size()) + ")")

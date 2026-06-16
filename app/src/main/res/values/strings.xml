@@ -1,5 +1,28 @@
 <resources>
     <string name="app_name">Календарь</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_performance">Производительность</string>
+    <string name="settings_section_interface">Интерфейс</string>
+    <string name="settings_section_permissions">Разрешения</string>
+    <string name="settings_background_mode">Разрешить использование в фоновом режиме</string>
+    <string name="settings_battery_saver">Экономия заряда батареи</string>
+    <string name="settings_battery_saver_desc">Отключить оптимизацию батареи для приложения</string>
+    <string name="settings_no_interrupt_bg">Не прерывать работу в фоне</string>
+    <string name="settings_no_interrupt_bg_desc">Запустить Foreground Service при сворачивании</string>
+    <string name="settings_stop_on_idle">Останавливать работу приложения при простое</string>
+    <string name="settings_stop_on_idle_desc">Отключать «Приостановить работу в неактивный период»</string>
+    <string name="settings_dark_theme">Тёмная тема</string>
+    <string name="settings_memory_access">Доступ к памяти</string>
+    <string name="settings_notifications_access">Уведомления</string>
+    <string name="settings_permission_memory_label">Доступ к памяти</string>
+    <string name="settings_permission_notifications_label">Уведомления</string>
+    <string name="settings_permission_granted">Разрешено ✓</string>
+    <string name="settings_permission_request">Запросить доступ</string>
+    <string name="settings_choose_email">Выберите почту</string>
+    <string name="service_channel_name">Фоновый режим приложения</string>
+    <string name="service_channel_description">Поддерживает работу приложения в фоне</string>
+    <string name="service_notification_title">Календарь работает в фоне</string>
+    <string name="service_notification_text">Служба активна для стабильной работы уведомлений</string>
 
     <string-array name="days_of_week">
         <item>Понедельник</item>

@@ -112,7 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="50dp">
+            android:paddingBottom="180dp">
 
             <TextView
                 android:id="@+id/textDescription"
@@ -132,6 +132,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
+        android:id="@+id/bottom_ads_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -158,5 +159,17 @@
             app:myTarget_slotId="1919524" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/bug_report_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/event_nav_button_back"
+        android:padding="8dp"
+        app:srcCompat="@drawable/bug_report"
+        app:tint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

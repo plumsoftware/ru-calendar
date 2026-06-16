@@ -22,6 +22,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -158,6 +159,12 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences appSettings = getSharedPreferences("app_settings", MODE_PRIVATE);
+        boolean isDarkTheme = appSettings.getBoolean("dark_theme", false);
+        AppCompatDelegate.setDefaultNightMode(isDarkTheme
+                ? AppCompatDelegate.MODE_NIGHT_YES
+                : AppCompatDelegate.MODE_NIGHT_NO);
+
         super.onCreate(savedInstanceState);
 //        Заглушка для темы
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -189,14 +196,18 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         );
         // Вызов метода проверки/запроса
         askNotificationPermission();
+        handleDeepLinkIntent(getIntent());
 
         myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
         View rootLayout = findViewById(R.id.root_layout);
         View blur = findViewById(R.id.blur);
         View bottomBar = findViewById(R.id.bottom_bar);
+        ImageView settingsButton = findViewById(R.id.settings_button);
         adView = findViewById(R.id.view_ad);
         mBannerAdView = (BannerAdView) findViewById(R.id.adView);
         adView.setSlotId(AdsConfig.BANNER_MAIN_SCREEN_AD_VK);
+
+        settingsButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
 
         MyTargetManager.setDebugMode(BuildConfig.DEBUG);
 
@@ -752,6 +763,44 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
 //            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
 //            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
 //        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleDeepLinkIntent(intent);
+    }
+
+    private void handleDeepLinkIntent(Intent intent) {
+        if (intent == null || !Intent.ACTION_VIEW.equals(intent.getAction())) {
+            return;
+        }
+
+        Uri data = intent.getData();
+        if (data == null || !"rucalendar".equals(data.getScheme()) || !"event".equals(data.getHost())) {
+            return;
+        }
+
+        String eventName = data.getQueryParameter("name");
+        String eventDesc = data.getQueryParameter("desc");
+        String eventColor = data.getQueryParameter("color");
+        String eventTimeString = data.getQueryParameter("time");
+
+        long eventTimeMillis = System.currentTimeMillis();
+        if (eventTimeString != null) {
+            try {
+                eventTimeMillis = Long.parseLong(eventTimeString);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        Intent eventIntent = new Intent(this, EventActivity.class);
+        eventIntent.putExtra("time", eventTimeMillis);
+        eventIntent.putExtra("name", eventName);
+        eventIntent.putExtra("desc", eventDesc);
+        eventIntent.putExtra("color", eventColor);
+        startActivity(eventIntent);
     }
 
     @NonNull
