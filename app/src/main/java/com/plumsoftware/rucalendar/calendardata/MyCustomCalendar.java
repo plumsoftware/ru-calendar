@@ -440,4 +440,13 @@ public class MyCustomCalendar extends LinearLayout {
     public Calendar getSelectedDate() {
         return this.selectedDate;
     }
+
+    public void selectDay(int day) {
+        this.selectedDate.set(Calendar.DAY_OF_MONTH, day);
+        this.setAll();
+        if (this.listener != null) {
+            Object desc = this.mapDateToDesc != null ? this.mapDateToDesc.get(day) : null;
+            this.listener.onDateSelected(this.selectedButton, this.selectedDate, desc);
+        }
+    }
 }

@@ -24,6 +24,19 @@
     <string name="service_notification_title">Календарь работает в фоне</string>
     <string name="service_notification_text">Служба активна для стабильной работы уведомлений</string>
 
+    <string name="widget_today_name">События дня</string>
+    <string name="widget_today_description">Текущая дата и события на сегодня</string>
+    <string name="widget_today_label">сегодня</string>
+    <string name="widget_today_more_events">+ %1$d событий →</string>
+    <string name="widget_week_name">Ближайшие события</string>
+    <string name="widget_week_description">Полоса из 7 дней и ближайшие события</string>
+    <string name="widget_week_upcoming">ближайшие события</string>
+    <string name="widget_type_holiday">государственный</string>
+    <string name="widget_type_memory">памятная дата</string>
+    <string name="widget_type_professional">профессиональный</string>
+    <string name="widget_type_unofficial">неофициальный</string>
+    <string name="widget_day_off">Выходной</string>
+
     <string-array name="days_of_week">
         <item>Понедельник</item>
         <item>Вторник</item>
