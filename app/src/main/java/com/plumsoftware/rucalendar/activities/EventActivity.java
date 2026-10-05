@@ -79,6 +79,8 @@ public class EventActivity extends AppCompatActivity {
     private static final String BUG_REPORT_SUBJECT = "Баг в приложении \"Календарь - праздники России\"";
 
     private ProgressDialog progressDialog = new ProgressDialog();
+    /** Диагональ экрана в дюймах, начиная с которой баннер считается для планшета. */
+    private static final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
     @Nullable
     private InterstitialAd mInterstitialAd = null;
     @Nullable
@@ -441,7 +443,7 @@ public class EventActivity extends AppCompatActivity {
                 Math.pow(screenHeight / displayMetrics.ydpi, 2));
 
         int bannerHeight;
-        if (screenInches >= MainActivity.TABLET_SCREEN_SIZE_THRESHOLD) {
+        if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
             bannerHeight = (int) (screenHeight * 0.08);
         } else {
             bannerHeight = (int) (screenHeight * 0.036);

@@ -4,7 +4,8 @@ plugins {
 }
 
 android {
-    compileSdk 36
+    compileSdk = 37
+    namespace = 'com.plumsoftware.rucalendar'
 
     def localProperties = new Properties()
     def localPropertiesFile = rootProject.file("local.properties")
@@ -13,125 +14,118 @@ android {
         localProperties.load(new FileInputStream(localPropertiesFile))
     }
 
-    // 1 - RuStore, 2 - Huawei App Gallery, 3 - Google Play
-    def platform = 2
-
     defaultConfig {
-        applicationId "com.plumsoftware.rucalendar"
-        minSdk 21
-        targetSdk 36
-        versionCode 70
-        versionName "4.2.1"
+        applicationId = "com.plumsoftware.rucalendar"
+        minSdk = 21
+        targetSdk = 37
+        versionCode = 71
+        versionName = "5.0.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled = true
 
-        buildConfigField "int", "PLATFORM", "${platform}"
-        buildConfigField "boolean", "SHOW_OPEN_AD", "false"
+        // Реклама Яндекса (РСЯ). Флаг false — реклама этого вида даже не загружается.
+        // Реклама при открытии приложения
+        buildConfigField "boolean", "SHOW_APP_OPEN_AD", "false"
+        // Баннер на главной странице — показывается внизу «Ленты»
+        buildConfigField "boolean", "SHOW_FEED_BANNER_AD", "false"
+        // Баннер внизу экрана о празднике
+        buildConfigField "boolean", "SHOW_EVENT_BANNER_AD", "true"
+    }
 
-        renderscriptTargetApi 23
-        renderscriptSupportModeEnabled true
+    flavorDimensions += 'store'
+    productFlavors {
+        rustore {
+            dimension = 'store'
+            buildConfigField "int", "PLATFORM", "1"
+            buildConfigField "String", "AD_FEED_BANNER_ID", '"R-M-2215793-1"'
+            buildConfigField "String", "AD_EVENT_BANNER_ID", '"R-M-2215793-5"'
+            buildConfigField "String", "AD_APP_OPEN_ID", '"R-M-2215793-4"'
+            buildConfigField "String", "AD_INTERSTITIAL_ID", '"R-M-2215793-2"'
+        }
+        huawei {
+            dimension = 'store'
+            buildConfigField "int", "PLATFORM", "2"
+            buildConfigField "String", "AD_FEED_BANNER_ID", '"R-M-13730194-1"'
+            buildConfigField "String", "AD_EVENT_BANNER_ID", '"R-M-13730194-4"'
+            buildConfigField "String", "AD_APP_OPEN_ID", '"R-M-13730194-2"'
+            buildConfigField "String", "AD_INTERSTITIAL_ID", '"R-M-13730194-3"'
+        }
+        googleplay {
+            dimension = 'store'
+            buildConfigField "int", "PLATFORM", "3"
+            buildConfigField "String", "AD_FEED_BANNER_ID", '"R-M-1752331-1"'
+            buildConfigField "String", "AD_EVENT_BANNER_ID", '"R-M-1752331-8"'
+            buildConfigField "String", "AD_APP_OPEN_ID", '"R-M-1752331-6"'
+            buildConfigField "String", "AD_INTERSTITIAL_ID", '"R-M-1752331-7"'
+        }
     }
 
     buildTypes {
+        debug {
+            // Демо-блоки Яндекса: в debug реклама проверяется без реальных показов
+            buildConfigField "String", "AD_FEED_BANNER_ID", '"demo-banner-yandex"'
+            buildConfigField "String", "AD_EVENT_BANNER_ID", '"demo-banner-yandex"'
+            buildConfigField "String", "AD_APP_OPEN_ID", '"demo-appopenad-yandex"'
+            buildConfigField "String", "AD_INTERSTITIAL_ID", '"demo-interstitial-yandex"'
+            // В debug баннер «Ленты» включён, чтобы видеть демо; в release флаг из defaultConfig (false)
+            buildConfigField "boolean", "SHOW_FEED_BANNER_AD", "true"
+        }
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            buildConfigField "int", "PLATFORM", "${platform}"
-            buildConfigField "boolean", "SHOW_OPEN_AD", "false"
-            signingConfig signingConfigs.debug
+            signingConfig = signingConfigs.debug
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    namespace 'com.plumsoftware.rucalendar'
 
-    android {
-        lintOptions {
-            // set to true to turn off analysis progress reporting by lint
-            quiet true
-            // if true, stop the gradle build if errors are found
-            abortOnError false
-            // set to true to have all release builds run lint on issues with severity=fatal
-            // and abort the build (controlled by abortOnError above) if fatal issues are found
-            checkReleaseBuilds true
-            // if true, only report errors
-            ignoreWarnings true
-            // if true, emit full/absolute paths to files with errors (true by default)
-            //absolutePaths true
-            // if true, check all issues, including those that are off by default
-            checkAllWarnings true
-            // if true, treat all warnings as errors
-            warningsAsErrors true
-            // turn off checking the given issue id's
-            disable 'TypographyFractions', 'TypographyQuotes'
-            // turn on the given issue id's
-            enable 'RtlHardcoded', 'RtlCompat', 'RtlEnabled'
-            // check *only* the given issue id's
-            check 'NewApi', 'InlinedApi'
-            // if true, don't include source code lines in the error output
-            noLines true
-            // if true, show all locations for an error, do not truncate lists, etc.
-            showAll true
-            // whether lint should include full issue explanations in the text error output
-            explainIssues false
-            // Fallback lint configuration (default severities, etc.)
-            lintConfig file("default-lint.xml")
-            // if true, generate a text report of issues (false by default)
-            textReport true
-            // location to write the output; can be a file or 'stdout' or 'stderr'
-            //textOutput 'stdout'
-            textOutput file("lint-results.txt")
-            // if true, generate an XML report for use by for example Jenkins
-            xmlReport true
-            // file to write report to (if not specified, defaults to lint-results.xml)
-            xmlOutput file("lint-report.xml")
-            // if true, generate an HTML report (with issue explanations, sourcecode, etc)
-            htmlReport true
-            // optional path to report (default will be lint-results.html in the builddir)
-            htmlOutput file("lint-report.html")
-            // Set the severity of the given issues to fatal (which means they will be
-            // checked during release builds (even if the lint target is not included)
-            fatal 'NewApi', 'InlineApi'
-            // Set the severity of the given issues to error
-            error 'Wakelock', 'TextViewEdits'
-            // Set the severity of the given issues to warning
-            warning 'ResourceAsColor'
-            // Set the severity of the given issues to ignore (same as disabling the check)
-            ignore 'TypographyQuotes'
-            // Set the severity of the given issues to informational
-            informational 'StopShip'
-            // Use (or create) a baseline file for issues that should not be reported
-            baseline file("lint-baseline.xml")
-            // Normally most lint checks are not run on test sources (except the checks
-            // dedicated to looking for mistakes in unit or instrumentation tests, unless
-            // ignoreTestSources is true). You can turn on normal lint checking in all
-            // sources with the following flag, false by default:
-            checkTestSources true
-            // Like checkTestSources, but always skips analyzing tests -- meaning that it
-            // also ignores checks that have explicitly asked to look at test sources, such
-            // as the unused resource check.
-            ignoreTestSources true
-            // Normally lint will skip generated sources, but you can turn it on with this flag
-            checkGeneratedSources true
-            // Normally lint will analyze all dependencies along with each module; this ensures
-            // that lint can correctly (for example) determine if a resource declared in a library
-            // is unused; checking only the library in isolation would not be able to identify this
-            // problem. However, this leads to quite a bit of extra computation; a library is
-            // analyzed repeatedly, for each module that it is used in.
-            checkDependencies false
-            disable 'MobileAdsSdkOutdatedVersion'
-        }
-        buildFeatures {
-            buildConfig true
-        }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        // java.time на minSdk 21
+        coreLibraryDesugaringEnabled = true
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    // lintOptions удалён в AGP 9 — те же настройки в блоке lint
+    lint {
+        quiet = true
+        abortOnError = false
+        // release-сборки проверяют проблемы с severity=fatal
+        checkReleaseBuilds = true
+        ignoreWarnings = true
+        checkAllWarnings = true
+        warningsAsErrors = true
+        disable += ['TypographyFractions', 'TypographyQuotes', 'MobileAdsSdkOutdatedVersion']
+        enable += ['RtlHardcoded', 'RtlCompat', 'RtlEnabled']
+        checkOnly += ['NewApi', 'InlinedApi']
+        noLines = true
+        showAll = true
+        explainIssues = false
+        lintConfig = file("default-lint.xml")
+        textReport = true
+        textOutput = file("lint-results.txt")
+        xmlReport = true
+        xmlOutput = file("lint-report.xml")
+        htmlReport = true
+        htmlOutput = file("lint-report.html")
+        fatal += ['NewApi', 'InlineApi']
+        error += ['Wakelock', 'TextViewEdits']
+        warning += ['ResourceAsColor']
+        informational += ['StopShip']
+        baseline = file("lint-baseline.xml")
+        checkTestSources = true
+        ignoreTestSources = true
+        checkGeneratedSources = true
+        checkDependencies = false
     }
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
     implementation fileTree(include: ['*.jar', '*.libs'], dir: 'libs')
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -151,13 +145,16 @@ dependencies {
 
 
     //noinspection MobileAdsSdkVersion
-    implementation 'com.yandex.android:mobileads:8.1.0'
+    implementation 'com.yandex.android:mobileads:8.5.0'
 
     //Animations
     implementation 'io.noties:tumbleweed-android:2.0.0'
 
     //Swipe to refresh
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // Лента и страницы карточки дня
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
 
     //Messaging service
     implementation platform('com.google.firebase:firebase-bom:30.2.0')
@@ -166,9 +163,6 @@ dependencies {
     //Lottie
     def lottieVersion = "3.4.0"
     implementation "com.airbnb.android:lottie:$lottieVersion"
-
-    //Blur
-    implementation("com.github.mmin18:realtimeblurview:f54dc3c34d")
 
     //Worker
     implementation "androidx.work:work-runtime:2.8.1"

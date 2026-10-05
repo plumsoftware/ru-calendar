@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Дизайн-система редизайна, ТЗ п. 2. Тёмные значения — в values-night/colors_redesign.xml -->
+<resources>
+    <!-- Базовые цвета, п. 2.2 -->
+    <color name="ds_bg_screen">#F3F4F6</color>
+    <color name="ds_surface">#FFFFFF</color>
+    <color name="ds_text_primary">#15171C</color>
+    <color name="ds_text_secondary">#5B6170</color>
+    <color name="ds_divider">#E4E6EB</color>
+    <color name="ds_outline">#D5D9E2</color>
+    <color name="ds_outline_dashed">#B5BAC6</color>
+    <color name="ds_weekend_text">#B4232E</color>
+    <color name="ds_outside_text">#9299A8</color>
+    <color name="ds_accent">#3654D9</color>
+    <color name="ds_tab_active_bg">#DDE3FB</color>
+    <color name="ds_day_selected_bg">#E8EBF3</color>
+    <color name="ds_button_primary_bg">#15171C</color>
+    <color name="ds_button_primary_text">#FFFFFF</color>
+    <color name="ds_icon_button_bg">#FFFFFF</color>
+    <color name="ds_promo_bg">#15171C</color>
+    <color name="ds_promo_label">#B9BECB</color>
+    <color name="ds_promo_text">#FFFFFF</color>
+    <color name="ds_rel_chip_bg">#EAEEFD</color>
+    <color name="ds_rel_chip_text">#2A43B8</color>
+
+    <!-- Красные плашки и кнопка «+» одинаковы в обеих темах, п. 4.1, 5.3 -->
+    <color name="ds_holiday_plate">#D12B37</color>
+    <color name="ds_on_holiday_plate">#FFFFFF</color>
+    <color name="ds_fab_bg">#3654D9</color>
+    <color name="ds_on_fab">#FFFFFF</color>
+
+    <!-- Типы событий, п. 2.1 -->
+    <color name="type_official">#D12B37</color>
+    <color name="type_professional">#3654D9</color>
+    <color name="type_unofficial">#E8710A</color>
+    <color name="type_memorial">#1F9D63</color>
+    <color name="type_user_default">#7A4DD8</color>
+
+    <color name="type_official_plate">#FDECEE</color>
+    <color name="type_professional_plate">#EAEEFD</color>
+    <color name="type_unofficial_plate">#FEF1E1</color>
+    <color name="type_memorial_plate">#E4F5EC</color>
+
+    <!-- Насыщенные цвета типов для шапки экрана праздника и полосы листка; одинаковы в обеих темах (п. 5.3) -->
+    <color name="type_official_solid">#D12B37</color>
+    <color name="type_professional_solid">#3654D9</color>
+    <color name="type_unofficial_solid">#C25E08</color>
+    <color name="type_memorial_solid">#1A8655</color>
+    <!-- Тёмный оттенок для кнопок и чипов в цветной шапке -->
+    <color name="type_official_deep">#A61B26</color>
+    <color name="type_professional_deep">#2A43B8</color>
+    <color name="type_unofficial_deep">#964705</color>
+    <color name="type_memorial_deep">#126640</color>
+
+    <color name="ds_text_body">#2B2F38</color>
+    <color name="ds_chip_neutral_bg">#EEF0F4</color>
+    <color name="ds_chip_neutral_text">#3F4553</color>
+    <color name="ds_chip_dayoff_bg">#FDECEE</color>
+    <color name="ds_chip_dayoff_text">#A61B26</color>
+    <color name="ds_sheet_handle">#C9CDD6</color>
+    <color name="ds_scrim">#85000000</color>
+</resources>
