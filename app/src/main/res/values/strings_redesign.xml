@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_month">Месяц</string>
+    <string name="tab_feed">Лента</string>
+    <string name="tab_year">Год</string>
+
+    <string name="cd_prev_month">Предыдущий месяц</string>
+    <string name="cd_next_month">Следующий месяц</string>
+    <string name="cd_search">Поиск праздника</string>
+    <string name="cd_add_event">Добавить своё событие</string>
+    <string name="cd_back_to_today">%1$s %2$d. Вернуться к сегодняшней дате</string>
+
+    <string name="filter_on">включён</string>
+    <string name="filter_off">выключен</string>
+
+    <string name="day_empty">В этот день праздников и памятных дат нет</string>
+    <string name="nearest_label">Ближайший выходной по календарю</string>
+    <string name="not_ready">Этот раздел ещё в разработке</string>
+
+    <string name="reminder_title">Напоминание</string>
+    <string name="reminder_same_day">В тот же день</string>
+    <string name="reminder_day_before">За день</string>
+    <string name="reminder_week_before">За неделю</string>
+    <string name="reminder_permission_denied">Уведомления запрещены. Разрешить в настройках</string>
+    <string name="reminder_time_title">Время напоминания</string>
+    <string name="cd_reminder_time">Изменить время, сейчас %1$s</string>
+
+    <string name="sheet_more">Подробнее</string>
+    <string name="sheet_edit">Изменить</string>
+    <string name="sheet_remind">Напомнить</string>
+    <string name="sheet_reminder_on">Напомню</string>
+    <string name="sheet_day_off">Выходной день</string>
+    <string name="sheet_short_day_title">Накануне — короткий день.</string>
+    <string name="cd_close">Закрыть</string>
+    <string name="cd_page">Событие %1$d из %2$d</string>
+
+    <string name="detail_about">О празднике</string>
+    <string name="detail_other_years">В другие годы</string>
+    <string name="cd_back">Назад</string>
+    <string name="cd_share">Поделиться</string>
+    <string name="cd_favorite_add">Добавить в избранное</string>
+    <string name="cd_favorite_remove">Убрать из избранного</string>
+
+    <string name="feed_title">Лента</string>
+    <string name="feed_search_hint">Праздник, профессия или дата</string>
+    <string name="feed_favorites">Избранное</string>
+    <string name="feed_favorites_empty">Пока нет избранных праздников. Отметьте праздник звёздочкой на его странице.</string>
+    <string name="feed_empty">Ничего не нашлось. Попробуйте другое слово или дату</string>
+
+    <string name="year_overline">Производственный календарь</string>
+    <string name="year_total_off">выходных и праздников</string>
+    <string name="year_not_approved">Переносы ещё не утверждены. Показаны субботы, воскресенья и фиксированные праздники.</string>
+    <string name="cd_prev_year">Предыдущий год</string>
+    <string name="cd_next_year">Следующий год</string>
+    <string name="legend_holiday">Праздник</string>
+    <string name="legend_day_off">Выходной</string>
+    <string name="legend_short">Короткий день</string>
+    <string name="legend_today">Сегодня</string>
+
+    <string name="event_new_title">Новое событие</string>
+    <string name="event_edit_title">Изменить событие</string>
+    <string name="event_save">Сохранить</string>
+    <string name="event_preview">Так будет в календаре</string>
+    <string name="event_untitled">Без названия</string>
+    <string name="event_field_title">Название</string>
+    <string name="event_field_title_hint">Например, день рождения мамы</string>
+    <string name="event_field_description">Описание</string>
+    <string name="event_field_description_hint">Необязательно</string>
+    <string name="event_field_date">Дата</string>
+    <string name="event_yearly">Повторять каждый год</string>
+    <string name="event_color">Цвет</string>
+    <string name="event_recent_colors">Недавние</string>
+    <string name="event_custom_color">Свой цвет</string>
+    <string name="event_hue">Оттенок</string>
+    <string name="event_lightness">Яркость</string>
+    <string name="event_color_note">После сохранения новый цвет встанет первым в «Недавних», самый старый из пяти уйдёт.</string>
+    <string name="event_delete">Удалить событие</string>
+    <string name="event_delete_confirm">Удалить событие?</string>
+    <string name="event_delete_action">Удалить</string>
+    <string name="event_cancel">Отмена</string>
+    <string name="event_discard_title">Не сохранять событие?</string>
+    <string name="event_discard_continue">Продолжить</string>
+    <string name="event_discard_action">Не сохранять</string>
+    <string name="event_saved">Событие сохранено</string>
+    <string name="event_deleted">Событие удалено</string>
+    <string name="cd_close_without_saving">Закрыть без сохранения</string>
+    <string name="cd_recent_color">Недавний цвет %1$s</string>
+    <string name="cd_change_date">Изменить дату, сейчас %1$s</string>
+
+    <string name="widget_today_label">Сегодня</string>
+    <string name="widget_today_description">Сегодняшняя дата и первое событие дня</string>
+    <string name="widget_weekend_label">До выходного</string>
+    <string name="widget_weekend_title">До выходного</string>
+    <string name="widget_weekend_description">Сколько дней до ближайшего официального праздника</string>
+    <string name="widget_week_label">Эта неделя</string>
+    <string name="widget_week_title">Эта неделя</string>
+    <string name="widget_week_description">Дни недели с отметками и ближайшие события</string>
+
+    <string name="ad_loading">Загрузка…</string>
+</resources>

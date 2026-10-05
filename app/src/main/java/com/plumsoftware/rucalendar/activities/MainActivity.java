@@ -1,768 +1,132 @@
 package com.plumsoftware.rucalendar.activities;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.AttrRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
-
-import android.Manifest;
-import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ClipDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
-import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-/**
- import org.naishadhparmar.zcustomcalendar.CustomCalendar;
- import org.naishadhparmar.zcustomcalendar.Property;
- **/
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.widget.ImageViewCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.my.target.ads.MyTargetView;
-import com.my.target.common.MyTargetManager;
-import com.my.target.common.models.IAdLoadingError;
-import com.plumsoftware.rucalendar.BuildConfig;
-import com.plumsoftware.rucalendar.adapters.CelebrationAdapter;
-import com.plumsoftware.rucalendar.config.AdsConfig;
-import com.plumsoftware.rucalendar.dialog.ProgressDialog;
-import com.plumsoftware.rucalendar.events.CelebrationItem;
-import com.plumsoftware.rucalendar.events.Celebrations;
-import com.plumsoftware.rucalendar.calendardata.MyCustomCalendar;
-import com.plumsoftware.rucalendar.repositories.OnDateSelectedListener;
-import com.plumsoftware.rucalendar.repositories.OnNavigationButtonClickedListener;
-import com.plumsoftware.rucalendar.calendardata.Property;
+import android.animation.ObjectAnimator;
+
 import com.plumsoftware.rucalendar.R;
-import com.plumsoftware.rucalendar.repositories.SwipeGestureListener;
-import com.yandex.mobile.ads.appopenad.AppOpenAd;
-import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener;
-import com.yandex.mobile.ads.appopenad.AppOpenAdLoadListener;
-import com.yandex.mobile.ads.appopenad.AppOpenAdLoader;
-import com.yandex.mobile.ads.banner.BannerAdEventListener;
-import com.yandex.mobile.ads.banner.BannerAdSize;
-import com.yandex.mobile.ads.banner.BannerAdView;
-import com.yandex.mobile.ads.common.AdError;
-import com.yandex.mobile.ads.common.AdRequest;
-import com.yandex.mobile.ads.common.AdRequestError;
-import com.yandex.mobile.ads.common.ImpressionData;
-import com.yandex.mobile.ads.common.YandexAds;
+import com.plumsoftware.rucalendar.ads.AppOpenAdController;
+import com.plumsoftware.rucalendar.data.DayEvent;
+import com.plumsoftware.rucalendar.ui.Motion;
+import com.plumsoftware.rucalendar.ui.event.UserEventActivity;
+import com.plumsoftware.rucalendar.ui.feed.FeedFragment;
+import com.plumsoftware.rucalendar.ui.year.YearFragment;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.plumsoftware.rucalendar.ui.month.MonthFragment;
+import com.plumsoftware.rucalendar.ui.sheet.DaySheetFragment;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 
-public class MainActivity extends AppCompatActivity implements OnNavigationButtonClickedListener {
-    protected MyCustomCalendar myCustomCalendar;
-    protected HashMap<Integer, Object> mapDateToDesc;
-    protected Calendar calendar, extraCalendar;
+/** Главный экран: нижняя панель «Месяц» / «Лента» / «Год» (ТЗ п. 3). */
+public class MainActivity extends AppCompatActivity
+        implements MonthFragment.Host, FeedFragment.Host, YearFragment.Host, DaySheetFragment.Host {
 
-    private ProgressDialog progressDialog = new ProgressDialog();
-    static final double TABLET_SCREEN_SIZE_THRESHOLD = 7.0;
+    private static final String TAG_MONTH = "month";
+    private static final String TAG_FEED = "feed";
+    private static final String TAG_YEAR = "year";
+    private static final String STATE_TAB = "tab";
 
-    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private static final int TAB_MONTH = 0;
+    private static final int TAB_FEED = 1;
+    private static final int TAB_YEAR = 2;
 
-    protected List<Integer>
-            januaryList,
-            februaryList,
-            marchList,
-            aprilList,
-            mayList,
-            juneList,
-            julyList,
-            augustList,
-            septemberList,
-            octoberList,
-            novemberList,
-            decemberList,
+    private int currentTab = TAB_MONTH;
+    private OnBackPressedCallback backToMonth;
+    private ActivityResultLauncher<Intent> eventLauncher;
+    private AppOpenAdController appOpenAd;
 
-    januaryListFuture,
-            februaryListFuture,
-            marchListFuture,
-            aprilListFuture,
-            mayListFuture,
-            juneListFuture,
-            julyListFuture,
-            augustListFuture,
-            septemberListFuture,
-            octoberListFuture,
-            novemberListFuture,
-            decemberListFuture,
-
-    januaryListPast,
-            februaryListPast,
-            marchListPast,
-            aprilListPast,
-            mayListPast,
-            juneListPast,
-            julyListPast,
-            augustListPast,
-            septemberListPast,
-            octoberListPast,
-            novemberListPast,
-            decemberListPast;
-
-    protected List<List<Integer>> months;
-    protected List<List<Integer>> monthsFuture;
-    protected List<List<Integer>> monthsPast;
-    protected String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
-
-    private AppOpenAd mAppOpenAd = null;
-    private MyTargetView adView;
-    private BannerAdView mBannerAdView;
-
-    private FirebaseAnalytics mFirebaseAnalytics;
-
-    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SharedPreferences appSettings = getSharedPreferences("app_settings", MODE_PRIVATE);
-        boolean isDarkTheme = appSettings.getBoolean("dark_theme", false);
-        AppCompatDelegate.setDefaultNightMode(isDarkTheme
-                ? AppCompatDelegate.MODE_NIGHT_YES
-                : AppCompatDelegate.MODE_NIGHT_NO);
-
         super.onCreate(savedInstanceState);
-//        Заглушка для темы
-//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        setupEdgeToEdge();
-        setContentView(R.layout.menu_layout);
+        // Отрисовка от края до края: фон под строкой состояния и панелью жестов (п. 7)
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        setContentView(R.layout.activity_main);
 
-        View rootView = findViewById(android.R.id.content);
-        rootView.setOnApplyWindowInsetsListener((v, insets) -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                int bottomBarHeight = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
-                v.setPadding(v.getPaddingLeft(), 0, v.getPaddingRight(), 0);
-            }
-            return insets;
-        });
-
-        Context context = MainActivity.this;
-        Activity activity = MainActivity.this;
-
-        SharedPreferences sp = getSharedPreferences("ads_showing", Context.MODE_APPEND);
-        int open = sp.getInt("open", 0);
-        int banner = sp.getInt("banner", 0);
-
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
-        // Инициализация лаунчера для запроса разрешения на уведомления
-        requestPermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                isGranted -> {}
-        );
-        // Вызов метода проверки/запроса
-        askNotificationPermission();
-        handleDeepLinkIntent(getIntent());
-
-        myCustomCalendar = (MyCustomCalendar) activity.findViewById(R.id.custom_calendar);
-        View rootLayout = findViewById(R.id.root_layout);
-        View blur = findViewById(R.id.blur);
-        View bottomBar = findViewById(R.id.bottom_bar);
-        ImageView settingsButton = findViewById(R.id.settings_button);
-        adView = findViewById(R.id.view_ad);
-        mBannerAdView = (BannerAdView) findViewById(R.id.adView);
-        adView.setSlotId(AdsConfig.BANNER_MAIN_SCREEN_AD_VK);
-
-        settingsButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
-
-        MyTargetManager.setDebugMode(BuildConfig.DEBUG);
-
-        YandexAds.initialize(context, () -> {
-            if (AdsConfig.SHOW_OPEN_MAIN_SCREEN_AD) {
-                if (open >= 5) {
-                    progressDialog.showDialog(context);
-                    final AppOpenAdLoader appOpenAdLoader = new AppOpenAdLoader(context);
-                    final String AD_UNIT_ID = AdsConfig.OPEN_MAIN_SCREEN_AD;
-
-                    final AdRequest adRequest = new AdRequest.Builder(AD_UNIT_ID).build();
-                    AppOpenAdLoadListener appOpenAdLoadListener = getAppOpenAdLoadListener();
-
-                    appOpenAdLoader.loadAd(adRequest, appOpenAdLoadListener);
-                } else {
-                    sp.edit().putInt("open", (open + 1)).apply();
-                }
-            }
-
-            if (banner >= 3) {
-                loadRSYAds();
-            } else {
-                sp.edit().putInt("banner", (banner + 1)).apply();
-            }
-        });
-
-//        region::App open Ads
-
-//        endregion
-//        if (appBarLayout != null) {
-//            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-//                private int lastOffset = 0;
-//
-//                @Override
-//                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-//                    if (verticalOffset > lastOffset) {
-//                        // 👆 Скролл ВВЕРХ (AppBarLayout раскрывается)
-//                        Log.d("SCROLL", "Scrolling UP");
-//
-//                        if (verticalOffset >= -270) {
-//                            // Полностью раскрыт — меняем цвет
-//                            runOnUiThread(() -> {
-//                                int color = getThemeColor(R.attr.statusBarColor);
-//                                setStatusBarColor(color);
-//                                rootView.setBackgroundColor(color);
-//                            });
-//                        }
-//
-//                    } else if (verticalOffset < lastOffset) {
-//                        // 👇 Скролл ВНИЗ (AppBarLayout схлопывается)
-//                        Log.d("SCROLL", "Scrolling DOWN");
-//                        if (verticalOffset <= -270) {
-//                            runOnUiThread(() -> {
-//                                int color = getThemeColor(android.R.attr.colorBackground);
-//                                setStatusBarColor(color);
-//                                rootView.setBackgroundColor(color);
-//                            });
-//                        }
-//                    }
-//
-//                    lastOffset = verticalOffset;
-//                }
-//            });
-//        }
-        HashMap<Object, Property> mapDescToProp = new HashMap<>();
-        List<CelebrationItem> celebrations = new ArrayList<>();
-
-        Property propDefault = new Property();
-        propDefault.layoutResource = R.layout.default_layout;
-        propDefault.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("default", propDefault);
-
-        Property propUnavailable = new Property();
-        propUnavailable.layoutResource = R.layout.unavailable_layout;
-        propUnavailable.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("disabled", propUnavailable);
-
-        Property propHoliday = new Property();
-        propHoliday.layoutResource = R.layout.holiday_layout;
-        propHoliday.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("holiday", propHoliday);
-
-        Property propShort = new Property();
-        propShort.layoutResource = R.layout.short_layout;
-        propShort.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("short", propShort);
-
-        Property propCurrent = new Property();
-        propCurrent.layoutResource = R.layout.current_layout;
-        propCurrent.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("current", propCurrent);
-
-        Property propMDate = new Property();
-        propMDate.layoutResource = R.layout.memory_date_view;
-        propMDate.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("mDate", propMDate);
-
-        Property propProf = new Property();
-        propProf.layoutResource = R.layout.prof_view;
-        propProf.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("prof", propProf);
-
-        Property propNOH = new Property();
-        propNOH.layoutResource = R.layout.not_off_holiday_view;
-        propNOH.dateTextViewResource = R.id.textViewDate;
-        mapDescToProp.put("not official holiday", propNOH);
-
-//        Property propSvo = new Property();
-//        propSvo.layoutResource = R.layout.svo_layout;
-//        propSvo.dateTextViewResource = R.id.textViewSvo;
-//        mapDescToProp.put("svo", propSvo);
-
-        myCustomCalendar.setMapDescToProp(mapDescToProp);
-
-        mapDateToDesc = new HashMap<>();
-        calendar = Calendar.getInstance();
-        extraCalendar = Calendar.getInstance();
-
-        for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
-            int day = i + 1;
-
-            mapDateToDesc.put(day, "default");
+        FragmentManager fm = getSupportFragmentManager();
+        if (savedInstanceState == null) {
+            fm.beginTransaction()
+                    .add(R.id.fragment_container, new MonthFragment(), TAG_MONTH)
+                    .add(R.id.fragment_container, new FeedFragment(), TAG_FEED)
+                    .add(R.id.fragment_container, new YearFragment(), TAG_YEAR)
+                    .commitNow();
+            fm.beginTransaction().hide(feed()).hide(year()).commitNow();
+        } else {
+            currentTab = savedInstanceState.getInt(STATE_TAB, TAB_MONTH);
         }
 
-        int month = calendar.get(Calendar.MONTH) + 1;
-
-        String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-        new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-
-        myCustomCalendar.setDate(calendar, mapDateToDesc);
-
-        Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-        String name1 = "";
-        String descS1 = "";
-        String color = "";
-        long timeInMillis = calendar.getTimeInMillis();
-
-        try {
-            String[] split = celebrationsClass.getDescription().split("~del");
-            for (String s : split) {
-                name1 = s.split("~")[0];
-                descS1 = s.split("~")[1];
-                color = "#F57F17";
-                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-            }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-        }
-
-
-        CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
-        celebrationAdapter.notifyDataSetChanged();
-
-        myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
-        myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
-        myCustomCalendar.setOnDateSelectedListener(new OnDateSelectedListener() {
-            @SuppressLint("ResourceType")
-            @Override
-            public void onDateSelected(View view, Calendar selectedDate, Object desc) {
-//                runOnUiThread(() -> {
-//                    int newColor = getThemeColor(android.R.attr.colorBackground);
-//                    rootView.setBackgroundColor(newColor);
-//                });
-                celebrations.clear();
-                String name1 = "";
-                String descS1 = "";
-                String color = "";
-                long timeInMillis = selectedDate.getTimeInMillis();
-
-                Celebrations celebrationsClass = new Celebrations(selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH));
-
-
-                try {
-                    String[] split = celebrationsClass.getDescription().split("~del");
-                    Log.d("TAG", String.valueOf(split.length));
-                    for (String s : split) {
-                        name1 = s.split("~")[0];
-                        descS1 = s.split("~")[1];
-//                            Проверяем вторые события
-                        if (name1.equals("День российской науки")) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                color = String.valueOf(getColor(R.color.green_container));
-                            } else {
-                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
-                            }
-                            celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                        } else if (name1.equals("День юриста")) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                color = String.valueOf(getColor(R.color.blue_container));
-                            } else {
-                                color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
-                            }
-                            celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                        } else {
-                            if ("holiday".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.red_container));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
-                                }
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                            }
-                            if ("holiday".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.red_container));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
-                                }
-                                celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", color, timeInMillis));
-                            }
-                            if ("short".equals(desc)) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.purple_container));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.purple_container));
-                                }
-                                celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", color, timeInMillis));
-                            }
-                            if ("current".equals(desc) && !name1.isEmpty() && !descS1.isEmpty()) {
-//                                    color = String.valueOf(getAttrColor(context, com.google.android.material.R.attr.colorTertiary));
-//                                    color = String.valueOf(ContextCompat.getColor(context, com.google.android.material.R.attr.colorTertiary)
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.blue_container));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
-                                }
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                            }
-                            if ("current".equals(desc) && name1.isEmpty() && descS1.isEmpty()) {
-//                                recyclerView.setVisibility(View.VISIBLE);
-                            }
-                            if ("mDate".equals(desc)) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.green_container));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green_container));
-                                }
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                            }
-                            if ("prof".equals(desc)) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.blue_container));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue_container));
-                                }
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                            }
-                            if ("not official holiday".equals(desc)) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    color = String.valueOf(getColor(R.color.orange_container));
-                                } else {
-                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.orange_container));
-                                }
-                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-                            }
-//                            if ("svo".equals(desc)) {
-//                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                                    color = String.valueOf(getColor(R.color.svo_color));
-//                                } else {
-//                                    color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.svo_color));
-//                                }
-//                                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-//                            }
-                        }
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                    if ("holiday".equals(desc)) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            color = String.valueOf(getColor(R.color.red_container));
-                        } else {
-                            color = String.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red_container));
-                        }
-                        celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", color, timeInMillis));
-                    }
-                }
-
-                if ("default".equals(desc)) {
-//                    recyclerView.setVisibility(View.VISIBLE);
-//                    animationView.setVisibility(View.VISIBLE);
-                }
-                if ("unavailable".equals(desc)) {
-//                    recyclerView.setVisibility(View.VISIBLE);
-                } else {
-//                    recyclerView.setVisibility(View.VISIBLE);
-                }
-
-                if (!celebrations.isEmpty()) {
-                    blur.setVisibility(View.VISIBLE);
-
-                    TextView nameTextView = bottomBar.findViewById(R.id.event_name);
-                    TextView descTextView = bottomBar.findViewById(R.id.event_desc);
-                    TextView eventTypeTextView = bottomBar.findViewById(R.id.event_type);
-                    TextView eventDateTextView = bottomBar.findViewById(R.id.event_date);
-                    View next = bottomBar.findViewById(R.id.next);
-                    Button more = bottomBar.findViewById(R.id.more);
-                    View previous = bottomBar.findViewById(R.id.previous);
-                    ImageView close = bottomBar.findViewById(R.id.close);
-
-                    String type = "";
-
-                    int targetColor = Integer.parseInt(celebrations.get(0).getColor());
-                    int blueColor = ContextCompat.getColor(getApplicationContext(), R.color.blue_container);
-                    int redColor = ContextCompat.getColor(getApplicationContext(), R.color.red_container);
-                    int greenColor = ContextCompat.getColor(getApplicationContext(), R.color.green_container);
-                    int orangeColor = ContextCompat.getColor(getApplicationContext(), R.color.orange_container);
-                    int purpleColor = ContextCompat.getColor(getApplicationContext(), R.color.purple_container);
-
-                    if (targetColor == blueColor) {
-                        type = "Профессиональный праздник";
-                    } else if (targetColor == redColor) {
-                        type = "Праздничный день";
-                    } else if (targetColor == greenColor) {
-                        type = "Памятная дата";
-                    } else if (targetColor == purpleColor) {
-                        type = "Сокращенный день";
-                    } else if (targetColor == orangeColor) {
-                        type = "Неофициальный праздник";
-                    }
-
-                    eventTypeTextView.setText(type);
-
-                    nameTextView.setText(celebrations.get(0).getName());
-                    descTextView.setText(celebrations.get(0).getDesc());
-                    eventDateTextView.setText("• " + new SimpleDateFormat("dd MMMM EEEE", Locale.getDefault()).format(new Date(celebrations.get(0).getTimeInMillis())));
-
-                    eventDateTextView.setTextColor(targetColor);
-
-                    more.setBackgroundTintList(ColorStateList.valueOf(targetColor));
-
-                    GradientDrawable newDrawable = new GradientDrawable();
-                    newDrawable.setShape(GradientDrawable.OVAL);
-                    newDrawable.setColor(Integer.parseInt(celebrations.get(0).getColor()));
-                    close.setBackground(newDrawable);
-
-                    more.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(context, EventActivity.class);
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                                intent.putExtra("event", celebrations.get(0));
-                            } else {
-                                intent.putExtra("time", celebrations.get(0).getTimeInMillis());
-                                intent.putExtra("name", celebrations.get(0).getName());
-                                intent.putExtra("desc", celebrations.get(0).getDesc());
-                                intent.putExtra("color", celebrations.get(0).getColor());
-                            }
-                            activity.startActivity(intent);
-                            close.performClick();
-                        }
-                    });
-
-                    if (celebrations.size() == 1) {
-                        next.setVisibility(View.GONE);
-                        previous.setVisibility(View.GONE);
-                    }
-
-                    close.setOnClickListener(view1 -> {
-                                bottomBar.animate()
-                                        .translationY(500f) // или screenHeight — см. ниже
-                                        .setDuration(200)
-                                        .setInterpolator(new AccelerateInterpolator()) // ускорение вниз
-                                        .withEndAction(() -> {
-                                            bottomBar.setVisibility(View.GONE);
-                                            blur.setVisibility(View.GONE);
-                                        })
-                                        .start();
-                            }
-                    );
-
-
-                    bottomBar.post(() -> {
-                        float height = 500f;
-
-                        // Устанавливаем начальное состояние ДО показа элемента
-                        bottomBar.setPivotY(height);
-                        bottomBar.setTranslationY(height / 2);
-
-                        // Только ПОСЛЕ установки начального состояния показываем элемент
-                        bottomBar.setVisibility(View.VISIBLE);
-
-                        // Анимация
-                        bottomBar.animate()
-                                .translationY(0f)
-                                .setDuration(200)
-                                .setInterpolator(new AccelerateDecelerateInterpolator())
-                                .start();
-                    });
+        eventLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            Intent data = result.getData();
+            if (result.getResultCode() != RESULT_OK || data == null) return;
+            String dateString = data.getStringExtra(UserEventActivity.RESULT_DATE);
+            boolean deleted = data.getBooleanExtra(UserEventActivity.RESULT_DELETED, false);
+            if (dateString != null) {
+                // «Месяц» открывается на дате события, день выбран
+                LocalDate date = LocalDate.parse(dateString);
+                selectTab(TAB_MONTH, false);
+                MonthFragment month = month();
+                if (month != null && month.getView() != null) {
+                    month.showDate(date);
+                    if (!deleted) month.celebrate(date);
                 }
             }
+            showToast(deleted ? R.string.event_deleted : R.string.event_saved);
         });
 
-        String extraYearLink = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR), countryCode, 1, 0, 0);
-        new ExtraDataCalendarClick(extraCalendar.get(Calendar.YEAR)).execute(extraYearLink);
-
-        String extraYearLinkFuture = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) + 1, countryCode, 1, 0, 0);
-        new ExtraDataCalendarClickFuture(extraCalendar.get(Calendar.YEAR) + 1).execute(extraYearLinkFuture);
-
-        String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
-        new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
-
-        GestureDetector gestureDetector = new GestureDetector(this, new SwipeGestureListener() {
+        // «Назад» с любой вкладки возвращает на «Месяц», с «Месяца» — выход из приложения
+        backToMonth = new OnBackPressedCallback(currentTab != TAB_MONTH) {
             @Override
-            public void onSwipeRight() {
-                myCustomCalendar.getButRight().performClick();
+            public void handleOnBackPressed() {
+                selectTab(TAB_MONTH, true);
             }
+        };
+        getOnBackPressedDispatcher().addCallback(this, backToMonth);
 
-            @Override
-            public void onSwipeLeft() {
-                myCustomCalendar.getButLeft().performClick();
-            }
-        });
+        setupBottomNav();
+        renderTabs(false);
+        // После пересоздания активности ссылка уже обработана
+        if (savedInstanceState == null) handleDeepLinkIntent(getIntent());
 
-        rootLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
-        myCustomCalendar.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
-        myCustomCalendar.getLlWeeks().setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
-//        } else {
-//            Property propDefault = new Property();
-//            propDefault.layoutResource = R.layout.default_layout;
-//            propDefault.dateTextViewResource = R.id.textViewDate;
-//            mapDescToProp.put("default", propDefault);
-//
-//            Property propUnavailable = new Property();
-//            propUnavailable.layoutResource = R.layout.unavailable_layout;
-//            propUnavailable.dateTextViewResource = R.id.textViewDate;
-//            mapDescToProp.put("disabled", propUnavailable);
-//
-//            Property propHoliday = new Property();
-//            propHoliday.layoutResource = R.layout.holiday_layout;
-//            propHoliday.dateTextViewResource = R.id.textViewDate;
-//            mapDescToProp.put("holiday", propHoliday);
-//
-//            Property propShort = new Property();
-//            propShort.layoutResource = R.layout.short_layout;
-//            propShort.dateTextViewResource = R.id.textViewDate;
-//            mapDescToProp.put("short", propShort);
-//
-//            Property propCurrent = new Property();
-//            propCurrent.layoutResource = R.layout.current_layout;
-//            propCurrent.dateTextViewResource = R.id.textViewDate;
-//            mapDescToProp.put("current", propCurrent);
-//
-//            myCustomCalendar.setMapDescToProp(mapDescToProp);
-//
-//            mapDateToDesc = new HashMap<>();
-//            calendar = Calendar.getInstance();
-//            extraCalendar = Calendar.getInstance();
-//
-//            for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
-//                int day = i + 1;
-//
-//                mapDateToDesc.put(day, "default");
-//            }
-//
-//            int month = calendar.get(Calendar.MONTH) + 1;
-//
-//            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//                @Override
-//                public void onRefresh() {
-//                    String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-//                    new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-//                }
-//            });
-//
-//            String extraLink = new Link().buildLink(calendar.get(Calendar.YEAR), month, countryCode, 1, 0, 0);
-//            new ExtraData(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR)).execute(extraLink);
-//
-//            myCustomCalendar.setDate(calendar, mapDateToDesc);
-//
-//            if (b) {
-//                Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-//                String name = "";
-//                String descS = "";
-//                String color = "";
-//                long timeInMillis = calendar.getTimeInMillis();
-//
-//                try {
-//                    String[] split = celebrationsClass.getDescription().split("~del");
-//                    for (String s : split) {
-//                        name = s.split("~")[0];
-//                        descS = s.split("~")[1];
-//                        color = "#F57F17";
-//                        celebrations.add(new CelebrationItem(name, descS, color, timeInMillis));
-//                    }
-//                } catch (IndexOutOfBoundsException e) {
-//                    e.printStackTrace();
-//                    //recyclerView.setVisibility(View.GONE);
-//                }
-//                celebrations.add(new CelebrationItem(name, descS, color, timeInMillis));
-//            }
-//
-//            CelebrationAdapter celebrationAdapter = new CelebrationAdapter(this, MainActivity.this, celebrations);
-//            celebrationAdapter.notifyDataSetChanged();
-//            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//            recyclerView.setHasFixedSize(true);
-//            recyclerView.setAdapter(celebrationAdapter);
-//
-//            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.NEXT, this);
-//            myCustomCalendar.setOnNavigationButtonClickedListener(MyCustomCalendar.PREVIOUS, this);
-//            myCustomCalendar.setOnDateSelectedListener(new OnDateSelectedListener() {
-//                @Override
-//                public void onDateSelected(View view, Calendar selectedDate, Object desc) {
-//                    celebrations.clear();
-//                    String name = "";
-//                    String descS = "";
-//                    String color = "";
-//                    long timeInMillis = selectedDate.getTimeInMillis();
-//
-//                    if ("holiday".equals(desc)) {
-//                        celebrations.add(new CelebrationItem("Выходной", "Отличный повод встретиться с друзьями!", "#ffdad5", timeInMillis));
-//                    } else if ("short".equals(desc)) {
-//                        celebrations.add(new CelebrationItem("Сокращённый рабочий день", "Этот день предпразднечный.", "#ecddf7", timeInMillis));
-//                    } else if ("current".equals(desc)) {
-//                        recyclerView.setVisibility(View.VISIBLE);
-//                    }
-//
-//                    celebrationAdapter.notifyDataSetChanged();
-//                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-//                    recyclerView.setHasFixedSize(true);
-//                    recyclerView.setAdapter(celebrationAdapter);
-//
-//                    if ("default".equals(desc)) {
-//                        recyclerView.setVisibility(View.VISIBLE);
-//                    } else if ("unavailable".equals(desc)) {
-//                        recyclerView.setVisibility(View.VISIBLE);
-//                    } else {
-//                        recyclerView.setVisibility(View.VISIBLE);
-//                    }
-//                }
-//            });
-//
-//            String extraYearLink = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR), countryCode, 1, 0, 0);
-//            new ExtraDataCalendarClick(extraCalendar.get(Calendar.YEAR)).execute(extraYearLink);
-//
-//            String extraYearLinkFuture = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) + 1, countryCode, 1, 0, 0);
-//            new ExtraDataCalendarClickFuture(extraCalendar.get(Calendar.YEAR) + 1).execute(extraYearLinkFuture);
-//
-//            String extraYearLinkPast = new Link().buildYearLink(extraCalendar.get(Calendar.YEAR) - 1, countryCode, 1, 0, 0);
-//            new ExtraDataCalendarClickPast(extraCalendar.get(Calendar.YEAR) - 1).execute(extraYearLinkPast);
-//        }
+        // Реклама при открытии: при выключенном флаге SHOW_APP_OPEN_AD не загружается
+        appOpenAd = new AppOpenAdController(this);
+        if (savedInstanceState == null) appOpenAd.loadAndShow();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (appOpenAd != null) appOpenAd.clear();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_TAB, currentTab);
     }
 
     @Override
@@ -772,16 +136,165 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         handleDeepLinkIntent(intent);
     }
 
+    // region Хосты фрагментов
+
+    @Override
+    public void openDay(DayEvent event) {
+        DaySheetFragment.show(getSupportFragmentManager(), event.date, event.key());
+    }
+
+    @Override
+    public void openSearch() {
+        selectTab(TAB_FEED, true);
+        feed().focusSearch();
+    }
+
+    @Override
+    public void openNewEvent(LocalDate date) {
+        eventLauncher.launch(UserEventActivity.newEvent(this, date));
+    }
+
+    @Override
+    public void editUserEvent(DayEvent event) {
+        if (event.userEvent != null) eventLauncher.launch(UserEventActivity.editEvent(this, event.userEvent.id));
+    }
+
+    @Override
+    public void openMonth(YearMonth target) {
+        selectTab(TAB_MONTH, true);
+        MonthFragment month = month();
+        if (month == null || month.getView() == null) return;
+        LocalDate today = LocalDate.now();
+        month.showDate(YearMonth.from(today).equals(target) ? today : target.atDay(1));
+    }
+
+    // endregion
+
+    /** Всплывающая подсказка над нижней панелью, держится 3 с (п. 9.2). */
+    private void showToast(int text) {
+        Snackbar.make(findViewById(R.id.fragment_container), text, 3000)
+                .setAnchorView(R.id.bottom_nav)
+                .show();
+    }
+
+    private MonthFragment month() {
+        return (MonthFragment) getSupportFragmentManager().findFragmentByTag(TAG_MONTH);
+    }
+
+    private FeedFragment feed() {
+        return (FeedFragment) getSupportFragmentManager().findFragmentByTag(TAG_FEED);
+    }
+
+    private YearFragment year() {
+        return (YearFragment) getSupportFragmentManager().findFragmentByTag(TAG_YEAR);
+    }
+
+    @Nullable
+    private Fragment fragmentFor(int tab) {
+        if (tab == TAB_MONTH) return month();
+        if (tab == TAB_FEED) return feed();
+        return year();
+    }
+
+    private void selectTab(int tab, boolean animate) {
+        if (tab == currentTab) return;
+        final Fragment from = fragmentFor(currentTab);
+        final Fragment to = fragmentFor(tab);
+        currentTab = tab;
+        backToMonth.setEnabled(tab != TAB_MONTH);
+        renderTabs(animate);
+        if (from == null || to == null) return;
+
+        final View fromView = from.getView();
+        if (!animate || fromView == null) {
+            getSupportFragmentManager().beginTransaction().hide(from).show(to).commit();
+            return;
+        }
+        // Старый экран затухает за 90 мс, новый проявляется с масштабом 0,96 → 1; всего 200 мс (п. 9.2)
+        fromView.animate().cancel();
+        fromView.animate().alpha(0f).setDuration(90).setInterpolator(Motion.STANDARD).withEndAction(() -> {
+            fromView.setAlpha(1f);
+            getSupportFragmentManager().beginTransaction().hide(from).show(to).commitNow();
+            View toView = to.getView();
+            if (toView == null) return;
+            toView.setAlpha(0f);
+            toView.setScaleX(0.96f);
+            toView.setScaleY(0.96f);
+            toView.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(110).setInterpolator(Motion.STANDARD).start();
+        }).start();
+    }
+
+    private void setupBottomNav() {
+        final View nav = findViewById(R.id.bottom_nav);
+        final int navHeight = getResources().getDimensionPixelSize(R.dimen.bottom_nav_height);
+        ViewCompat.setOnApplyWindowInsetsListener(nav, (v, windowInsets) -> {
+            Insets bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            ViewGroup.LayoutParams lp = v.getLayoutParams();
+            lp.height = navHeight + bars.bottom;
+            v.setLayoutParams(lp);
+            v.setPadding(bars.left, 0, bars.right, bars.bottom);
+            return windowInsets;
+        });
+        findViewById(R.id.tab_month).setOnClickListener(v -> selectTab(TAB_MONTH, true));
+        findViewById(R.id.tab_feed).setOnClickListener(v -> selectTab(TAB_FEED, true));
+        findViewById(R.id.tab_year).setOnClickListener(v -> selectTab(TAB_YEAR, true));
+    }
+
+    private void renderTabs(boolean animate) {
+        renderTab(R.id.tab_month, R.id.tab_month_icon, R.id.tab_month_label, currentTab == TAB_MONTH, animate);
+        renderTab(R.id.tab_feed, R.id.tab_feed_icon, R.id.tab_feed_label, currentTab == TAB_FEED, animate);
+        renderTab(R.id.tab_year, R.id.tab_year_icon, R.id.tab_year_label, currentTab == TAB_YEAR, animate);
+    }
+
+    private void renderTab(int tabId, int iconId, int labelId, boolean active, boolean animate) {
+        View tab = findViewById(tabId);
+        ImageView icon = findViewById(iconId);
+        TextView label = findViewById(labelId);
+        tab.setSelected(active);
+        int color = ContextCompat.getColor(this, active ? R.color.ds_text_primary : R.color.ds_text_secondary);
+        ImageViewCompat.setImageTintList(icon, ColorStateList.valueOf(color));
+        label.setTextColor(color);
+        label.setTypeface(ResourcesCompat.getFont(this, active ? R.font.golos_text_bold : R.font.golos_text_medium));
+        if (!active) {
+            icon.setBackground(null);
+            return;
+        }
+        // Капсула активной вкладки растягивается от центра за 150 мс (п. 9.2)
+        ClipDrawable capsule = new ClipDrawable(ContextCompat.getDrawable(this, R.drawable.bg_tab_active),
+                Gravity.CENTER_HORIZONTAL, ClipDrawable.HORIZONTAL);
+        icon.setBackground(capsule);
+        if (animate) {
+            capsule.setLevel(0);
+            ObjectAnimator animator = ObjectAnimator.ofInt(capsule, "level", 0, 10000);
+            animator.setDuration(150);
+            animator.setInterpolator(Motion.DECELERATE);
+            animator.start();
+        } else {
+            capsule.setLevel(10000);
+        }
+    }
+
     private void handleDeepLinkIntent(Intent intent) {
         if (intent == null || !Intent.ACTION_VIEW.equals(intent.getAction())) {
             return;
         }
-
         Uri data = intent.getData();
-        if (data == null || !"rucalendar".equals(data.getScheme()) || !"event".equals(data.getHost())) {
+        if (data == null || !"rucalendar".equals(data.getScheme())) {
+            return;
+        }
+        if ("day".equals(data.getHost())) {
+            openDayFromLink(data);
+            return;
+        }
+        if ("month".equals(data.getHost())) {
+            openMonthFromLink(data);
+            return;
+        }
+        if (!"event".equals(data.getHost())) {
             return;
         }
 
+        // Старые напоминания, поставленные до редизайна, открывают прежний экран праздника
         String eventName = data.getQueryParameter("name");
         String eventDesc = data.getQueryParameter("desc");
         String eventColor = data.getQueryParameter("color");
@@ -803,1566 +316,32 @@ public class MainActivity extends AppCompatActivity implements OnNavigationButto
         startActivity(eventIntent);
     }
 
-    @NonNull
-    private AppOpenAdLoadListener getAppOpenAdLoadListener() {
-        AppOpenAdEventListener appOpenAdEventListener = new AppOpenAdEventListener() {
-            @Override
-            public void onAdShown() {
-                // Called when ad is shown.
-            }
-
-            @Override
-            public void onAdFailedToShow(@NonNull final AdError adError) {
-                // Called when ad failed to show.
-            }
-
-            @Override
-            public void onAdDismissed() {
-                // Called when ad is dismissed.
-                // Clean resources after dismiss and preload new ad.
-                clearAppOpenAd();
-            }
-
-            @Override
-            public void onAdClicked() {
-                // Called when a click is recorded for an ad.
-            }
-
-            @Override
-            public void onAdImpression(@Nullable final ImpressionData impressionData) {
-                // Called when an impression is recorded for an ad.
-            }
-        };
-
-        AppOpenAdLoadListener appOpenAdLoadListener = new AppOpenAdLoadListener() {
-            @Override
-            public void onAdLoaded(@NonNull final AppOpenAd appOpenAd) {
-                mAppOpenAd = appOpenAd;
-                mAppOpenAd.setAdEventListener(appOpenAdEventListener);
-                progressDialog.dismiss();
-                showAppOpenAd();
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull final AdRequestError adRequestError) {
-                progressDialog.dismiss();
-            }
-        };
-        return appOpenAdLoadListener;
+    /** rucalendar://month?date=2026-10-03 — виджеты открывают «Месяц» на этом дне. */
+    private void openMonthFromLink(Uri data) {
+        LocalDate date = parseDate(data.getQueryParameter("date"));
+        if (date == null) return;
+        selectTab(TAB_MONTH, false);
+        MonthFragment month = month();
+        if (month != null) month.showDateWhenReady(date);
     }
 
-    @SuppressLint("NewApi")
-    void setStatusBarColor(int color) {
-        Window window = getWindow();
-
-        boolean isDarkBackground = ColorUtils.calculateLuminance(color) < 0.5;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-            WindowInsetsController controller = window.getInsetsController();
-            if (controller != null) {
-                if (isDarkBackground) {
-                    controller.setSystemBarsAppearance(
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                    );
-                } else {
-                    controller.setSystemBarsAppearance(
-                            0,
-                            0
-                    );
-                }
-            }
-
-            window.setStatusBarColor(color);
-
-            // 👇 ВАЖНО: принудительно обновляем системный UI
-            window.getDecorView().requestApplyInsets();
-
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(color);
-
-            if (isDarkBackground) {
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            } else {
-                getWindow().getDecorView().setSystemUiVisibility(0);
-            }
-
-        } else {
-            window.setStatusBarColor(color);
-        }
-
-        // 👇 Принудительный редрав ВСЕХ view
-        getWindow().getDecorView().post(() -> {
-            getWindow().getDecorView().invalidate();
-            getWindow().getDecorView().requestLayout();
-        });
-    }
-
-    private void setupEdgeToEdge() {
-        Window window = getWindow();
-
-        // Определяем текущую тему (светлая/темная)
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        boolean isDarkTheme = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
-
-        int systemUiVisibilityFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-
-        // Делаем статус бар и нав бар прозрачными
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Настройка цвета иконок для Android 5-10
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!isDarkTheme) {
-                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
-                    systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-                }
-                // Для темной темы оставляем светлые иконки (по умолчанию)
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!isDarkTheme) {
-                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ НАВИГАЦИИ
-                    systemUiVisibilityFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-                }
-                // Для темной темы оставляем светлые иконки (по умолчанию)
-            }
-
-            window.getDecorView().setSystemUiVisibility(systemUiVisibilityFlags);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.TRANSPARENT);
-        }
-
-        // Для Android 10+ убираем затемнение под нав баром
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.setNavigationBarContrastEnforced(false);
-        }
-
-        // Для Android 11+ используем новый API
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false);
-
-            WindowInsetsController controller = window.getInsetsController();
-            if (controller != null) {
-                // Убеждаемся, что нав бар остается видимым
-                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-
-                // Настройка цвета иконок для Android 11+
-                if (!isDarkTheme) {
-                    // СВЕТЛАЯ ТЕМА - ТЕМНЫЕ ИКОНКИ
-                    controller.setSystemBarsAppearance(
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
-                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
-                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-                    );
-                } else {
-                    // ТЕМНАЯ ТЕМА - СВЕТЛЫЕ ИКОНКИ (убираем флаги светлых иконок)
-                    controller.setSystemBarsAppearance(
-                            0,
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS |
-                                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-                    );
-                }
-            }
-        }
-    }
-
-    public int getThemeColor(@AttrRes int attr) {
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(attr, typedValue, true);
-        if (typedValue.resourceId != 0) {
-            return ContextCompat.getColor(this, typedValue.resourceId);
-        } else {
-            return typedValue.data;
-        }
-    }
-
-    @Override
-    public Map<Integer, Object>[] onNavigationButtonClicked(int whichButton, Calendar newMonth) {
-        Map<Integer, Object>[] arr = new Map[2];
-        List<Integer> integers;
-
-//        count++;
-
-//        mInterstitialAd = new InterstitialAd(MainActivity.this);
-//        mInterstitialAd.setAdUnitId("R-M-1752331-2");
-//        mInterstitialAd.setAdUnitId("R-M-2215793-2"); this one
-
-//        if (count % 3 == 0 && count != 0) {
-//            ProgressDialog progressDialog = new ProgressDialog();
-//            //AlertDialog dialog = showDialog();
-//            // Создание объекта таргетирования рекламы.
-//            progressDialog.showDialog(MainActivity.this);
-//            final AdRequest adRequest = new AdRequest.Builder().build();
-//            //swipeRefreshLayout.setRefreshing(true);
-//
-//            // Регистрация слушателя для отслеживания событий, происходящих в рекламе.
-//            mInterstitialAd.setInterstitialAdEventListener(new InterstitialAdEventListener() {
-//                @Override
-//                public void onAdLoaded() {
-//                    progressDialog.dismiss();
-//                    mInterstitialAd.show();
-//                    //swipeRefreshLayout.setRefreshing(false);
-//                }
-//
-//                @Override
-//                public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-//                    //Toast.makeText(MainActivity.this, adRequestError.getDescription().toString(), Toast.LENGTH_LONG).show();
-//                    progressDialog.dismiss();
-//                    //swipeRefreshLayout.setRefreshing(false);
-//                }
-//
-//                @Override
-//                public void onAdShown() {
-//                    //MainActivity.swipeRefreshLayout.setRefreshing(false);
-//                }
-//
-//                @Override
-//                public void onAdDismissed() {
-//                    progressDialog.dismiss();
-//                    //MainActivity.swipeRefreshLayout.setRefreshing(false);
-//                }
-//
-//                @Override
-//                public void onAdClicked() {
-//                    progressDialog.dismiss();
-//                }
-//
-//                @Override
-//                public void onLeftApplication() {
-//                    //MainActivity.swipeRefreshLayout.setRefreshing(false);
-//                }
-//
-//                @Override
-//                public void onReturnedToApplication() {
-//
-//                }
-//
-//                @Override
-//                public void onImpression(@Nullable ImpressionData impressionData) {
-//
-//                }
-//            });
-//
-//            // Загрузка объявления.
-//            mInterstitialAd.loadAd(adRequest);
-//        }
-
-        if (newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-            arr[0] = new HashMap<>();
-            integers = months.get(newMonth.get(Calendar.MONTH));
-
-            for (int i = 0; i < integers.size(); i++) {
-                int index = integers.get(i);
-
-                int date = i + 1;
-
-                switch (index) {
-                    case 1:
-                        arr[0].put(date, "holiday");
-                        break;
-                    case 2:
-                        arr[0].put(date, "short");
-                        break;
-                    case 4:
-                        arr[0].put(date, "covid");
-                        break;
-                    default:
-                        arr[0].put(date, "default");
-                        break;
-                }
-            }
-            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-            }
-            arr[1] = null;
-        }
-        if (newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) + 1) {
-            arr[0] = new HashMap<>();
-            integers = monthsFuture.get(newMonth.get(Calendar.MONTH));
-
-            for (int i = 0; i < integers.size(); i++) {
-                int index = integers.get(i);
-
-                int date = i + 1;
-
-                switch (index) {
-                    case 1:
-                        arr[0].put(date, "holiday");
-                        break;
-                    case 2:
-                        arr[0].put(date, "short");
-                        break;
-                    case 4:
-                        arr[0].put(date, "covid");
-                        break;
-                    default:
-                        arr[0].put(date, "default");
-                        break;
-                }
-            }
-            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-            }
-            arr[1] = null;
-        }
-        if (newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) - 1) {
-            arr[0] = new HashMap<>();
-            integers = monthsPast.get(newMonth.get(Calendar.MONTH));
-
-            for (int i = 0; i < integers.size(); i++) {
-                int index = integers.get(i);
-
-                int date = i + 1;
-
-                switch (index) {
-                    case 1:
-                        arr[0].put(date, "holiday");
-                        break;
-                    case 2:
-                        arr[0].put(date, "short");
-                        break;
-                    case 4:
-                        arr[0].put(date, "covid");
-                        break;
-                    default:
-                        arr[0].put(date, "default");
-                        break;
-                }
-            }
-            if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-            }
-            arr[1] = null;
-        }
-
+    @Nullable
+    private static LocalDate parseDate(@Nullable String value) {
+        if (value == null) return null;
         try {
-//            if (b) {
-            switch (newMonth.get(Calendar.MONTH)) {
-                case Calendar.JANUARY:
-                    arr[0].put(1, "holiday");
-                    arr[0].put(2, "holiday");
-                    arr[0].put(3, "holiday");
-                    arr[0].put(4, "holiday");
-                    arr[0].put(5, "holiday");
-                    arr[0].put(6, "holiday");
-                    arr[0].put(7, "holiday");
-                    arr[0].put(8, "holiday");
-                    arr[0].put(12, "prof");//День работника прокураторы
-                    arr[0].put(13, "mDate");//День печати
-                    arr[0].put(14, "not official holiday");//Старый Новый год
-                    arr[0].put(21, "mDate");//День памяти инженерных войск
-                    arr[0].put(27, "mDate");//День снятия блокады города Ленинград
-                    arr[0].put(25, "not official holiday");//Татьянин день(День студента)
-                    arr[1] = null;
-                    break;
-                case Calendar.FEBRUARY:
-                    arr[0].put(8, "prof");//День стоматолога
-                    arr[0].put(9, "prof");//День работника гражданской авиации
-                    arr[0].put(10, "prof");//День дипломатического работника
-                    arr[0].put(14, "not official holiday");//День святого Валентина
-                    arr[0].put(15, "mDate");//День памяти воинов-интернационалистов
-                    arr[0].put(23, "holiday");
-//                    arr[0].put(24, "svo");
-                    arr[0].put(27, "prof");//День Сил специальных операций
-                    arr[1] = null;
-                    break;
-                case Calendar.MARCH:
-                    arr[0].put(8, "holiday");
-                    arr[0].put(9, "prof");
-                    arr[0].put(11, "prof");//День работников органов наркоконтроля
-                    arr[0].put(12, "prof");//День работников уголовно-исполнительной системы
-                    arr[0].put(14, "prof");//День работника геодезиста
-                    arr[0].put(18, "not official holiday"); //День воссоединения Крыма с Россией
-                    arr[0].put(19, "prof");//День моряка-подводника
-                    arr[0].put(27, "prof");//День нац гвардии России
-                    arr[0].put(29, "prof");//День специаличста юридической службы
-                    arr[1] = null;
-                    break;
-                case Calendar.APRIL:
-                    arr[0].put(1, "not official holiday");
-                    arr[0].put(2, "not official holiday");//День единения народов
-                    arr[0].put(4, "prof");//День геолога
-                    arr[0].put(8, "prof");//День сотрудников военных коммиссариатов
-                    arr[0].put(12, "mDate");//День космонавтики
-                    arr[0].put(26, "mDate");//День памяти погибших в радиационных авариях и катострофах
-                    arr[0].put(27, "mDate");//День российского парламентаризма
-                    arr[0].put(28, "prof");//День работника скорой медицинской помощи
-                    arr[0].put(30, "prof");//День пожарной охраны
-                    arr[1] = null;
-                    break;
-                case Calendar.MAY:
-                    arr[0].put(1, "holiday");
-                    arr[0].put(7, "prof");//День работников связи
-                    arr[0].put(9, "holiday");
-                    arr[0].put(20, "prof");//Всемирный день метрологии
-                    arr[0].put(21, "prof");//День полярника
-                    arr[0].put(24, "prof");//День кадровика
-                    arr[0].put(25, "prof");//День филолога
-                    arr[0].put(26, "prof");//День российского предпринимательства
-                    arr[0].put(27, "prof");//Общероссийский день библиотек
-                    arr[0].put(28, "prof");//День пограничника
-                    arr[0].put(29, "prof");//День Химика
-                    arr[0].put(31, "prof");//День российской адвокатуры
-                    arr[1] = null;
-                    break;
-                case Calendar.JUNE:
-                    arr[0].put(1, "not official holiday");
-                    arr[0].put(2, "mDate");
-                    arr[0].put(5, "prof");
-                    arr[0].put(6, "not official holiday");
-                    arr[0].put(8, "prof");
-                    arr[0].put(12, "holiday");
-                    arr[0].put(14, "prof");
-                    arr[0].put(20, "prof");
-                    arr[0].put(22, "mDate");
-                    arr[0].put(26, "prof");
-                    arr[0].put(27, "not official holiday");
-                    arr[0].put(30, "prof");
-                    arr[1] = null;
-                    break;
-                case Calendar.JULY:
-                    arr[0].put(3, "prof");
-                    arr[0].put(4, "prof");
-                    arr[0].put(8, "not official holiday");
-                    arr[0].put(11, "prof");
-                    arr[0].put(17, "prof");
-                    arr[0].put(18, "prof");
-                    arr[0].put(25, "prof");
-                    arr[0].put(28, "mDate");
-                    arr[0].put(30, "prof");
-                    arr[1] = null;
-                    break;
-                case Calendar.AUGUST:
-                    arr[0].put(2, "mDate");
-                    arr[0].put(6, "prof");
-                    arr[0].put(8, "prof");
-                    arr[0].put(12, "mDate");
-                    arr[0].put(15, "prof");
-                    arr[0].put(18, "prof");
-                    arr[0].put(22, "not official holiday");
-                    arr[0].put(27, "prof");
-                    arr[0].put(29, "prof");
-                    arr[0].put(31, "prof");
-                    arr[1] = null;
-                    break;
-                case Calendar.SEPTEMBER:
-                    arr[0].put(1, "not official holiday");
-                    arr[0].put(3, "mDate");
-                    arr[0].put(4, "mDate");
-                    arr[0].put(5, "prof");
-                    arr[0].put(8, "prof");
-                    arr[0].put(9, "prof");
-                    arr[0].put(12, "prof");
-                    arr[0].put(13, "prof");
-                    arr[0].put(19, "prof");
-                    arr[0].put(24, "prof");
-                    arr[0].put(26, "prof");
-                    arr[0].put(27, "not official holiday");
-                    arr[0].put(28, "prof");
-//                    arr[0].put(30, "svo");
-                    arr[1] = null;
-                    break;
-                case Calendar.OCTOBER:
-                    arr[0].put(1, "not official holiday");
-                    arr[0].put(4, "mDate");
-                    arr[0].put(5, "prof");
-                    arr[0].put(6, "prof");
-                    arr[0].put(16, "not official holiday");//День отца
-                    arr[0].put(20, "prof");
-                    arr[0].put(23, "prof");
-                    arr[0].put(24, "mDate");
-                    arr[0].put(25, "prof");
-                    arr[0].put(29, "prof");
-                    arr[0].put(30, "mDate");
-                    arr[0].put(31, "prof");
-                    arr[1] = null;
-                    break;
-                case Calendar.NOVEMBER:
-                    arr[0].put(1, "prof");
-                    arr[0].put(4, "holiday");
-                    arr[0].put(5, "prof");
-                    arr[0].put(7, "mDate");
-                    arr[0].put(9, "prof");
-                    arr[0].put(10, "prof");
-                    arr[0].put(11, "prof");
-                    arr[0].put(13, "mDate");
-                    arr[0].put(14, "prof");
-                    arr[0].put(21, "prof");
-                    arr[0].put(22, "prof");
-                    arr[0].put(27, "not official holiday"); //День матери
-                    arr[0].put(30, "not official holiday");
-                    arr[1] = null;
-                    break;
-                case Calendar.DECEMBER:
-                    arr[0].put(3, "mDate");
-                    arr[0].put(5, "prof");
-                    arr[0].put(9, "mDate");
-                    arr[0].put(12, "mDate");
-                    arr[0].put(18, "prof");
-                    arr[0].put(20, "prof");
-                    arr[0].put(22, "prof");
-                    arr[0].put(27, "prof");
-                    arr[1] = null;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + newMonth.get(Calendar.MONTH));
-            }
-//            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (newMonth.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) && newMonth.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-            arr[0].put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-        }
-
-        return arr;
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class ExtraData extends AsyncTask<String, String, String> {
-        private int month = 0;
-        private int year = 0;
-
-        public ExtraData(int month, int year) {
-            this.month = month;
-            this.year = year;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            myCustomCalendar.setVisibility(View.INVISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            HttpURLConnection httpURLConnection = null;
-            BufferedReader bufferedReader = null;
-
-            try {
-                URL url = new URL(strings[0]);
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.connect();
-
-                InputStream inputStream = httpURLConnection.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                StringBuilder stringBuilder = new StringBuilder();
-                String line = "*";
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                String resultData = stringBuilder.toString();
-
-                //Convert data
-                StringReader stringReader = new StringReader(resultData);
-                StringBuilder builder = new StringBuilder();
-                int charsRead = -1;
-                char[] chars = new char[35];
-                do {
-                    charsRead = stringReader.read(chars, 0, chars.length);
-                    if (charsRead > 0) {
-                        builder.append(chars, 0, charsRead);
-                    }
-                } while (charsRead > 0);
-                resultData = builder.toString();
-                return resultData;
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (httpURLConnection != null)
-                    httpURLConnection.disconnect();
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException e) {
             return null;
         }
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            List<String> strings = new ArrayList<>();
-
-            try {
-
-                char[] chars = result.toCharArray();
-                String[] strs = new String[chars.length];
-
-                int l = chars.length;
-
-                for (int i = 0; i < l; i++) {
-                    strs[i] = String.valueOf(chars[i]);
-                }
-
-                strings.addAll(Arrays.asList(strs));
-            } catch (Exception e) {
-                e.printStackTrace();
-//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
-            }
-
-            runOnUiThread(new Runnable() {
-                @SuppressLint("SuspiciousIndentation")
-                @Override
-                public void run() {
-                    myCustomCalendar.setVisibility(View.INVISIBLE);
-
-                    for (int i = 0; i < strings.size(); i++) {
-                        int index = Integer.parseInt(strings.get(i));
-
-                        int date = i + 1;
-
-                        switch (index) {
-                            case 1:
-                                mapDateToDesc.put(date, "holiday");
-                                break;
-                            case 2:
-                                mapDateToDesc.put(date, "short");
-                                break;
-                            case 4:
-                                mapDateToDesc.put(date, "covid");
-                                break;
-                            default:
-                                mapDateToDesc.put(date, "default");
-                                break;
-                        }
-                    }
-
-                    if (year == calendar.get(Calendar.YEAR) && month == calendar.get(Calendar.MONTH))
-                        mapDateToDesc.put(calendar.get(Calendar.DAY_OF_MONTH), "current");
-
-//                    if (b) {
-                    switch (calendar.get(Calendar.MONTH)) {
-                        case Calendar.JANUARY:
-                            mapDateToDesc.put(1, "holiday");
-                            mapDateToDesc.put(2, "holiday");
-                            mapDateToDesc.put(3, "holiday");
-                            mapDateToDesc.put(4, "holiday");
-                            mapDateToDesc.put(5, "holiday");
-                            mapDateToDesc.put(6, "holiday");
-                            mapDateToDesc.put(7, "holiday");
-                            mapDateToDesc.put(8, "holiday");
-                            mapDateToDesc.put(12, "prof");//День работника прокураторы
-                            mapDateToDesc.put(13, "mDate");//День печати
-                            mapDateToDesc.put(14, "not official holiday");//Старый Новый год
-                            mapDateToDesc.put(21, "mDate");//День памяти инженерных войск
-                            mapDateToDesc.put(27, "mDate");//День снятия блокады города Ленинград
-                            mapDateToDesc.put(25, "not official holiday");//Татьянин день(День студента)
-                            break;
-                        case Calendar.FEBRUARY:
-                            mapDateToDesc.put(8, "prof");//День стоматолога
-                            mapDateToDesc.put(9, "prof");//День работника гражданской авиации
-                            mapDateToDesc.put(10, "prof");//День дипломатического работника
-                            mapDateToDesc.put(14, "not official holiday");//День святого Валентина
-                            mapDateToDesc.put(15, "mDate");//День памяти воинов-интернационалистов
-                            mapDateToDesc.put(23, "holiday");
-//                            mapDateToDesc.put(24, "svo"); //Начало СВО
-                            mapDateToDesc.put(27, "prof");//День Сил специальных операций
-                            break;
-                        case Calendar.MARCH:
-                            mapDateToDesc.put(8, "holiday");
-                            mapDateToDesc.put(9, "prof");
-                            mapDateToDesc.put(11, "prof");//День работников органов наркоконтроля
-                            mapDateToDesc.put(12, "prof");//День работников уголовно-исполнительной системы
-                            mapDateToDesc.put(14, "prof");//День работника геодезиста
-                            mapDateToDesc.put(18, "not official holiday");
-                            mapDateToDesc.put(19, "prof");//День моряка-подводника
-                            mapDateToDesc.put(27, "prof");//День нац гвардии России
-                            mapDateToDesc.put(29, "prof");//День специаличста юридической службы
-                            break;
-                        case Calendar.APRIL:
-                            mapDateToDesc.put(1, "not official holiday");
-                            mapDateToDesc.put(2, "not official holiday");//День единения народов
-                            mapDateToDesc.put(4, "prof");//День геолога
-                            mapDateToDesc.put(8, "prof");//День сотрудников военных коммиссариатов
-                            mapDateToDesc.put(12, "mDate");//День космонавтики
-                            mapDateToDesc.put(26, "mDate");//День памяти погибших в радиационных авариях и катострофах
-                            mapDateToDesc.put(27, "mDate");//День российского парламентаризма
-                            mapDateToDesc.put(28, "prof");//День работника скорой медицинской помощи
-                            mapDateToDesc.put(30, "prof");//День пожарной охраны
-                            break;
-                        case Calendar.MAY:
-                            mapDateToDesc.put(1, "holiday");
-                            mapDateToDesc.put(7, "prof");//День работников связи
-                            mapDateToDesc.put(9, "holiday");
-                            mapDateToDesc.put(20, "prof");//Всемирный день метрологии
-                            mapDateToDesc.put(21, "prof");//День полярника
-                            mapDateToDesc.put(24, "prof");//День кадровика
-                            mapDateToDesc.put(25, "prof");//День филолога
-                            mapDateToDesc.put(26, "prof");//День российского предпринимательства
-                            mapDateToDesc.put(27, "prof");//Общероссийский день библиотек
-                            mapDateToDesc.put(28, "prof");//День пограничника
-                            mapDateToDesc.put(29, "prof");//День Химика
-                            mapDateToDesc.put(31, "prof");//День российской адвокатуры
-                            break;
-                        case Calendar.JUNE:
-                            mapDateToDesc.put(1, "not official holiday");
-                            mapDateToDesc.put(2, "mDate");
-                            mapDateToDesc.put(5, "prof");
-                            mapDateToDesc.put(6, "not official holiday");
-                            mapDateToDesc.put(8, "prof");
-                            mapDateToDesc.put(12, "holiday");
-                            mapDateToDesc.put(14, "prof");
-                            mapDateToDesc.put(20, "prof");
-                            mapDateToDesc.put(22, "mDate");
-                            mapDateToDesc.put(26, "prof");
-                            mapDateToDesc.put(27, "not official holiday");
-                            mapDateToDesc.put(30, "prof");
-                            break;
-                        case Calendar.JULY:
-                            mapDateToDesc.put(3, "prof");
-                            mapDateToDesc.put(4, "prof");
-                            mapDateToDesc.put(8, "not official holiday");
-                            mapDateToDesc.put(11, "prof");
-                            mapDateToDesc.put(17, "prof");
-                            mapDateToDesc.put(18, "prof");
-                            mapDateToDesc.put(25, "prof");
-                            mapDateToDesc.put(28, "mDate");
-                            mapDateToDesc.put(30, "prof");
-                            break;
-                        case Calendar.AUGUST:
-                            mapDateToDesc.put(2, "mDate");
-                            mapDateToDesc.put(6, "prof");
-                            mapDateToDesc.put(8, "prof");
-                            mapDateToDesc.put(12, "mDate");
-                            mapDateToDesc.put(15, "prof");
-                            mapDateToDesc.put(18, "prof");
-                            mapDateToDesc.put(22, "not official holiday");
-                            mapDateToDesc.put(27, "prof");
-                            mapDateToDesc.put(29, "prof");
-                            mapDateToDesc.put(31, "prof");
-                            break;
-                        case Calendar.SEPTEMBER:
-                            mapDateToDesc.put(1, "not official holiday");
-                            mapDateToDesc.put(3, "mDate");
-                            mapDateToDesc.put(4, "mDate");
-                            mapDateToDesc.put(5, "prof");
-                            mapDateToDesc.put(8, "prof");
-                            mapDateToDesc.put(9, "prof");
-                            mapDateToDesc.put(12, "prof");
-                            mapDateToDesc.put(13, "prof");
-                            mapDateToDesc.put(19, "prof");
-                            mapDateToDesc.put(24, "prof");
-                            mapDateToDesc.put(26, "prof");
-                            mapDateToDesc.put(27, "not official holiday");
-                            mapDateToDesc.put(28, "prof");
-//                            mapDateToDesc.put(30, "svo");
-                            break;
-                        case Calendar.OCTOBER:
-                            mapDateToDesc.put(1, "not official holiday");
-                            mapDateToDesc.put(4, "mDate");
-                            mapDateToDesc.put(5, "prof");
-                            mapDateToDesc.put(6, "prof");
-                            mapDateToDesc.put(16, "not official holiday");//День отца
-                            mapDateToDesc.put(20, "prof");
-                            mapDateToDesc.put(23, "prof");
-                            mapDateToDesc.put(24, "mDate");
-                            mapDateToDesc.put(25, "prof");
-                            mapDateToDesc.put(29, "prof");
-                            mapDateToDesc.put(30, "mDate");
-                            mapDateToDesc.put(31, "prof");
-                            break;
-                        case Calendar.NOVEMBER:
-                            mapDateToDesc.put(1, "prof");
-                            mapDateToDesc.put(4, "holiday");
-                            mapDateToDesc.put(5, "prof");
-                            mapDateToDesc.put(7, "mDate");
-                            mapDateToDesc.put(9, "prof");
-                            mapDateToDesc.put(10, "prof");
-                            mapDateToDesc.put(11, "prof");
-                            mapDateToDesc.put(13, "mDate");
-                            mapDateToDesc.put(14, "prof");
-                            mapDateToDesc.put(21, "prof");
-                            mapDateToDesc.put(22, "prof");
-                            mapDateToDesc.put(27, "not official holiday"); //День матери
-                            mapDateToDesc.put(30, "not official holiday");
-                            break;
-                        case Calendar.DECEMBER:
-                            mapDateToDesc.put(3, "mDate");
-                            mapDateToDesc.put(5, "prof");
-                            mapDateToDesc.put(9, "mDate");
-                            mapDateToDesc.put(12, "mDate");
-                            mapDateToDesc.put(18, "prof");
-                            mapDateToDesc.put(20, "prof");
-                            mapDateToDesc.put(22, "prof");
-                            mapDateToDesc.put(27, "prof");
-                            break;
-                        default:
-                            throw new IllegalStateException("Unexpected value: " + calendar.get(Calendar.MONTH));
-                    }
-//                    }
-
-                    myCustomCalendar.setDate(calendar, mapDateToDesc);
-                    myCustomCalendar.setVisibility(View.VISIBLE);
-                }
-            });
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private class ExtraDataCalendarClick extends AsyncTask<String, String, String> {
-        protected int year;
-
-        public ExtraDataCalendarClick(int year) {
-            this.year = year;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            HttpURLConnection httpURLConnection = null;
-            BufferedReader bufferedReader = null;
-
-            try {
-                URL url = new URL(strings[0]);
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.connect();
-
-                InputStream inputStream = httpURLConnection.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                StringBuilder stringBuilder = new StringBuilder();
-                String line = "*";
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                String resultData = stringBuilder.toString();
-
-                //Convert data
-                StringReader stringReader = new StringReader(resultData);
-                StringBuilder builder = new StringBuilder();
-                int charsRead = -1;
-                char[] chars = new char[370];
-                do {
-                    charsRead = stringReader.read(chars, 0, chars.length);
-                    if (charsRead > 0) {
-                        builder.append(chars, 0, charsRead);
-                    }
-                } while (charsRead > 0);
-                resultData = builder.toString();
-                return resultData;
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (httpURLConnection != null)
-                    httpURLConnection.disconnect();
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            List<String> strings = new ArrayList<>();
-            try {
-                char[] chars = result.toCharArray();
-                String[] strs = new String[chars.length];
-
-                int l = chars.length;
-
-                for (int i = 0; i < l; i++) {
-                    strs[i] = String.valueOf(chars[i]);
-                }
-
-                strings.addAll(Arrays.asList(strs));
-            } catch (Exception e) {
-                e.printStackTrace();
-//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
-            }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    extraCalendar.set(Calendar.YEAR, year);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JANUARY);
-                    int max0 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.FEBRUARY);
-                    int max1 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.MARCH);
-                    int max2 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.APRIL);
-                    int max3 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.MAY);
-                    int max4 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JUNE);
-                    int max5 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JULY);
-                    int max6 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.AUGUST);
-                    int max7 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.SEPTEMBER);
-                    int max8 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.OCTOBER);
-                    int max9 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.NOVEMBER);
-                    int max10 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.DECEMBER);
-                    int max11 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    if (isLeapYear(extraCalendar.get(Calendar.YEAR)))
-                        max1 = 29;
-                    else
-                        max1 = 28;
-
-                    int[] ints = new int[]{max0, max1, max2, max3, max4, max5, max6, max7, max8, max9, max10, max11};
-
-                    januaryList = new ArrayList<>();
-                    februaryList = new ArrayList<>();
-                    marchList = new ArrayList<>();
-                    aprilList = new ArrayList<>();
-                    mayList = new ArrayList<>();
-                    juneList = new ArrayList<>();
-                    julyList = new ArrayList<>();
-                    augustList = new ArrayList<>();
-                    septemberList = new ArrayList<>();
-                    octoberList = new ArrayList<>();
-                    novemberList = new ArrayList<>();
-                    decemberList = new ArrayList<>();
-
-                    months = new ArrayList<>();
-
-                    months.add(januaryList);
-                    months.add(februaryList);
-                    months.add(marchList);
-                    months.add(aprilList);
-                    months.add(mayList);
-                    months.add(juneList);
-                    months.add(julyList);
-                    months.add(augustList);
-                    months.add(septemberList);
-                    months.add(octoberList);
-                    months.add(novemberList);
-                    months.add(decemberList);
-
-                    int sum = 0;
-                    int finish = ints[0];
-
-                    for (int i = 0; i <= 11; i++) {
-                        List<Integer> integers = months.get(i);
-                        for (int j = sum; j < finish; j++) {
-                            try {
-                                integers.add(Integer.parseInt(strings.get(j)));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        sum = sum + ints[i];
-
-                        if (i != 11)
-                            finish = finish + ints[i + 1];
-                    }
-                }
-            });
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class ExtraDataCalendarClickFuture extends AsyncTask<String, String, String> {
-        protected int year;
-
-        public ExtraDataCalendarClickFuture(int year) {
-            this.year = year;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            HttpURLConnection httpURLConnection = null;
-            BufferedReader bufferedReader = null;
-
-            try {
-                URL url = new URL(strings[0]);
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.connect();
-
-                InputStream inputStream = httpURLConnection.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                StringBuilder stringBuilder = new StringBuilder();
-                String line = "*";
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                String resultData = stringBuilder.toString();
-
-                //Convert data
-                StringReader stringReader = new StringReader(resultData);
-                StringBuilder builder = new StringBuilder();
-                int charsRead = -1;
-                char[] chars = new char[370];
-                do {
-                    charsRead = stringReader.read(chars, 0, chars.length);
-                    if (charsRead > 0) {
-                        builder.append(chars, 0, charsRead);
-                    }
-                } while (charsRead > 0);
-                resultData = builder.toString();
-                return resultData;
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (httpURLConnection != null)
-                    httpURLConnection.disconnect();
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            List<String> strings = new ArrayList<>();
-
-            try {
-                char[] chars = result.toCharArray();
-                String[] strs = new String[chars.length];
-
-                int l = chars.length;
-
-                for (int i = 0; i < l; i++) {
-                    strs[i] = String.valueOf(chars[i]);
-                }
-
-                strings.addAll(Arrays.asList(strs));
-            } catch (Exception e) {
-                e.printStackTrace();
-//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
-            }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    extraCalendar.set(Calendar.YEAR, year);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JANUARY);
-                    int max0 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.FEBRUARY);
-                    int max1 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.MARCH);
-                    int max2 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.APRIL);
-                    int max3 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.MAY);
-                    int max4 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JUNE);
-                    int max5 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JULY);
-                    int max6 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.AUGUST);
-                    int max7 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.SEPTEMBER);
-                    int max8 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.OCTOBER);
-                    int max9 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.NOVEMBER);
-                    int max10 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.DECEMBER);
-                    int max11 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    if (isLeapYear(extraCalendar.get(Calendar.YEAR)))
-                        max1 = 29;
-                    else
-                        max1 = 28;
-
-                    int[] ints = new int[]{max0, max1, max2, max3, max4, max5, max6, max7, max8, max9, max10, max11};
-
-                    januaryListFuture = new ArrayList<>();
-                    februaryListFuture = new ArrayList<>();
-                    marchListFuture = new ArrayList<>();
-                    aprilListFuture = new ArrayList<>();
-                    mayListFuture = new ArrayList<>();
-                    juneListFuture = new ArrayList<>();
-                    julyListFuture = new ArrayList<>();
-                    augustListFuture = new ArrayList<>();
-                    septemberListFuture = new ArrayList<>();
-                    octoberListFuture = new ArrayList<>();
-                    novemberListFuture = new ArrayList<>();
-                    decemberListFuture = new ArrayList<>();
-
-                    monthsFuture = new ArrayList<>();
-
-                    monthsFuture.add(januaryListFuture);
-                    monthsFuture.add(februaryListFuture);
-                    monthsFuture.add(marchListFuture);
-                    monthsFuture.add(aprilListFuture);
-                    monthsFuture.add(mayListFuture);
-                    monthsFuture.add(juneListFuture);
-                    monthsFuture.add(julyListFuture);
-                    monthsFuture.add(augustListFuture);
-                    monthsFuture.add(septemberListFuture);
-                    monthsFuture.add(octoberListFuture);
-                    monthsFuture.add(novemberListFuture);
-                    monthsFuture.add(decemberListFuture);
-
-                    int sum = 0;
-                    int finish = ints[0];
-
-                    for (int i = 0; i < 12; i++) {
-                        List<Integer> integers = monthsFuture.get(i);
-                        for (int j = sum; j < finish; j++) {
-                            try {
-                                integers.add(Integer.parseInt(strings.get(j)));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        sum = sum + ints[i];
-                        if (i != 11)
-                            finish = finish + ints[i + 1];
-                    }
-                }
-            });
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class ExtraDataCalendarClickPast extends AsyncTask<String, String, String> {
-        protected int year;
-
-        public ExtraDataCalendarClickPast(int year) {
-            this.year = year;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            HttpURLConnection httpURLConnection = null;
-            BufferedReader bufferedReader = null;
-
-            try {
-                URL url = new URL(strings[0]);
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.connect();
-
-                InputStream inputStream = httpURLConnection.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                StringBuilder stringBuilder = new StringBuilder();
-                String line = "*";
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                String resultData = stringBuilder.toString();
-
-                //Convert data
-                StringReader stringReader = new StringReader(resultData);
-                StringBuilder builder = new StringBuilder();
-                int charsRead = -1;
-                char[] chars = new char[370];
-                do {
-                    charsRead = stringReader.read(chars, 0, chars.length);
-                    if (charsRead > 0) {
-                        builder.append(chars, 0, charsRead);
-                    }
-                } while (charsRead > 0);
-                resultData = builder.toString();
-                return resultData;
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (httpURLConnection != null)
-                    httpURLConnection.disconnect();
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            List<String> strings = new ArrayList<>();
-
-            try {
-                char[] chars = result.toCharArray();
-                String[] strs = new String[chars.length];
-
-                int l = chars.length;
-
-                for (int i = 0; i < l; i++) {
-                    strs[i] = String.valueOf(chars[i]);
-                }
-
-                strings.addAll(Arrays.asList(strs));
-            } catch (Exception e) {
-                e.printStackTrace();
-//                Toast.makeText(MainActivity.this, "Ошибка загрузки событий.", Toast.LENGTH_SHORT).show();
-            }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    extraCalendar.set(Calendar.YEAR, year);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JANUARY);
-                    int max0 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.FEBRUARY);
-                    int max1 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.MARCH);
-                    int max2 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.APRIL);
-                    int max3 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.MAY);
-                    int max4 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JUNE);
-                    int max5 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.JULY);
-                    int max6 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.AUGUST);
-                    int max7 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.SEPTEMBER);
-                    int max8 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.OCTOBER);
-                    int max9 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.NOVEMBER);
-                    int max10 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    extraCalendar.set(Calendar.MONTH, Calendar.DECEMBER);
-                    int max11 = extraCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    if (isLeapYear(extraCalendar.get(Calendar.YEAR)))
-                        max1 = 29;
-                    else
-                        max1 = 28;
-
-                    int[] ints = new int[]{max0, max1, max2, max3, max4, max5, max6, max7, max8, max9, max10, max11};
-
-                    januaryListPast = new ArrayList<>();
-                    februaryListPast = new ArrayList<>();
-                    marchListPast = new ArrayList<>();
-                    aprilListPast = new ArrayList<>();
-                    mayListPast = new ArrayList<>();
-                    juneListPast = new ArrayList<>();
-                    julyListPast = new ArrayList<>();
-                    augustListPast = new ArrayList<>();
-                    septemberListPast = new ArrayList<>();
-                    octoberListPast = new ArrayList<>();
-                    novemberListPast = new ArrayList<>();
-                    decemberListPast = new ArrayList<>();
-
-                    monthsPast = new ArrayList<>();
-
-                    monthsPast.add(januaryListPast);
-                    monthsPast.add(februaryListPast);
-                    monthsPast.add(marchListPast);
-                    monthsPast.add(aprilListPast);
-                    monthsPast.add(mayListPast);
-                    monthsPast.add(juneListPast);
-                    monthsPast.add(julyListPast);
-                    monthsPast.add(augustListPast);
-                    monthsPast.add(septemberListPast);
-                    monthsPast.add(octoberListPast);
-                    monthsPast.add(novemberListPast);
-                    monthsPast.add(decemberListPast);
-
-                    int sum = 0;
-                    int finish = ints[0];
-
-                    for (int i = 0; i < 12; i++) {
-                        List<Integer> integers = monthsPast.get(i);
-                        for (int j = sum; j < finish; j++) {
-                            try {
-                                integers.add(Integer.parseInt(strings.get(j)));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        sum = sum + ints[i];
-                        if (i != 11)
-                            finish = finish + ints[i + 1];
-                    }
-                }
-            });
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-    }
-
-    public static class Link {
-        public String buildLink(int year, int month, String cc, int pre, int covid, int sd) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder
-                    .append("https://isdayoff.ru/api/getdata?year=")
-                    .append(year)
-                    .append("&month=")
-                    .append(month)
-                    .append("&cc=")
-                    .append(cc.toLowerCase(Locale.ROOT))
-                    .append("&pre=[")
-                    .append(pre)
-                    .append("]delimeter=%0A&covid=[")
-                    .append(covid)
-                    .append("]&sd=[")
-                    .append(sd)
-                    .append("]");
-            return stringBuilder.toString();
-        }
-
-        public String buildYearLink(int year, String cc, int pre, int covid, int sd) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder
-                    .append("https://isdayoff.ru/api/getdata?year=")
-                    .append(year)
-                    .append("&cc=")
-                    .append(cc.toLowerCase(Locale.ROOT))
-                    .append("&pre=[")
-                    .append(pre)
-                    .append("]delimeter=%0A&covid=[")
-                    .append(covid)
-                    .append("]&sd=[")
-                    .append(sd)
-                    .append("]");
-            return stringBuilder.toString();
-        }
-    }
-
-    public static int getAttrColor(Context context, int attr) {
-        TypedValue typedValue = new TypedValue();
-        context.getTheme().resolveAttribute(attr, typedValue, true);
-        return typedValue.data;
-    }
-
-    public static boolean isLeapYear(int year) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, year);
-        return cal.getActualMaximum(Calendar.DAY_OF_YEAR) > 365;
-    }
-
-    private void loadVkId() {
-        adView.setAdSize(MyTargetView.AdSize.ADSIZE_320x50);
-        adView.setListener(new MyTargetView.MyTargetViewListener() {
-            @Override
-            public void onLoad(@NonNull MyTargetView myTargetView) {
-                Log.d("[myTarget]", "onLoad");
-                rsyBannerShow(false);
-                vkBannerShow(true);
-
-                mFirebaseAnalytics.logEvent("VK_BANNER_LOADED", null);
-            }
-
-            @Override
-            public void onNoAd(@NonNull IAdLoadingError iAdLoadingError, @NonNull MyTargetView myTargetView) {
-                Log.d("[myTarget]", "onNoAd");
-                loadRSYAds();
-            }
-
-            @Override
-            public void onShow(@NonNull MyTargetView myTargetView) {
-                Log.d("[myTarget]", "onShow");
-            }
-
-            @Override
-            public void onClick(@NonNull MyTargetView myTargetView) {
-                Log.d("[myTarget]", "onClick");
-            }
-        });
-        adView.load();
-    }
-
-    private void loadRSYAds() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int screenWidth = displayMetrics.widthPixels;
-        int screenHeight = displayMetrics.heightPixels;
-
-        double screenInches = Math.sqrt(Math.pow(screenWidth / displayMetrics.xdpi, 2) +
-                Math.pow(screenHeight / displayMetrics.ydpi, 2));
-
-        int bannerHeight;
-        if (screenInches >= TABLET_SCREEN_SIZE_THRESHOLD) {
-            bannerHeight = (int) (screenHeight * 0.08);
-        } else {
-            bannerHeight = (int) (screenHeight * 0.036);
-        }
-
-        mBannerAdView.setAdSize(BannerAdSize.inline(this, screenWidth, bannerHeight));
-
-        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
-        mBannerAdView.setBannerAdEventListener(new BannerAdEventListener() {
-            @Override
-            public void onAdLoaded() {
-                rsyBannerShow(true);
-                vkBannerShow(false);
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-                loadVkId();
-            }
-
-            @Override
-            public void onAdClicked() {
-            }
-
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
-            }
-        });
-
-        mBannerAdView.loadAd(new AdRequest.Builder(AdsConfig.BANNER_MAIN_SCREEN_AD).build());
-    }
-
-    private void rsyBannerShow(boolean isShow) {
-        if (isShow) {
-            mBannerAdView.setVisibility(View.VISIBLE);
-        } else {
-            mBannerAdView.setVisibility(View.GONE);
-        }
-    }
-
-    private void vkBannerShow(boolean isShow) {
-        if (isShow) {
-            adView.setVisibility(View.VISIBLE);
-        } else {
-            adView.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        clearAppOpenAd();
-    }
-
-    private void showAppOpenAd() {
-        if (mAppOpenAd != null) {
-            mAppOpenAd.show(MainActivity.this);
-        }
-    }
-
-    private void clearAppOpenAd() {
-        if (mAppOpenAd != null) {
-            mAppOpenAd.setAdEventListener(null);
-            mAppOpenAd = null;
-        }
-    }
-
-    private void askNotificationPermission() {
-        // Разрешение POST_NOTIFICATIONS требуется только для Android 13 (API 33) и выше
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                    PackageManager.PERMISSION_GRANTED) {
-                // Разрешение уже выдано ранее
-                Log.d("Permissions", "Уведомления уже разрешены");
-            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // Пользователь ранее отклонял запрос.
-                // Здесь можно показать кастомный диалог с объяснением, зачем вашему календарю уведомления,
-                // а затем снова запросить разрешение:
-                // requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
-
-                // В простом варианте запрашиваем сразу:
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
-            } else {
-                // Запрашиваем разрешение впервые
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
-            }
-        }
+    /** rucalendar://day?date=2026-11-04&id=1104-1 — уведомление и виджеты открывают карточку дня. */
+    private void openDayFromLink(Uri data) {
+        LocalDate date = parseDate(data.getQueryParameter("date"));
+        if (date == null) return;
+        selectTab(TAB_MONTH, false);
+        MonthFragment month = month();
+        if (month != null) month.showDateWhenReady(date);
+        DaySheetFragment.show(getSupportFragmentManager(), date, data.getQueryParameter("id"));
     }
 }

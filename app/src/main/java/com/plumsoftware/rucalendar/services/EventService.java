@@ -17,19 +17,15 @@ import androidx.core.app.NotificationCompat;
 
 import com.plumsoftware.rucalendar.R;
 import com.plumsoftware.rucalendar.activities.MainActivity;
-import com.plumsoftware.rucalendar.events.CelebrationItem;
-import com.plumsoftware.rucalendar.events.Celebrations;
+import com.plumsoftware.rucalendar.data.Holiday;
+import com.plumsoftware.rucalendar.data.HolidayRepository;
 
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.List;
 
 public class EventService extends Service {
     private final static int INTERVAL = 6 * 60 * 60 * 1000; // интервал, через который сервис выполняет задачу
 //    private final static int INTERVAL = 5000; // интервал, через который сервис выполняет задачу
-
-    private List<CelebrationItem> celebrations = new ArrayList<>();
-    private Calendar calendar = Calendar.getInstance();
 
     private Handler mHandler = new Handler();
 
@@ -58,28 +54,6 @@ public class EventService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        region::Get data
-//        celebrations.clear();
-//        Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-//
-//        String name1 = "";
-//        String descS1 = "";
-//        String color = "";
-//        long timeInMillis = calendar.getTimeInMillis();
-//
-//        try {
-//            String[] split = celebrationsClass.getDescription().split("~del");
-//            for (String s : split) {
-//                name1 = s.split("~")[0];
-//                descS1 = s.split("~")[1];
-//                color = "#F57F17";
-//                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-//            }
-//        } catch (IndexOutOfBoundsException e) {
-//            e.printStackTrace();
-//        }
-////        endregion
-//        if (celebrations.size() != 0) {
         Intent i = new Intent(this, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
@@ -107,34 +81,16 @@ public class EventService extends Service {
     }
 
     private void sendNotification() {
-        celebrations.clear();
-        Celebrations celebrationsClass = new Celebrations(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        List<Holiday> celebrations = HolidayRepository.get(this).on(LocalDate.now());
 
-        String name1 = "";
-        String descS1 = "";
-        String color = "";
-        long timeInMillis = calendar.getTimeInMillis();
-
-        try {
-            String[] split = celebrationsClass.getDescription().split("~del");
-            for (String s : split) {
-                name1 = s.split("~")[0];
-                descS1 = s.split("~")[1];
-                color = "#F57F17";
-                celebrations.add(new CelebrationItem(name1, descS1, color, timeInMillis));
-            }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-        }
-
-        if (celebrations.size() != 0) {
+        if (!celebrations.isEmpty()) {
             // Create notification builder
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "com.plumsoftware.rucalendar.default")
                     .setSmallIcon(R.drawable.ic_round_circle_notifications)
                     .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText("Узнать подробнее про " + celebrations.get(0).getName() + " можно в приложении"))
+                            .bigText("Узнать подробнее про " + celebrations.get(0).name + " можно в приложении"))
                     .setContentTitle("\uD83D\uDD14Сегодня события (" + Integer.toString(celebrations.size()) + ")")
-                    .setContentText("Узнать подробнее про " + celebrations.get(0).getName() + " можно в приложении")
+                    .setContentText("Узнать подробнее про " + celebrations.get(0).name + " можно в приложении")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setAutoCancel(true)
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE);

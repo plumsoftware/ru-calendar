@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Блок «Напоминание» (ТЗ п. 4.3, 4.6); логика — ui/reminder/ReminderBlock -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/reminder_block"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_section"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:importantForAccessibility="no"
+            android:text="@string/reminder_title"
+            android:textAppearance="@style/TextAppearance.Calendar.SectionHeader" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/reminder_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:contentDescription="@string/reminder_title"
+            android:thumb="@drawable/switch_thumb"
+            app:switchMinWidth="52dp"
+            app:track="@drawable/switch_track" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/reminder_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical">
+
+        <!-- baselineAligned=false: на узком экране «В тот же день» переносится на 2 строки и иначе съезжает вниз -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/reminder_option_same_day"
+                style="@style/Widget.Calendar.Option"
+                android:text="@string/reminder_same_day" />
+
+            <TextView
+                android:id="@+id/reminder_option_day_before"
+                style="@style/Widget.Calendar.Option"
+                android:layout_marginStart="8dp"
+                android:text="@string/reminder_day_before" />
+
+            <TextView
+                android:id="@+id/reminder_option_week_before"
+                style="@style/Widget.Calendar.Option"
+                android:layout_marginStart="8dp"
+                android:text="@string/reminder_week_before" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_inset_block"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/reminder_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Calendar.ListItem" />
+
+                <TextView
+                    android:id="@+id/reminder_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="@style/TextAppearance.Calendar.Caption" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/reminder_time"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginStart="12dp"
+                android:background="@drawable/bg_time_button"
+                android:fontFamily="@font/unbounded_medium"
+                android:gravity="center"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:textColor="@color/ds_text_primary"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/reminder_permission_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="?attr/selectableItemBackground"
+        android:minHeight="44dp"
+        android:gravity="center_vertical"
+        android:text="@string/reminder_permission_denied"
+        android:textAppearance="@style/TextAppearance.Calendar.Body"
+        android:textColor="@color/ds_accent"
+        android:visibility="gone" />
+</LinearLayout>

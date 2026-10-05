@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Обновляется в 00:00, при смене часового пояса и после перезагрузки — см. WidgetUpdater -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_today_description"
+    android:initialLayout="@layout/widget_today"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:previewLayout="@layout/widget_today"
+    android:resizeMode="none"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

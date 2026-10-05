@@ -2,50 +2,30 @@ package com.plumsoftware.rucalendar.config;
 
 import com.plumsoftware.rucalendar.BuildConfig;
 
+/**
+ * Рекламные блоки. ID и флаги задаются в app/build.gradle: в каждом product flavor (магазине) свои ID,
+ * в debug-сборке — демо-блоки Яндекса.
+ */
 public final class AdsConfig {
-    public static String BANNER_MAIN_SCREEN_AD = "";
-    public static int BANNER_MAIN_SCREEN_AD_VK = BuildConfig.DEBUG ? 0 : 1919524;
-    public static int BANNER_EVENT_SCREEN_AD_VK = BuildConfig.DEBUG ? 0 : 1919527;
-    public static String BANNER_EVENT_SCREEN_AD = "";
-    public static String OPEN_MAIN_SCREEN_AD = "";
-    public static boolean SHOW_OPEN_MAIN_SCREEN_AD = false;
-    public static String INTERSTITIAL_AD = "";
-    public static int INTERSTITIAL_AD_VK = BuildConfig.DEBUG ? 0 : 1919530;
+    /** Баннер на главной странице — внизу «Ленты». */
+    public static final String BANNER_MAIN_SCREEN_AD = BuildConfig.AD_FEED_BANNER_ID;
+    /** Баннер внизу экрана о празднике. */
+    public static final String BANNER_EVENT_SCREEN_AD = BuildConfig.AD_EVENT_BANNER_ID;
+    /** Реклама при открытии приложения. */
+    public static final String OPEN_MAIN_SCREEN_AD = BuildConfig.AD_APP_OPEN_ID;
+    /** Межстраничная реклама: при закрытии экрана праздника и после создания своего события. */
+    public static final String INTERSTITIAL_AD = BuildConfig.AD_INTERSTITIAL_ID;
+
+    /** Флаги: false — реклама этого вида даже не загружается. */
+    public static final boolean SHOW_OPEN_MAIN_SCREEN_AD = BuildConfig.SHOW_APP_OPEN_AD;
+    public static final boolean SHOW_MAIN_SCREEN_BANNER = BuildConfig.SHOW_FEED_BANNER_AD;
+    public static final boolean SHOW_EVENT_SCREEN_BANNER = BuildConfig.SHOW_EVENT_BANNER_AD;
+
+    // VK (myTarget) — используется только старым EventActivity
+    public static final int BANNER_MAIN_SCREEN_AD_VK = BuildConfig.DEBUG ? 0 : 1919524;
+    public static final int BANNER_EVENT_SCREEN_AD_VK = BuildConfig.DEBUG ? 0 : 1919527;
+    public static final int INTERSTITIAL_AD_VK = BuildConfig.DEBUG ? 0 : 1919530;
 
     private AdsConfig() {
-    }
-
-    public static void init(int platform) {
-        SHOW_OPEN_MAIN_SCREEN_AD = BuildConfig.SHOW_OPEN_AD;
-
-        if (BuildConfig.DEBUG) {
-            BANNER_MAIN_SCREEN_AD = "";
-            BANNER_EVENT_SCREEN_AD = "";
-            OPEN_MAIN_SCREEN_AD = "";
-            INTERSTITIAL_AD = "";
-            return;
-        }
-
-        switch (platform) {
-            case MyBuildConfig.PLATFORM_HUAWEI_APP_GALLERY:
-                BANNER_MAIN_SCREEN_AD = MyBuildConfig.HUAWEI_BANNER_MAIN_SCREEN_AD;
-                BANNER_EVENT_SCREEN_AD = MyBuildConfig.HUAWEI_BANNER_EVENT_SCREEN_AD;
-                OPEN_MAIN_SCREEN_AD = MyBuildConfig.HUAWEI_OPEN_MAIN_SCREEN_AD;
-                INTERSTITIAL_AD = MyBuildConfig.HUAWEI_INTERSTITIAL_AD;
-                break;
-            case MyBuildConfig.PLATFORM_GOOGLE_PLAY:
-                BANNER_MAIN_SCREEN_AD = MyBuildConfig.GOOGLE_PLAY_BANNER_MAIN_SCREEN_AD;
-                BANNER_EVENT_SCREEN_AD = MyBuildConfig.GOOGLE_PLAY_BANNER_EVENT_SCREEN_AD;
-                OPEN_MAIN_SCREEN_AD = MyBuildConfig.GOOGLE_PLAY_OPEN_MAIN_SCREEN_AD;
-                INTERSTITIAL_AD = MyBuildConfig.GOOGLE_PLAY_INTERSTITIAL_AD;
-                break;
-            case MyBuildConfig.PLATFORM_RUSTORE:
-            default:
-                BANNER_MAIN_SCREEN_AD = MyBuildConfig.RUSTORE_BANNER_MAIN_SCREEN_AD;
-                BANNER_EVENT_SCREEN_AD = MyBuildConfig.RUSTORE_BANNER_EVENT_SCREEN_AD;
-                OPEN_MAIN_SCREEN_AD = MyBuildConfig.RUSTORE_OPEN_MAIN_SCREEN_AD;
-                INTERSTITIAL_AD = MyBuildConfig.RUSTORE_INTERSTITIAL_AD;
-                break;
-        }
     }
 }

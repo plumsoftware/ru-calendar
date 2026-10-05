@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Тема экранов редизайна. Следует системной теме: цвета берутся из values / values-night. -->
+    <style name="Theme.Calendar" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Все роли Material 3 из палитры приложения: иначе пикеры и диалоги берут стандартную фиолетовую -->
+        <item name="colorPrimary">@color/ds_text_primary</item>
+        <item name="colorOnPrimary">@color/ds_surface</item>
+        <item name="colorPrimaryContainer">@color/ds_chip_neutral_bg</item>
+        <item name="colorOnPrimaryContainer">@color/ds_text_primary</item>
+        <item name="colorPrimaryInverse">@color/ds_accent</item>
+        <item name="colorSecondary">@color/ds_text_primary</item>
+        <item name="colorOnSecondary">@color/ds_surface</item>
+        <item name="colorSecondaryContainer">@color/ds_chip_neutral_bg</item>
+        <item name="colorOnSecondaryContainer">@color/ds_text_primary</item>
+        <item name="colorTertiary">@color/ds_accent</item>
+        <item name="colorOnTertiary">@color/ds_surface</item>
+        <item name="colorTertiaryContainer">@color/ds_tab_active_bg</item>
+        <item name="colorOnTertiaryContainer">@color/ds_text_primary</item>
+        <item name="colorSurface">@color/ds_surface</item>
+        <item name="colorOnSurface">@color/ds_text_primary</item>
+        <item name="colorSurfaceVariant">@color/ds_bg_screen</item>
+        <item name="colorOnSurfaceVariant">@color/ds_text_secondary</item>
+        <item name="colorSurfaceInverse">@color/ds_text_primary</item>
+        <item name="colorOnSurfaceInverse">@color/ds_surface</item>
+        <item name="colorOutline">@color/ds_outline</item>
+        <item name="colorError">@color/ds_weekend_text</item>
+        <item name="colorAccent">@color/ds_text_primary</item>
+        <item name="android:colorAccent">@color/ds_text_primary</item>
+        <item name="colorControlActivated">@color/ds_text_primary</item>
+        <!-- Без цветного оттенка на приподнятых поверхностях (диалоги, листы) -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="android:colorBackground">@color/ds_bg_screen</item>
+        <item name="android:windowBackground">@color/ds_bg_screen</item>
+        <item name="android:textColorPrimary">@color/ds_text_primary</item>
+        <item name="android:textColorSecondary">@color/ds_text_secondary</item>
+        <item name="android:fontFamily">@font/golos_text_regular</item>
+        <item name="fontFamily">@font/golos_text_regular</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">@bool/ds_light_system_bars</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">@bool/ds_light_system_bars</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+    </style>
+
+    <!-- Типографика, п. 2.3 -->
+    <style name="TextAppearance.Calendar.ScreenTitle" parent="">
+        <item name="android:fontFamily">@font/unbounded_bold</item>
+        <item name="fontFamily">@font/unbounded_bold</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@color/ds_text_primary</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.Overline" parent="">
+        <item name="android:fontFamily">@font/unbounded_medium</item>
+        <item name="fontFamily">@font/unbounded_medium</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/ds_accent</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.CardTitleSmall" parent="">
+        <item name="android:fontFamily">@font/golos_text_bold</item>
+        <item name="fontFamily">@font/golos_text_bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/ds_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.ListItem" parent="">
+        <item name="android:fontFamily">@font/golos_text_semibold</item>
+        <item name="fontFamily">@font/golos_text_semibold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/ds_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.Body" parent="">
+        <item name="android:fontFamily">@font/golos_text_regular</item>
+        <item name="fontFamily">@font/golos_text_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/ds_text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.Caption" parent="">
+        <item name="android:fontFamily">@font/golos_text_regular</item>
+        <item name="fontFamily">@font/golos_text_regular</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/ds_text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.ChipSmall" parent="">
+        <item name="android:fontFamily">@font/golos_text_semibold</item>
+        <item name="fontFamily">@font/golos_text_semibold</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.Weekday" parent="">
+        <item name="android:fontFamily">@font/golos_text_semibold</item>
+        <item name="fontFamily">@font/golos_text_semibold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/ds_text_secondary</item>
+        <item name="android:letterSpacing">0.04</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.SectionHeader" parent="">
+        <item name="android:fontFamily">@font/golos_text_bold</item>
+        <item name="fontFamily">@font/golos_text_bold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/ds_text_secondary</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.Calendar.Button" parent="">
+        <item name="android:fontFamily">@font/golos_text_semibold</item>
+        <item name="fontFamily">@font/golos_text_semibold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Кнопка высотой 52 dp: основная тёмная капсула -->
+    <style name="Widget.Calendar.PrimaryButton" parent="">
+        <item name="android:layout_height">52dp</item>
+        <item name="android:background">@drawable/bg_button_primary</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">@style/TextAppearance.Calendar.Button</item>
+        <item name="android:textColor">@color/ds_button_primary_text</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- Контурная кнопка 52 dp -->
+    <style name="Widget.Calendar.OutlineButton" parent="Widget.Calendar.PrimaryButton">
+        <item name="android:background">@drawable/bg_button_outline</item>
+        <item name="android:textColor">@color/ds_text_primary</item>
+    </style>
+
+    <!-- Вариант упреждения напоминания -->
+    <style name="Widget.Calendar.Option" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_option</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">@font/golos_text_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/option_text</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:lineSpacingMultiplier">0.9</item>
+    </style>
+
+    <!-- Маленький чип 12 sp: «Выходной день», отсчёт -->
+    <style name="Widget.Calendar.SmallChip" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:fontFamily">@font/golos_text_semibold</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Плитка итогов года -->
+    <style name="Widget.Calendar.TotalTile" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="Widget.Calendar.TotalValue" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/unbounded_bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="Widget.Calendar.TotalLabel" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:fontFamily">@font/golos_text_regular</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Подпись поля формы -->
+    <style name="Widget.Calendar.FieldLabel" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/golos_text_semibold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/ds_text_secondary</item>
+    </style>
+
+    <!-- Круглая кнопка 44 dp в шапке -->
+    <style name="Widget.Calendar.IconButton" parent="">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:background">@drawable/bg_icon_button</item>
+        <item name="android:scaleType">center</item>
+        <item name="tint">@color/ds_text_primary</item>
+    </style>
+
+    <!-- Вкладка нижней панели: капсула 64 × 32 dp под иконкой, подпись 12 sp (п. 3) -->
+    <style name="Widget.Calendar.Tab" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.Calendar.TabIcon" parent="">
+        <item name="android:layout_width">64dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="tint">@color/ds_text_secondary</item>
+    </style>
+
+    <style name="Widget.Calendar.TabLabel" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:fontFamily">@font/golos_text_medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/ds_text_secondary</item>
+    </style>
+</resources>

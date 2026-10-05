@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Тёмная тема, колонка «Тёмная тема» ТЗ п. 2. Значения без пары в ТЗ подобраны по той же палитре. -->
+<resources>
+    <color name="ds_bg_screen">#0E1014</color>
+    <color name="ds_surface">#1B1E26</color>
+    <color name="ds_text_primary">#F2F3F5</color>
+    <color name="ds_text_secondary">#A3A9B8</color>
+    <color name="ds_divider">#2C303B</color>
+    <color name="ds_outline">#2C303B</color>
+    <color name="ds_outline_dashed">#4A5060</color>
+    <color name="ds_weekend_text">#FF8A91</color>
+    <color name="ds_outside_text">#A3A9B8</color>
+    <color name="ds_accent">#8FA2FF</color>
+    <color name="ds_tab_active_bg">#2B3354</color>
+    <color name="ds_day_selected_bg">#262A34</color>
+    <color name="ds_button_primary_bg">#F2F3F5</color>
+    <color name="ds_button_primary_text">#15171C</color>
+    <color name="ds_icon_button_bg">#1B1E26</color>
+    <color name="ds_promo_bg">#2C303B</color>
+    <color name="ds_promo_label">#A3A9B8</color>
+    <color name="ds_promo_text">#F2F3F5</color>
+    <color name="ds_rel_chip_bg">#262C45</color>
+    <color name="ds_rel_chip_text">#8FA2FF</color>
+
+    <color name="type_official">#FF6B74</color>
+    <color name="type_professional">#8FA2FF</color>
+    <color name="type_unofficial">#FFA64D</color>
+    <color name="type_memorial">#5FD39A</color>
+
+    <color name="type_official_plate">#3A2228</color>
+    <color name="type_professional_plate">#252C4A</color>
+    <color name="type_unofficial_plate">#3A2B1C</color>
+    <color name="type_memorial_plate">#1C3329</color>
+
+    <color name="ds_text_body">#D5D8DF</color>
+    <color name="ds_chip_neutral_bg">#2C303B</color>
+    <color name="ds_chip_neutral_text">#C9CDD6</color>
+    <color name="ds_chip_dayoff_bg">#3A2228</color>
+    <color name="ds_chip_dayoff_text">#FF8A91</color>
+    <color name="ds_sheet_handle">#4A5060</color>
+</resources>

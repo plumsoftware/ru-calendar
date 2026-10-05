@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ds_bg_screen">
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Нижняя панель, п. 3: высота 80 dp + системный отступ снизу, задаётся в коде -->
+    <LinearLayout
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_nav_height"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_bottom_nav"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/tab_month"
+            style="@style/Widget.Calendar.Tab">
+
+            <ImageView
+                android:id="@+id/tab_month_icon"
+                style="@style/Widget.Calendar.TabIcon"
+                android:src="@drawable/ic_calendar"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tab_month_label"
+                style="@style/Widget.Calendar.TabLabel"
+                android:text="@string/tab_month" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tab_feed"
+            style="@style/Widget.Calendar.Tab">
+
+            <ImageView
+                android:id="@+id/tab_feed_icon"
+                style="@style/Widget.Calendar.TabIcon"
+                android:src="@drawable/ic_feed"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tab_feed_label"
+                style="@style/Widget.Calendar.TabLabel"
+                android:text="@string/tab_feed" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tab_year"
+            style="@style/Widget.Calendar.Tab">
+
+            <ImageView
+                android:id="@+id/tab_year_icon"
+                style="@style/Widget.Calendar.TabIcon"
+                android:src="@drawable/ic_year"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tab_year_label"
+                style="@style/Widget.Calendar.TabLabel"
+                android:text="@string/tab_year" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- «Отрывной листок» 96 dp: полоса цвета типа, число, день недели -->
+        <LinearLayout
+            android:id="@+id/leaf"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_leaf"
+            android:gravity="center_horizontal"
+            android:importantForAccessibility="noHideDescendants"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/leaf_month"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/golos_text_bold"
+                android:gravity="center"
+                android:letterSpacing="0.08"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                tools:text="НОЯБРЬ" />
+
+            <TextView
+                android:id="@+id/leaf_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/unbounded_bold"
+                android:includeFontPadding="false"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:textColor="@color/ds_text_primary"
+                android:textSize="46sp"
+                tools:text="4" />
+
+            <TextView
+                android:id="@+id/leaf_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:textAppearance="@style/TextAppearance.Calendar.Caption"
+                tools:text="среда" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.plumsoftware.rucalendar.ui.FlowLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/chip_day_off"
+                    style="@style/Widget.Calendar.SmallChip"
+                    android:background="@drawable/bg_chip_dayoff"
+                    android:text="@string/sheet_day_off"
+                    android:textColor="@color/ds_chip_dayoff_text" />
+
+                <TextView
+                    android:id="@+id/chip_relative"
+                    style="@style/Widget.Calendar.SmallChip"
+                    android:background="@drawable/bg_chip_neutral"
+                    android:textColor="@color/ds_chip_neutral_text"
+                    tools:text="через 32 дня" />
+            </com.plumsoftware.rucalendar.ui.FlowLayout>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:accessibilityHeading="true"
+                android:fontFamily="@font/golos_text_bold"
+                android:textColor="@color/ds_text_primary"
+                android:textSize="22sp"
+                tools:targetApi="p"
+                tools:text="День народного единства" />
+
+            <TextView
+                android:id="@+id/type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.Calendar.Caption"
+                tools:text="Официальный праздник" />
+
+            <!-- Индикатор страниц, если в дне несколько событий -->
+            <LinearLayout
+                android:id="@+id/dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/golos_text_regular"
+        android:lineSpacingExtra="4sp"
+        android:maxLines="3"
+        android:textColor="@color/ds_text_body"
+        android:textSize="15sp" />
+
+    <!-- «Накануне — короткий день» -->
+    <LinearLayout
+        android:id="@+id/short_day"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_short_day_block"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/short_day_number"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/bg_short_day_number"
+            android:fontFamily="@font/golos_text_semibold"
+            android:gravity="center"
+            android:importantForAccessibility="no"
+            android:textColor="@color/ds_text_primary"
+            android:textSize="15sp"
+            tools:text="3" />
+
+        <TextView
+            android:id="@+id/short_day_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/golos_text_regular"
+            android:textColor="@color/ds_text_primary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btn_more"
+            style="@style/Widget.Calendar.PrimaryButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/sheet_more" />
+
+        <TextView
+            android:id="@+id/btn_remind"
+            style="@style/Widget.Calendar.OutlineButton"
+            android:layout_width="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:drawablePadding="8dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/sheet_remind"
+            app:drawableStartCompat="@drawable/ic_bell_20"
+            app:drawableTint="@color/ds_text_primary" />
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_button_neutral_round"
+            android:contentDescription="@string/cd_close"
+            android:padding="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_close"
+            app:tint="@color/ds_text_primary" />
+    </LinearLayout>
+</LinearLayout>

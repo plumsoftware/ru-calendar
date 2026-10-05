@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Год — производственный календарь (ТЗ п. 4.5) -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/year_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ds_bg_screen"
+    android:clipToPadding="false">
+
+    <!-- Отступы сверху и снизу добавляются в коде -->
+    <LinearLayout
+        android:id="@+id/year_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/golos_text_semibold"
+                    android:text="@string/year_overline"
+                    android:textColor="@color/ds_accent"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/year_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:accessibilityHeading="true"
+                    android:textAppearance="@style/TextAppearance.Calendar.ScreenTitle"
+                    tools:targetApi="p"
+                    tools:text="2026" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/prev_year"
+                style="@style/Widget.Calendar.IconButton"
+                android:contentDescription="@string/cd_prev_year"
+                android:src="@drawable/ic_chevron_left" />
+
+            <ImageButton
+                android:id="@+id/next_year"
+                style="@style/Widget.Calendar.IconButton"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/cd_next_year"
+                android:src="@drawable/ic_chevron_right" />
+        </LinearLayout>
+
+        <!-- Итоги года -->
+        <LinearLayout
+            android:id="@+id/totals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/total_work"
+                style="@style/Widget.Calendar.TotalTile"
+                android:background="@drawable/bg_total_dark">
+
+                <TextView
+                    android:id="@+id/total_work_value"
+                    style="@style/Widget.Calendar.TotalValue"
+                    android:textColor="#FFFFFF"
+                    tools:text="247" />
+
+                <TextView
+                    android:id="@+id/total_work_label"
+                    style="@style/Widget.Calendar.TotalLabel"
+                    android:textColor="#C9CDD6"
+                    tools:text="рабочих дней" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/total_off"
+                style="@style/Widget.Calendar.TotalTile"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_total_red">
+
+                <TextView
+                    android:id="@+id/total_off_value"
+                    style="@style/Widget.Calendar.TotalValue"
+                    android:textColor="#FFFFFF"
+                    tools:text="118" />
+
+                <TextView
+                    style="@style/Widget.Calendar.TotalLabel"
+                    android:text="@string/year_total_off"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/total_hours"
+                style="@style/Widget.Calendar.TotalTile"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_total_surface">
+
+                <TextView
+                    android:id="@+id/total_hours_value"
+                    style="@style/Widget.Calendar.TotalValue"
+                    android:textColor="@color/ds_text_primary"
+                    tools:text="1972" />
+
+                <TextView
+                    android:id="@+id/total_hours_label"
+                    style="@style/Widget.Calendar.TotalLabel"
+                    android:textColor="@color/ds_text_secondary"
+                    tools:text="часа при 40-часовой неделе" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Вместо итогов, если календарь на год ещё не утверждён -->
+        <TextView
+            android:id="@+id/not_approved"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_section"
+            android:padding="16dp"
+            android:text="@string/year_not_approved"
+            android:textAppearance="@style/TextAppearance.Calendar.Body"
+            android:visibility="gone" />
+
+        <!-- Карточка с месяцами — во всю ширину экрана, без полей 16 dp -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-16dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="-16dp"
+            android:background="@drawable/bg_card"
+            android:paddingStart="14dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="16dp">
+
+            <com.plumsoftware.rucalendar.ui.year.YearGridView
+                android:id="@+id/year_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
+
+        <com.plumsoftware.rucalendar.ui.FlowLayout
+            android:id="@+id/legend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

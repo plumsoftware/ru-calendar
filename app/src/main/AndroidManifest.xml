@@ -40,7 +40,10 @@
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Calendar"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -79,6 +82,68 @@
             android:foregroundServiceType="dataSync" />
 
         <receiver android:name="com.plumsoftware.rucalendar.services.EventNotificationScheduler" android:exported="false"/>
+
+        <receiver
+            android:name=".reminders.TimeChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".ui.event.UserEventActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Calendar"
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            tools:ignore="LockedOrientationActivity" />
+
+        <receiver
+            android:name=".widget.TodayWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_today_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_today_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeekendWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_weekend_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weekend_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeekWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_week_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_week_info" />
+        </receiver>
+
+        <activity
+            android:name=".ui.detail.HolidayActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Calendar"
+            tools:ignore="LockedOrientationActivity" />
 
         <meta-data
             android:name="com.yandex.mobile.ads.AUTOMATIC_SDK_INITIALIZATION"

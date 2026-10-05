@@ -3,10 +3,8 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://mvnrepository.com/artifacts' }
-        //noinspection JcenterRepositoryObsolete
-        jcenter()
+        maven { url = 'https://jitpack.io' }
+        maven { url = 'https://mvnrepository.com/artifacts' }
     }
 }
 dependencyResolutionManagement {
@@ -14,10 +12,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://mvnrepository.com/artifacts' }
-        //noinspection JcenterRepositoryObsolete
-        jcenter()
+        maven { url = 'https://jitpack.io' }
+        maven { url = 'https://mvnrepository.com/artifacts' }
     }
 }
 rootProject.name = "Календарь РФ"
