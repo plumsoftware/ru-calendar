@@ -156,6 +156,7 @@
             android:textSize="13sp" />
         <TextView
             android:id="@+id/month_day_12"
+            android:background="@drawable/widget_month_weekend_outline"
             android:layout_width="0dp"
             android:layout_height="29dp"
             android:layout_weight="1"
@@ -166,6 +167,7 @@
             android:textSize="13sp" />
         <TextView
             android:id="@+id/month_day_13"
+            android:background="@drawable/widget_month_weekend_outline"
             android:layout_width="0dp"
             android:layout_height="29dp"
             android:layout_weight="1"
