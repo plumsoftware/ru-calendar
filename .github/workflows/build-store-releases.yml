@@ -43,7 +43,14 @@ jobs:
             exit "$LICENSE_STATUS"
           fi
 
-          "$SDKMANAGER" --install "platform-tools" "platforms;android-37"
+          "$SDKMANAGER" --install "platform-tools" "platforms;android-37.0"
+
+          # Android SDK publishes API 37 under android-37.0, while AGP 9.2
+          # resolves compileSdk = 37 using the android-37 directory name.
+          if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
+            ln -s android-37.0 "$ANDROID_HOME/platforms/android-37"
+          fi
+          test -d "$ANDROID_HOME/platforms/android-37" || { echo "Android SDK platform 37 was not installed correctly"; exit 1; }
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
