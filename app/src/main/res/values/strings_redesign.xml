@@ -92,6 +92,9 @@
     <string name="widget_weekend_label">До выходного</string>
     <string name="widget_weekend_title">До выходного</string>
     <string name="widget_weekend_description">Сколько дней до ближайшего официального праздника</string>
+    <string name="widget_month_label">Месяц</string>
+    <string name="widget_month_description">Календарная сетка текущего месяца с выходными и праздниками</string>
+    <string name="widget_month_title">Январь</string>
     <string name="widget_week_label">Эта неделя</string>
     <string name="widget_week_title">Эта неделя</string>
     <string name="widget_week_description">Дни недели с отметками и ближайшие события</string>
