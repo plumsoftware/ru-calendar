@@ -18,8 +18,8 @@ android {
         applicationId = "com.plumsoftware.rucalendar"
         minSdk = 21
         targetSdk = 37
-        versionCode = 72
-        versionName = "5.0.1"
+        versionCode = 73
+        versionName = "5.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -61,6 +61,16 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH") ?: "key_safe.jks"
+            storeFile rootProject.file(keystorePath)
+            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         debug {
             // Демо-блоки Яндекса: в debug реклама проверяется без реальных показов
@@ -75,7 +85,7 @@ android {
             minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
     }
 
