@@ -18,8 +18,8 @@ android {
         applicationId = "com.plumsoftware.rucalendar"
         minSdk = 21
         targetSdk = 37
-        versionCode = 71
-        versionName = "5.0.0"
+        versionCode = 72
+        versionName = "5.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
