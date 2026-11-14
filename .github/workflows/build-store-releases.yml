@@ -1,0 +1,54 @@
+name: Build store release packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build RuStore, Google Play and Huawei
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APKs and AABs
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon \
+            :app:assembleRustoreRelease :app:bundleRustoreRelease \
+            :app:assembleGoogleplayRelease :app:bundleGoogleplayRelease \
+            :app:assembleHuaweiRelease :app:bundleHuaweiRelease
+
+      - name: Upload release packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: ru-calendar-store-releases
+          path: |
+            app/build/outputs/apk/rustore/release/*.apk
+            app/build/outputs/bundle/rustoreRelease/*.aab
+            app/build/outputs/apk/googleplay/release/*.apk
+            app/build/outputs/bundle/googleplayRelease/*.aab
+            app/build/outputs/apk/huawei/release/*.apk
+            app/build/outputs/bundle/huaweiRelease/*.aab
+          if-no-files-found: error
+          retention-days: 14
