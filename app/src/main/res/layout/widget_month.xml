@@ -172,7 +172,7 @@
             android:gravity="center"
             android:fontFamily="@font/golos_text_semibold"
             android:text="11"
-            android:textColor="@color/ds_text_primary"
+            android:textColor="@color/ds_weekend_text"
             android:textSize="13sp" />
     </LinearLayout>
     <LinearLayout
@@ -247,7 +247,7 @@
             android:gravity="center"
             android:fontFamily="@font/golos_text_semibold"
             android:text="18"
-            android:textColor="@color/ds_text_primary"
+            android:textColor="@color/ds_weekend_text"
             android:textSize="13sp" />
     </LinearLayout>
     <LinearLayout
@@ -322,7 +322,7 @@
             android:gravity="center"
             android:fontFamily="@font/golos_text_semibold"
             android:text="25"
-            android:textColor="@color/ds_text_primary"
+            android:textColor="@color/ds_weekend_text"
             android:textSize="13sp" />
     </LinearLayout>
     <LinearLayout
