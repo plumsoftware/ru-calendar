@@ -35,9 +35,9 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew --no-daemon \
-            :app:assembleRustoreRelease :app:bundleRustoreRelease \
-            :app:assembleGoogleplayRelease :app:bundleGoogleplayRelease \
-            :app:assembleHuaweiRelease :app:bundleHuaweiRelease
+            :app:assembleRustoreRelease \
+            :app:bundleGoogleplayRelease \
+            :app:assembleHuaweiRelease
 
       - name: Upload release packages
         uses: actions/upload-artifact@v4
@@ -45,10 +45,7 @@ jobs:
           name: ru-calendar-store-releases
           path: |
             app/build/outputs/apk/rustore/release/*.apk
-            app/build/outputs/bundle/rustoreRelease/*.aab
-            app/build/outputs/apk/googleplay/release/*.apk
             app/build/outputs/bundle/googleplayRelease/*.aab
             app/build/outputs/apk/huawei/release/*.apk
-            app/build/outputs/bundle/huaweiRelease/*.aab
           if-no-files-found: error
           retention-days: 14
