@@ -152,7 +152,7 @@
             android:gravity="center"
             android:fontFamily="@font/golos_text_semibold"
             android:text="9"
-            android:textColor="@color/ds_weekend_text"
+            android:textColor="@color/ds_text_primary"
             android:textSize="13sp" />
         <TextView
             android:id="@+id/month_day_12"
@@ -229,7 +229,7 @@
             android:gravity="center"
             android:fontFamily="@font/golos_text_semibold"
             android:text="16"
-            android:textColor="@color/ds_weekend_text"
+            android:textColor="@color/ds_text_primary"
             android:textSize="13sp" />
         <TextView
             android:id="@+id/month_day_19"
@@ -304,7 +304,7 @@
             android:gravity="center"
             android:fontFamily="@font/golos_text_semibold"
             android:text="23"
-            android:textColor="@color/ds_weekend_text"
+            android:textColor="@color/ds_text_primary"
             android:textSize="13sp" />
         <TextView
             android:id="@+id/month_day_26"
@@ -379,7 +379,7 @@
             android:gravity="center"
             android:fontFamily="@font/golos_text_semibold"
             android:text="30"
-            android:textColor="@color/ds_weekend_text"
+            android:textColor="@color/ds_text_primary"
             android:textSize="13sp" />
         <TextView
             android:id="@+id/month_day_33"
