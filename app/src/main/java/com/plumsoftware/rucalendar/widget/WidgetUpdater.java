@@ -65,10 +65,11 @@ public final class WidgetUpdater {
         update(app, manager, ids(app, manager, TodayWidgetProvider.class), Kind.TODAY);
         update(app, manager, ids(app, manager, WeekendWidgetProvider.class), Kind.WEEKEND);
         update(app, manager, ids(app, manager, WeekWidgetProvider.class), Kind.WEEK);
+        update(app, manager, ids(app, manager, MonthWidgetProvider.class), Kind.MONTH);
         scheduleMidnight(app);
     }
 
-    enum Kind {TODAY, WEEKEND, WEEK}
+    enum Kind {TODAY, WEEKEND, WEEK, MONTH}
 
     static void update(Context context, AppWidgetManager manager, int[] ids, Kind kind) {
         if (ids.length == 0) return;
@@ -79,6 +80,9 @@ public final class WidgetUpdater {
                 break;
             case WEEKEND:
                 views = weekend(context);
+                break;
+            case MONTH:
+                views = month(context);
                 break;
             default:
                 views = week(context);
@@ -215,6 +219,92 @@ public final class WidgetUpdater {
         if (days == 0) return "сегодня";
         if (days == 1) return "завтра";
         return RuDates.days(days);
+    }
+
+    // endregion
+
+
+    // region «Месяц»
+
+    private static final int[] MONTH_DAY_IDS = {
+            R.id.month_day_0,
+            R.id.month_day_1,
+            R.id.month_day_2,
+            R.id.month_day_3,
+            R.id.month_day_4,
+            R.id.month_day_5,
+            R.id.month_day_6,
+            R.id.month_day_7,
+            R.id.month_day_8,
+            R.id.month_day_9,
+            R.id.month_day_10,
+            R.id.month_day_11,
+            R.id.month_day_12,
+            R.id.month_day_13,
+            R.id.month_day_14,
+            R.id.month_day_15,
+            R.id.month_day_16,
+            R.id.month_day_17,
+            R.id.month_day_18,
+            R.id.month_day_19,
+            R.id.month_day_20,
+            R.id.month_day_21,
+            R.id.month_day_22,
+            R.id.month_day_23,
+            R.id.month_day_24,
+            R.id.month_day_25,
+            R.id.month_day_26,
+            R.id.month_day_27,
+            R.id.month_day_28,
+            R.id.month_day_29,
+            R.id.month_day_30,
+            R.id.month_day_31,
+            R.id.month_day_32,
+            R.id.month_day_33,
+            R.id.month_day_34,
+            R.id.month_day_35,
+            R.id.month_day_36,
+            R.id.month_day_37,
+            R.id.month_day_38,
+            R.id.month_day_39,
+            R.id.month_day_40,
+            R.id.month_day_41
+    };
+
+    /** Полноценная сетка месяца в RemoteViews: неделя начинается с понедельника. */
+    private static RemoteViews month(Context context) {
+        LocalDate today = LocalDate.now();
+        YearMonth currentMonth = YearMonth.from(today);
+        MonthModel model = new CalendarRepository(context).month(currentMonth);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_month);
+        views.setTextViewText(R.id.month_title, RuDates.monthName(currentMonth.getMonthValue()));
+        int lead = currentMonth.atDay(1).getDayOfWeek().getValue() - 1;
+        int primary = ContextCompat.getColor(context, R.color.ds_text_primary);
+        int weekend = ContextCompat.getColor(context, R.color.ds_weekend_text);
+        for (int i = 0; i < MONTH_DAY_IDS.length; i++) {
+            int day = i - lead + 1;
+            int id = MONTH_DAY_IDS[i];
+            if (day < 1 || day > currentMonth.lengthOfMonth()) {
+                views.setTextViewText(id, "");
+                views.setViewVisibility(id, View.INVISIBLE);
+                continue;
+            }
+            views.setViewVisibility(id, View.VISIBLE);
+            MonthModel.Day info = model.days[day - 1];
+            views.setTextViewText(id, String.valueOf(day));
+            if (info.officialHoliday) {
+                views.setTextColor(id, ContextCompat.getColor(context, R.color.ds_on_holiday_plate));
+                views.setInt(id, "setBackgroundResource", R.drawable.widget_month_holiday_bg);
+            } else {
+                views.setTextColor(id, info.dayOff ? weekend : primary);
+                views.setInt(id, "setBackgroundResource",
+                        info.date.equals(today) ? R.drawable.widget_today_ring : 0);
+            }
+            views.setOnClickPendingIntent(id, open(context, monthUri(info.date), 4000 + day));
+            views.setContentDescription(id, info.accessibilityText);
+        }
+        views.setOnClickPendingIntent(R.id.widget_month_root, open(context, monthUri(today), 4100));
+        return views;
     }
 
     // endregion
